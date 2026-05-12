@@ -1,7 +1,7 @@
 // ===============================
 // URL GOOGLE APPS SCRIPT
 // ===============================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqrEoMchF4gjHCi_tsKOnYFQUYzBFRtTi_CHsQwyiHPP7iHTYzVCgNN_EeqBk7BTzz/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhXIA0wljgCbpYQvQexzefogzpk0uQMznoUjcNH-Ts_PRESSbRR0tlCULL0ewCZtCozw/exec";
 
 // ===============================
 // ABRIR INVITACIÓN
@@ -267,3 +267,19 @@ window.actualizarNombreSobre = function(data) {
             "inline-block";
     }
 };
+
+function showInvite(data) {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('contenido').style.display = 'block';
+    
+    // Limpiar el nombre para que se vea elegante (Mayúsculas/Minúsculas)
+    const nombreLimpio = data.familia.replace(/_/g, ' ');
+    const nombreFormateado = nombreLimpio
+        .split(' ')
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ');
+
+    document.getElementById('tituloFamilia').innerText = "Bienvenidos, " + nombreFormateado;
+    
+    // ... resto de tu código de integrantes
+}
