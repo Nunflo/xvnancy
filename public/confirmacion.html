@@ -82,7 +82,7 @@
 
     // 1. PEGA AQUÍ TU ÚLTIMO LINK /EXEC DE GOOGLE
 
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxhXIA0wljgCbpYQvQexzefogzpk0uQMznoUjcNH-Ts_PRESSbRR0tlCULL0ewCZtCozw/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbx2sYZpDPuTxkQuZyTSnfEdss2OT-RMCyMbIG5pTp3oTTCiL5WBny8ThwF5bZwnhakzBw/exec";
 
     let datosGlobal = null;
 
@@ -123,11 +123,9 @@
         const id = urlParams.get('id');
 
         if (!id) return showError("Falta el ID en la invitación.");
-
-
-
+ 
+       // Dentro de window.onload
         llamarGoogle(`${scriptURL}?id=${encodeURIComponent(id.toUpperCase())}&callback=recibirDatos`);
-
     };
 
 
