@@ -510,7 +510,7 @@ p, span, div {
     width: 100%; height: 100%;
     background: url('../img/principal.png') center/cover no-repeat;
     z-index: -2;
-    filter: blur(2px) brightness(0.8); 
+    filter: blur(2px) brightness(0.6); 
     transform: scale(1.05); 
     will-change: filter;
 }
@@ -556,11 +556,8 @@ p, span, div {
     background: transparent; 
     box-shadow: none; 
     border: none; 
-    padding-top: 50vh; 
+    padding-top: 40px; 
     padding-bottom: 20px; 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 } 
 
 .hero-name { 
@@ -1326,5 +1323,37 @@ footer p {
     height: 1px;
     background: linear-gradient(to right, transparent, #d4af37, transparent); /* Degradado dorado */
     margin: 20px auto;
+}
+
+:root {
+    --color-primary: #c5a059; /* El tono oro que estás usando */
+    --padding-mobile: 20px;
+    --padding-desktop: 50px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow-x: hidden; /* Evita el scroll horizontal molesto */
+}
+
+.main-wrapper {
+    width: 100%;
+    max-width: 1200px; /* Ancho máximo para monitores grandes */
+    margin: 0 auto;
+    padding: var(--padding-mobile);
+}
+
+.section-card {
+    width: 100%;
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 15px;
+    /* Sombras suaves para que resalten en cualquier pantalla */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
