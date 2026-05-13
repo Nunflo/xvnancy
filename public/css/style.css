@@ -461,7 +461,7 @@ body {
    RESPONSIVE
 ========================================= */
 
-@media(max-width:480px){
+@media(max-width:680px){
 
     .sobre-visual{
 
@@ -544,7 +544,7 @@ p, span, div {
     border: 1.5px solid var(--color-accent); 
 }
 
-@media (max-width: 480px) {
+@media (max-width: 680px) {
     .section-card { padding: 40px 20px; }
     .main-wrapper { padding: 10px; }
 }
@@ -556,7 +556,7 @@ p, span, div {
     background: transparent; 
     box-shadow: none; 
     border: none; 
-    padding-top: 40px; 
+    padding-top: 50vh; 
     padding-bottom: 20px; 
 } 
 
@@ -1239,10 +1239,15 @@ footer p {
 }
 
 /* Ajuste móvil */
-@media (max-width: 400px) {
+@media (max-width: 680px) {
     .footer-grid {
         grid-template-columns: 1fr; /* Se apila en pantallas muy pequeñas */
         gap: 10px;
+    }
+    .fixed-bg {
+        /* En móviles es mejor que el fondo se mueva con el scroll para evitar saltos */
+        position: absolute;
+        height: 120vh; /* Un poco más alto para cubrir el rebote del scroll */
     }
 }
 
@@ -1323,37 +1328,5 @@ footer p {
     height: 1px;
     background: linear-gradient(to right, transparent, #d4af37, transparent); /* Degradado dorado */
     margin: 20px auto;
-}
-
-:root {
-    --color-primary: #c5a059; /* El tono oro que estás usando */
-    --padding-mobile: 20px;
-    --padding-desktop: 50px;
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    overflow-x: hidden; /* Evita el scroll horizontal molesto */
-}
-
-.main-wrapper {
-    width: 100%;
-    max-width: 1200px; /* Ancho máximo para monitores grandes */
-    margin: 0 auto;
-    padding: var(--padding-mobile);
-}
-
-.section-card {
-    width: 100%;
-    margin-bottom: 30px;
-    padding: 20px;
-    border-radius: 15px;
-    /* Sombras suaves para que resalten en cualquier pantalla */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
