@@ -544,16 +544,11 @@ p, span, div {
     border: 1.5px solid var(--color-accent); 
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .section-card { padding: 40px 20px; }
     .main-wrapper { padding: 10px; }
-    
 }
-.fixed-bg {
-        /* En móviles es mejor que el fondo se mueva con el scroll para evitar saltos */
-        position: absolute;
-        height: 120vh; /* Un poco más alto para cubrir el rebote del scroll */
-    }
+
 /* =========================================
    HERO / PORTADA
    ========================================= */
@@ -561,7 +556,7 @@ p, span, div {
     background: transparent; 
     box-shadow: none; 
     border: none; 
-    padding-top: 45vh; 
+    padding-top: 50vh; 
     padding-bottom: 20px; 
     display: flex;
     flex-direction: column;
