@@ -108,12 +108,16 @@ body {
 
     position: relative;
 
-    width: 420px;
-    height: 290px;
+    width: 90vw;
+    max-width: 420px;
+    height: 280px;
 
     perspective: 1200px;
 }
 
+.name-sobre {
+    font-size: clamp(2.5rem, 10vw, 4.3rem); 
+}
 
 /* =========================================
    CARTA INTERIOR
@@ -519,7 +523,8 @@ p, span, div {
    CONTENEDOR GLOBAL
    ========================================= */
 .main-wrapper {
-    max-width: 680px; 
+    width: 95%;
+    max-width: 600px; 
     margin: 0 auto;   
     padding: 20px;    
     display: flex;
@@ -532,20 +537,34 @@ p, span, div {
    EFECTO GLASSMORPHISM (TARJETAS)
    ========================================= */
 .section-card {
-    width: 100%;      
+    width: 100%;  
+    box-sizing: border-box;    
     background: rgba(255, 255, 255, 0.45);
     backdrop-filter: blur(1px);
     -webkit-backdrop-filter: blur(2px);
-    margin-bottom: 25px; 
+    margin-bottom: 30px; 
     border-radius: 20px;
-    padding: 60px 40px; 
+    padding: 40px 20px; 
     box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
     text-align: center; 
     border: 1.5px solid var(--color-accent); 
 }
 
+@media (max-width: 480px) {
+    .section-card {
+        padding: 30px 15px; /* Más espacio para el texto en celulares pequeños */
+    }
+}
+section-card img {
+    max-width: 100% !important; /* No permite que sea más ancha que la card */
+    height: auto !important;     /* Mantiene la proporción para que no se vea estirada */
+    display: block;
+    margin: 0 auto 15px auto;    /* La centra y le da espacio abajo */
+    border-radius: 10px;         /* Opcional: para que combine con tus bordes redondeados */
+}
+
 @media (max-width: 680px) {
-    .section-card { padding: 40px 20px; }
+    .section-card { padding: 10px 10px; }
     .main-wrapper { padding: 10px; }
 }
 
@@ -581,7 +600,7 @@ p, span, div {
 /* =========================================
    CONTADOR
    ========================================= */
-.contador-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 40px; max-width: 450px; margin-left: auto; margin-right: auto; }
+.contador-grid { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; gap: 8px; margin-top: 40px; max-width: 400px; margin-left: auto; margin-right: auto; }
 .contador-item { 
     background: rgba(90, 13, 21, 0.6); /* Fondo vino transparente */
     padding: 15px 5px; 
@@ -729,7 +748,7 @@ p, span, div {
 }
 
 .liverpool-img {
-    width: 100%;
+    width: 70%;
     height: auto;
     display: block;
     object-fit: cover; /* Mantiene la proporción de la imagen */
@@ -1246,7 +1265,7 @@ footer p {
     }
     .fixed-bg {
         /* En móviles es mejor que el fondo se mueva con el scroll para evitar saltos */
-        position: absolute;
+
         height: 120vh; /* Un poco más alto para cubrir el rebote del scroll */
     }
 }
@@ -1330,3 +1349,8 @@ footer p {
     margin: 20px auto;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+    
+}
