@@ -510,7 +510,7 @@ p, span, div {
     width: 100%; height: 100%;
     background: url('../img/principal.png') center/cover no-repeat;
     z-index: -2;
-    filter: blur(2px) brightness(0.6); 
+    filter: blur(2px) brightness(0.8); 
     transform: scale(1.05); 
     will-change: filter;
 }
@@ -544,11 +544,16 @@ p, span, div {
     border: 1.5px solid var(--color-accent); 
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
     .section-card { padding: 40px 20px; }
     .main-wrapper { padding: 10px; }
+    
 }
-
+.fixed-bg {
+        /* En móviles es mejor que el fondo se mueva con el scroll para evitar saltos */
+        position: absolute;
+        height: 120vh; /* Un poco más alto para cubrir el rebote del scroll */
+    }
 /* =========================================
    HERO / PORTADA
    ========================================= */
@@ -556,8 +561,11 @@ p, span, div {
     background: transparent; 
     box-shadow: none; 
     border: none; 
-    padding-top: 40px; 
+    padding-top: 45vh; 
     padding-bottom: 20px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 } 
 
 .hero-name { 
@@ -1325,39 +1333,3 @@ footer p {
     margin: 20px auto;
 }
 
-.hero-section {
-    position: relative;
-    width: 100%;
-    /* 1. Ajuste de altura mínima para dar aire al rostro */
-    min-height: 110vh; 
-    
-    /* 2. Configuración de la imagen de fondo */
-    background-image: url('../img/principal.png'); /* Verifica tu ruta */
-    background-size: cover;
-    background-position: center top; /* Importante: fija la imagen arriba para que el rostro no suba */
-    background-repeat: no-repeat;
-    
-    /* 3. Padding superior para empujar el texto hacia abajo */
-    /* Ajusta este valor (vh = viewport height) según necesites bajar más el nombre */
-    padding-top: 55vh; 
-    
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
-}
-
-/* Ajuste para que el contador y el nombre no se vean amontonados */
-.hero-section h1, 
-.hero-section .fecha, 
-.hero-section .contador {
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Sombra para que resalten sobre el vestido */
-}
-
-@media (max-width: 480px) {
-    .hero-section {
-        padding-top: 45vh; /* Un poco menos de espacio en celular */
-        background-position: 70% top; /* Si Nancy está un poco a la derecha, ajusta el % */
-    }
-}
