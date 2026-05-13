@@ -1,7 +1,7 @@
 // ===============================
 // URL GOOGLE APPS SCRIPT
 // ===============================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbza_eUt32I_EQIpUJfRGigpXw-Y-0HbmfkXrB0cZPsBP7OnyKS_RnFjnWijdoSxtdoQrQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRG-PZcIguh1GzFCdPcdJiv8jSZuIl0be2PbcvkbzFxFP2uXbw5CeONfgH9XMPey0sbQ/exec";
 
 // ===============================
 // ABRIR INVITACIÓN
@@ -283,3 +283,30 @@ function showInvite(data) {
     
     // ... resto de tu código de integrantes
 }
+
+// Busca tu botón de confirmar en el HTML principal
+// Espera a que toda la página cargue
+document.addEventListener('DOMContentLoaded', () => {
+    const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
+
+    if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', function(e) {
+            e.preventDefault(); // Detiene cualquier acción por defecto
+            
+            // 1. Obtiene el ID de la URL donde estás parado ahora
+            const urlActual = new URL(window.location.href);
+            const idInvitado = urlActual.searchParams.get('id');
+
+            console.log("ID capturado:", idInvitado); // Esto se verá en la consola (F12)
+
+            if (idInvitado) {
+                // 2. Redirige con el ID pegado
+                window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
+            } else {
+                alert("Error: No se encontró el nombre del invitado en el enlace. Por favor, abre la invitación desde el mensaje de WhatsApp.");
+            }
+        });
+    } else {
+        console.error("No se encontró el botón con ID: btn-confirmar-asistencia");
+    }
+});
