@@ -1431,3 +1431,78 @@ body {
         grid-template-columns: 1fr 1fr; /* Dos columnas para que no sea una lista infinita en PC */
     }
 }
+
+.hero-section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh; /* Ocupa todo el alto de la pantalla */
+    background-image: url('../img/principal.png');
+    background-size: cover;      /* La imagen siempre cubre el área */
+    background-position: center; /* Se centra siempre */
+    background-repeat: no-repeat;
+    background-attachment: scroll; /* Cambia a 'fixed' solo si quieres efecto parallax, pero 'scroll' es más estable en móviles */
+    overflow: hidden;
+}
+
+/* Ajuste para móviles: a veces la imagen es muy horizontal y el celular muy vertical */
+@media (max-width: 768px) {
+    .hero-section {
+        background-position: 70% center; /* Ajusta este % para que la cara de la quinceañera no se corte */
+        min-height: 80vh; 
+    }
+}
+
+.confirmacion-container {
+    width: 100%;
+    max-width: 100%; /* Prohibido salirse del padre */
+    display: flex;
+    flex-wrap: wrap; /* Si no caben, se bajan solos */
+    justify-content: center;
+    gap: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.confirmacion-item {
+    flex: 1 1 300px; /* Crece, se encoge, pero intenta medir 300px */
+    max-width: 100%; /* Nunca más ancho que la pantalla del celular */
+}
+
+.itinerario-box {
+    width: 100%;
+    padding: 0 15px;
+    margin: 0 auto;
+}
+
+.itinerario-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    width: 100%; /* Asegura que no se pase */
+}
+
+.punto-itinerario {
+    flex-shrink: 0; /* Evita que el punto se aplaste en móviles */
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+}
+
+.texto-itinerario {
+    flex-grow: 1;
+    word-wrap: break-word; /* Rompe palabras largas si es necesario */
+}
+
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden; /* Regla de oro: prohibido el scroll lateral */
+}
+
+* {
+    box-sizing: border-box; /* Fundamental para que el padding no sume ancho extra */
+}
+
+img, iframe, video {
+    max-width: 100%;
+    height: auto;
+}
