@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (idInvitado) {
                 // 2. Redirige con el ID pegado
-                window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
+                window.location.href = `confirmacion?id=${encodeURIComponent(idInvitado)}`;
             } else {
                 alert("Error: No se encontró el nombre del invitado en el enlace. Por favor, abre la invitación desde el mensaje de WhatsApp.");
             }
