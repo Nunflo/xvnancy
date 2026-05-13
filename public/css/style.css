@@ -1325,3 +1325,109 @@ footer p {
     margin: 20px auto;
 }
 
+:root {
+    --color-primary: #c5a059; /* El tono oro que estás usando */
+    --padding-mobile: 20px;
+    --padding-desktop: 50px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow-x: hidden; /* Evita el scroll horizontal molesto */
+}
+
+.main-wrapper {
+    width: 100%;
+    max-width: 1200px; /* Ancho máximo para monitores grandes */
+    margin: 0 auto;
+    padding: var(--padding-mobile);
+}
+
+.section-card {
+    width: 100%;
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 15px;
+    /* Sombras suaves para que resalten en cualquier pantalla */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.hero {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-name {
+    font-size: clamp(2.5rem, 8vw, 5rem); /* Tamaño fluido: mínimo 2.5rem, máximo 5rem */
+}
+
+.contador-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columnas en PC */
+    gap: 15px;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* --- Media Query para Celulares --- */
+@media (max-width: 480px) {
+    .contador-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2x2 en celulares pequeños */
+    }
+}
+
+.img-mapa {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.map-block {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+/* En tablets y laptops, los mapas pueden ir de lado a lado */
+@media (min-width: 768px) {
+    .map-container-flex { /* Tendrías que envolver tus map-blocks en un div con esta clase */
+        display: flex;
+        gap: 30px;
+    }
+    .map-block {
+        flex: 1;
+    }
+}
+
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px;
+}
+
+.timeline-item {
+    font-size: 1.1rem;
+    padding: 15px;
+    border-left: 3px solid var(--color-primary);
+    background: rgba(197, 160, 89, 0.05);
+}
+
+@media (min-width: 1024px) {
+    .timeline {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Dos columnas para que no sea una lista infinita en PC */
+    }
+}
