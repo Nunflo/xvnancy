@@ -1493,16 +1493,3 @@ body {
     word-wrap: break-word; /* Rompe palabras largas si es necesario */
 }
 
-html, body {
-    max-width: 100vw;
-    overflow-x: hidden; /* Regla de oro: prohibido el scroll lateral */
-}
-
-* {
-    box-sizing: border-box; /* Fundamental para que el padding no sume ancho extra */
-}
-
-img, iframe, video {
-    max-width: 100%;
-    height: auto;
-}
