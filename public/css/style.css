@@ -1354,3 +1354,10 @@ img {
     height: auto;
     
 }
+
+@media print {
+    body { background: white; }
+    .card { box-shadow: none; border: none; width: 100%; max-width: none; }
+    .btn-enviar, h2, #listaIntegrantes, select, .familiar-row { display: none !important; }
+    #qr-container { display: flex !important; }
+}

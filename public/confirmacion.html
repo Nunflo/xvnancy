@@ -10,6 +10,8 @@
 
     <title>Confirmación de Asistencia</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
     <style>
 
         :root { --oro: #c5a059; --fondo: #f9f7f2; }
@@ -60,6 +62,11 @@
 
         <div id="success" class="success-msg">¡Gracias! Tu respuesta ha sido guardada.</div>
 
+
+        <!-- NUEVO: Contenedor para los QRs -->
+        <div id="qr-container" style="margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;"></div>
+        <button id="btnImprimir" style="display:none; margin: 20px auto;" onclick="window.print()">Guardar Pases (PDF)</button>
+
     </div>
 
 
@@ -87,33 +94,70 @@
     let datosGlobal = null;
 
 
-
     // Función global para recibir la respuesta
+window.recibirDatos = function(data) {
+    console.log("Respuesta de Google:", data);
+    
+    if (data.error) {
+        showError("Invitación no encontrada. Revisa el código.");
+    } else if (data.estatus === "ok") {
+        // 1. Manejo de interfaz tras éxito
+        document.getElementById('enviando').style.display = 'none';
+        document.getElementById('success').style.display = 'block';
+        
+        // 2. Lógica para generar los QR dinámicos
+        const qrContainer = document.getElementById('qr-container');
+        qrContainer.innerHTML = ""; // Limpiar por si acaso
+        
+        let asistentesConfirmados = 0;
 
-    window.recibirDatos = function(data) {
+        // Recorremos los integrantes que guardamos en datosGlobal
+        datosGlobal.integrantes.forEach((nom, i) => {
+            const status = document.getElementById(`status-${i}`).value;
+            
+            // Solo generamos QR para los que marcaron "Asistirá"
+            if (status === "Asistirá") {
+                asistentesConfirmados++;
+                
+                // Crear el contenedor individual del pase
+                const qrDiv = document.createElement('div');
+                qrDiv.style.textAlign = "center";
+                qrDiv.style.padding = "10px";
+                qrDiv.style.border = "1px solid #c5a059";
+                qrDiv.style.borderRadius = "10px";
+                qrDiv.style.background = "#fff";
+                
+                // Texto descriptivo arriba del QR
+                qrDiv.innerHTML = `<p style="font-size:12px; margin:0 0 8px 0; color:#444;">
+                                    <strong>PASE ${asistentesConfirmados}</strong><br>${nom.trim()}
+                                   </p>`;
+                
+                // Div donde se dibujará el QR
+                const qrCanvas = document.createElement('div');
+                qrDiv.appendChild(qrCanvas);
+                qrContainer.appendChild(qrDiv);
 
-        console.log("Respuesta de Google:", data);
+                // Generar el código QR usando la librería qrcode.min.js
+                new QRCode(qrCanvas, {
+                    text: `EVENTO:XV-NANCY|ID:${data.id || 'INV'}|GUEST:${nom.trim()}`,
+                    width: 128,
+                    height: 128,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+        });
 
-        if (data.error) {
-
-            showError("Invitación no encontrada. Revisa el código.");
-
-        } else if (data.estatus === "ok") {
-
-            document.getElementById('enviando').style.display = 'none';
-
-            document.getElementById('success').style.display = 'block';
-
-        } else {
-
-            datosGlobal = data;
-
-            showInvite(data);
-
+        // Si hubo al menos un asistente, mostramos el botón de impresión/guardado
+        if (asistentesConfirmados > 0) {
+            document.getElementById('btnImprimir').style.display = 'block';
         }
-
-    };
-
+    } else {
+        datosGlobal = data;
+        showInvite(data);
+    }
+};
 
 
     window.onload = function() {
