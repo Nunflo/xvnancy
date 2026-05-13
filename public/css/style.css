@@ -1266,7 +1266,7 @@ footer p {
     .fixed-bg {
         /* En móviles es mejor que el fondo se mueva con el scroll para evitar saltos */
 
-        height: 120vh; /* Un poco más alto para cubrir el rebote del scroll */
+        height: 100vh; /* Un poco más alto para cubrir el rebote del scroll */
     }
 }
 
