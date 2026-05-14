@@ -24,25 +24,25 @@
 
     <script>
         const statusDiv = document.getElementById('status');
-        // USAMOS TU URL ACTUALIZADA
-        const scriptURL = "https://script.google.com/macros/s/AKfycbwbusCkdG9ksX76yyLMv5TiiXhy1RFmtKUqGmBJXFIZww2sIEkZGQRKr98-Ul3wzqbUCw/exec";
+        
+        // LINK ACTUALIZADO CON TU NUEVA IMPLEMENTACIÓN
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyi7m_8Ssed3HXGxcrsD-Vd0Yv1a8R3jDXS7SI3SjIblurxc7rRL1Yzhh_kT3Jq7hs6NQ/exec";
 
         function onScanSuccess(decodedText) {
             html5QrcodeScanner.clear();
             
             let idInvitado;
             try {
-                // Si el QR es una URL (https://...id=JUAN), extrae solo el ID
+                // Extrae el ID si el QR viene como URL completa, si no, toma el texto
                 const url = new URL(decodedText);
                 idInvitado = url.searchParams.get("id") || decodedText;
             } catch (e) {
-                // Si el QR es solo texto, úsalo tal cual
                 idInvitado = decodedText;
             }
 
-            mostrarMensaje("Consultando lista en Google Sheets...", "consultando");
+            mostrarMensaje("Consultando lista en tiempo real...", "consultando");
 
-            // TECNICA JSONP PARA EVITAR ERROR DE CONEXIÓN (CORS)
+            // Técnica JSONP para evitar bloqueos de seguridad (CORS)
             const finalURL = `${scriptURL}?id=${encodeURIComponent(idInvitado)}&callback=recibirRespuesta`;
             
             const script = document.createElement('script');
@@ -51,12 +51,14 @@
             document.body.appendChild(script);
         }
 
-        // Esta función recibe los datos de Google sin bloqueos
+        // Función que procesa la respuesta del Excel
         window.recibirRespuesta = function(data) {
             if (data.familia) {
                 mostrarMensaje("✅ ACCESO PERMITIDO:<br>" + data.familia, "exito");
+            } else if (data.error) {
+                mostrarMensaje("❌ " + data.error, "error");
             } else {
-                mostrarMensaje("❌ INVITADO NO ENCONTRADO EN LA LISTA", "error");
+                mostrarMensaje("❌ INVITADO NO ENCONTRADO", "error");
             }
         };
 
