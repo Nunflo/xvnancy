@@ -1361,3 +1361,238 @@ img {
     .btn-enviar, h2, #listaIntegrantes, select, .familiar-row { display: none !important; }
     #qr-container { display: flex !important; }
 }
+
+:root { 
+    --oro: #c5a059; 
+    --fondo: #f9f7f2; 
+}
+
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: var(--fondo); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    margin: 0; 
+    padding: 20px; 
+}
+
+.card { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+    width: 100%; 
+    max-width: 450px; 
+    text-align: center; 
+    border: 1px solid #eee; 
+}
+
+h2 { 
+    color: var(--oro); 
+    margin-bottom: 15px; 
+    font-weight: 300; 
+}
+
+.familiar-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 12px 0; 
+    border-bottom: 1px dashed #ddd; 
+}
+
+.nombre { 
+    font-size: 1rem; 
+    color: #444; 
+    text-align: left; 
+}
+
+.btn-enviar { 
+    background: var(--oro); 
+    color: white; 
+    border: none; 
+    width: 100%; 
+    padding: 15px; 
+    border-radius: 10px; 
+    font-size: 1rem; 
+    cursor: pointer; 
+    margin-top: 20px; 
+}
+
+.btn-modificar { 
+    background: none; 
+    border: 1px solid var(--oro); 
+    color: var(--oro); 
+    padding: 10px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    margin-top: 15px; 
+    width: 100%; 
+}
+
+.status-badge { 
+    background: #e8f5e9; 
+    color: #2e7d32; 
+    padding: 10px; 
+    border-radius: 10px; 
+    margin-bottom: 20px; 
+    font-weight: bold; 
+    display: none; 
+}
+
+#qr-container { 
+    margin-top: 20px; 
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    gap: 10px; 
+}
+
+.pase-qr { 
+    padding: 10px; 
+    border: 1px solid #eee; 
+    border-radius: 10px; 
+    background: #fff; 
+    font-size: 11px; 
+}
+
+#loader { 
+    font-style: italic; 
+    color: #888; 
+}
+
+:root {
+    --oro: #c5a059;
+    --oro-oscuro: #a38243;
+    --crema: #f9f7f2;
+    --blanco: #ffffff;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--crema);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    position: relative;
+    text-align: center;
+}
+
+.envelope-wrapper {
+    position: relative;
+    width: 300px;
+    height: 200px;
+    background-color: var(--oro);
+    cursor: pointer;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.envelope-wrapper:hover {
+    transform: scale(1.02);
+}
+
+.envelope {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Solapa del sobre */
+.flap {
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 0;
+    border-left: 150px solid transparent;
+    border-right: 150px solid transparent;
+    border-top: 110px solid var(--oro-oscuro);
+    transform-origin: top;
+    transition: transform 0.6s ease;
+    z-index: 3;
+}
+
+/* Bolsillo del sobre */
+.pocket {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--oro);
+    border-left: 150px solid transparent;
+    border-right: 150px solid transparent;
+    border-bottom: 100px solid var(--oro);
+    z-index: 2;
+    box-sizing: border-box;
+}
+
+/* La carta interna */
+.letter {
+    position: absolute;
+    bottom: 10px;
+    left: 10%;
+    width: 80%;
+    height: 85%;
+    background: var(--blanco);
+    padding: 20px;
+    box-sizing: border-box;
+    transition: transform 0.6s ease;
+    z-index: 1;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.letter-content {
+    border: 1px solid var(--oro);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.letter-header { font-size: 2rem; color: var(--oro); font-weight: bold; }
+.letter-name { font-size: 1.2rem; margin-bottom: 10px; color: #444; }
+.letter-content p { font-size: 0.8rem; color: #777; margin: 0; }
+
+.btn-abrir-inv {
+    margin-top: 15px;
+    background: var(--oro);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.7rem;
+}
+
+/* Animación de apertura */
+.envelope-wrapper.open .flap {
+    transform: rotateX(180deg);
+    z-index: 0;
+}
+
+.envelope-wrapper.open .letter {
+    transform: translateY(-100px);
+    z-index: 2;
+}
+
+.instruccion {
+    margin-top: 30px;
+    color: var(--oro);
+    font-style: italic;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
