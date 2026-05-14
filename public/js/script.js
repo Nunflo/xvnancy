@@ -43,7 +43,6 @@ function abrirInvitacion() {
         setTimeout(() => {
             pantallaSobre.style.display = "none";
             
-            // Hacer visible el contenido después de que el sobre se mueva
             if (contenido) {
                 contenido.classList.add('visible');
                 contenido.style.display = 'block';
@@ -67,18 +66,86 @@ function abrirInvitacion() {
     }
 }
 
+// ==========================================
+// EFECTO DE PÉTALOS MEJORADO (FLUJO CONTINUO)
+// ==========================================
+function iniciarPetalos() {
+    const contenedor = document.createElement('div');
+    contenedor.id = 'sakura-container';
+    Object.assign(contenedor.style, {
+        position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+        pointerEvents: 'none', zIndex: '9999', overflow: 'hidden'
+    });
+    document.body.appendChild(contenedor);
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .petalo {
+            position: absolute;
+            background-color: #ffb7c5;
+            border-radius: 150% 0 150% 0;
+            opacity: 0;
+            transform-origin: center;
+            /* Usamos 'forwards' para que mantengan su estado invisible al final */
+            animation: caer-fluido linear forwards;
+        }
+        @keyframes caer-fluido {
+            0% { 
+                top: -10%; 
+                transform: translateX(0) rotate(0deg) scale(0.7); 
+                opacity: 0; 
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { 
+                top: 105%; 
+                transform: translateX(120px) rotate(360deg) scale(1); 
+                opacity: 0; 
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    const crearPetalo = () => {
+        const p = document.createElement('div');
+        p.className = 'petalo';
+        
+        const size = Math.random() * 8 + 10; 
+        const duration = Math.random() * 5 + 6; // Movimiento suave entre 6 y 11 segundos
+
+        Object.assign(p.style, {
+            width: `${size}px`,
+            height: `${size}px`,
+            left: `${Math.random() * 100}vw`,
+            animationDuration: `${duration}s`,
+            filter: `hue-rotate(${Math.random() * 25}deg)`
+        });
+
+        contenedor.appendChild(p);
+
+        // Eliminación automática para no saturar el navegador
+        setTimeout(() => {
+            if (p.parentNode) p.remove();
+        }, duration * 1000);
+    };
+
+    // Ráfaga inicial para que no empiece vacío
+    for(let i = 0; i < 15; i++) {
+        setTimeout(crearPetalo, Math.random() * 4000);
+    }
+    
+    // Generación constante cada medio segundo
+    setInterval(crearPetalo, 500);
+}
+
 // ===============================
 // CUENTA REGRESIVA
 // ===============================
-const fechaEvento =
-    new Date("Aug 15, 2026 18:00:00").getTime();
+const fechaEvento = new Date("Aug 15, 2026 18:00:00").getTime();
 
 setInterval(() => {
-
     const ahora = new Date().getTime();
-
     const distancia = fechaEvento - ahora;
-
     if (distancia < 0) return;
 
     const dias = document.getElementById("dias");
@@ -86,227 +153,90 @@ setInterval(() => {
     const minutos = document.getElementById("minutos");
     const segundos = document.getElementById("segundos");
 
-    if (dias) {
-        dias.innerText = Math.floor(
-            distancia / (1000 * 60 * 60 * 24)
-        );
-    }
-
-    if (horas) {
-        horas.innerText = Math.floor(
-            (distancia % (1000 * 60 * 60 * 24)) /
-            (1000 * 60 * 60)
-        );
-    }
-
-    if (minutos) {
-        minutos.innerText = Math.floor(
-            (distancia % (1000 * 60 * 60)) /
-            (1000 * 60)
-        );
-    }
-
-    if (segundos) {
-        segundos.innerText = Math.floor(
-            (distancia % (1000 * 60)) / 1000
-        );
-    }
-
+    if (dias) dias.innerText = Math.floor(distancia / (1000 * 60 * 60 * 24));
+    if (horas) horas.innerText = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    if (minutos) minutos.innerText = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+    if (segundos) segundos.innerText = Math.floor((distancia % (1000 * 60)) / 1000);
 }, 1000);
-
 
 // ===============================
 // SLIDER DE FOTOS
 // ===============================
 let sliderIndex = 0;
-
 setInterval(() => {
-
     const slider = document.getElementById('slider');
-
     if (!slider) return;
-
-    // Detecta automáticamente cuántas fotos hay
     const totalFotos = slider.children.length;
-
     if (totalFotos === 0) return;
-
     sliderIndex = (sliderIndex + 1) % totalFotos;
-
-    slider.style.transform =
-        `translateX(-${sliderIndex * 100}%)`;
-
+    slider.style.transform = `translateX(-${sliderIndex * 100}%)`;
 }, 3000);
-
 
 // ===============================
 // PERSONALIZACIÓN Y CARGA INVITADO
 // ===============================
 document.addEventListener('DOMContentLoaded', () => {
-
-    const params =
-        new URLSearchParams(window.location.search);
-
+    const params = new URLSearchParams(window.location.search);
     const nombreURL = params.get('n');
     const idInvitado = params.get('id');
+    const saludoH3 = document.getElementById('saludo-personalizado');
+    const nombreSobre = document.getElementById('nombre-invitado-sobre');
+    const btnAbrir = document.getElementById('btn-abrir') || document.getElementById('btn-abrir-sobre');
 
-    const saludoH3 =
-        document.getElementById('saludo-personalizado');
-
-    const nombreSobre =
-        document.getElementById('nombre-invitado-sobre');
-
-    const nombreInvitado =
-        document.getElementById('nombre-invitado');
-
-    const btnAbrir =
-        document.getElementById('btn-abrir') ||
-        document.getElementById('btn-abrir-sobre');
-
-
-
-    // ==========================
-    // NOMBRE DESDE URL (?n=)
-    // ==========================
     if (nombreURL) {
-
-        const nombreLimpio =
-            nombreURL.replace(/_/g, ' ');
-
-        // Formato:
-        // "juan perez" -> "Juan Perez"
-        const nombreFormateado =
-            nombreLimpio
-                .split(' ')
-                .map(w =>
-                    w.charAt(0).toUpperCase() +
-                    w.slice(1).toLowerCase()
-                )
-                .join(' ');
-
-        if (saludoH3) {
-            saludoH3.innerText =
-                `¡Hola ${nombreFormateado}!`;
-        }
+        const nombreLimpio = nombreURL.replace(/_/g, ' ');
+        const nombreFormateado = nombreLimpio.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        if (saludoH3) saludoH3.innerText = `¡Hola ${nombreFormateado}!`;
     }
 
-
-
-    // ==========================
-    // CONSULTA GOOGLE SHEETS
-    // ==========================
     if (idInvitado) {
-
-        // JSONP para evitar errores CORS
         const script = document.createElement('script');
-
-        script.src =
-            `${SCRIPT_URL}?id=${encodeURIComponent(
-                idInvitado.toUpperCase()
-            )}&callback=actualizarNombreSobre`;
-
+        script.src = `${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&callback=actualizarNombreSobre`;
         document.body.appendChild(script);
-
     } else {
-
-        if (nombreSobre) {
-            nombreSobre.innerText =
-                "¡Te esperamos!";
-        }
-
-        if (btnAbrir) {
-            btnAbrir.style.display =
-                "inline-block";
-        }
+        if (nombreSobre) nombreSobre.innerText = "¡Te esperamos!";
+        if (btnAbrir) btnAbrir.style.display = "inline-block";
     }
 });
-
 
 // ===============================
 // CALLBACK GLOBAL JSONP
 // ===============================
 window.actualizarNombreSobre = function(data) {
-
-    const elementoNombre =
-        document.getElementById(
-            'nombre-invitado-sobre'
-        );
-
-    const saludo =
-        document.getElementById(
-            'saludo-personalizado'
-        );
-
-    const btnAbrir =
-        document.getElementById('btn-abrir') ||
-        document.getElementById('btn-abrir-sobre');
-
+    const elementoNombre = document.getElementById('nombre-invitado-sobre');
+    const saludo = document.getElementById('saludo-personalizado');
+    const btnAbrir = document.getElementById('btn-abrir') || document.getElementById('btn-abrir-sobre');
 
     if (data && data.familia) {
-
-        if (elementoNombre) {
-            elementoNombre.innerText =
-                data.familia;
-        }
-
-        if (saludo) {
-            saludo.innerText =
-                `¡Hola ${data.familia}!`;
-        }
-
+        if (elementoNombre) elementoNombre.innerText = data.familia;
+        if (saludo) saludo.innerText = `¡Hola ${data.familia}!`;
     } else {
-
-        if (elementoNombre) {
-            elementoNombre.innerText =
-                "¡Te esperamos!";
-        }
+        if (elementoNombre) elementoNombre.innerText = "¡Te esperamos!";
     }
 
-    if (btnAbrir) {
-        btnAbrir.style.display =
-            "inline-block";
-    }
+    if (btnAbrir) btnAbrir.style.display = "inline-block";
 };
 
 function showInvite(data) {
     document.getElementById('loader').style.display = 'none';
     document.getElementById('contenido').style.display = 'block';
-    
-    // Limpiar el nombre para que se vea elegante (Mayúsculas/Minúsculas)
     const nombreLimpio = data.familia.replace(/_/g, ' ');
-    const nombreFormateado = nombreLimpio
-        .split(' ')
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-        .join(' ');
-
+    const nombreFormateado = nombreLimpio.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
     document.getElementById('tituloFamilia').innerText = "Bienvenidos, " + nombreFormateado;
-    
-    // ... resto de tu código de integrantes
 }
 
-// Busca tu botón de confirmar en el HTML principal
-// Espera a que toda la página cargue
 document.addEventListener('DOMContentLoaded', () => {
     const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
-
     if (btnConfirmar) {
         btnConfirmar.addEventListener('click', function(e) {
-            e.preventDefault(); // Detiene cualquier acción por defecto
-            
-            // 1. Obtiene el ID de la URL donde estás parado ahora
+            e.preventDefault();
             const urlActual = new URL(window.location.href);
             const idInvitado = urlActual.searchParams.get('id');
-
-            console.log("ID capturado:", idInvitado); // Esto se verá en la consola (F12)
-
             if (idInvitado) {
-                // 2. Redirige con el ID pegado
                 window.location.href = `confirmacion?id=${encodeURIComponent(idInvitado)}`;
             } else {
-                alert("Error: No se encontró el nombre del invitado en el enlace. Por favor, abre la invitación desde el mensaje de WhatsApp.");
+                alert("Error: No se encontró el nombre del invitado en el enlace.");
             }
         });
-    } else {
-        console.error("No se encontró el botón con ID: btn-confirmar-asistencia");
     }
 });
