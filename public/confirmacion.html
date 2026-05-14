@@ -85,181 +85,124 @@
 
 
 
-<script>
 
-    // 1. PEGA AQUÍ TU ÚLTIMO LINK /EXEC DE GOOGLE
 
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyRRSe0V8ZWxVKn9AmE_VShkOFI_2CexgW7bOVwtw9FodejrQF7_63M7T2BPRBPHLfiuQ/exec";
-
+    <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyjedfZa1Jd9PnOiMw3ddbT0SieqHLWLBXMVD_cCsJYJq3I9tQCcOjvy9DXivyUuyR3Xg/exec";
     let datosGlobal = null;
 
+    // URL de tu validador en Vercel
+    const validadorURL = "https://xvnancy.vercel.app/validador.html";
 
-    // Función global para recibir la respuesta
-window.recibirDatos = function(data) {
-    console.log("Respuesta de Google:", data);
-    
-    if (data.error) {
-        showError("Invitación no encontrada. Revisa el código.");
-    } else if (data.estatus === "ok") {
-        // 1. Manejo de interfaz tras éxito
-        document.getElementById('enviando').style.display = 'none';
-        document.getElementById('success').style.display = 'block';
+    window.recibirDatos = function(data) {
+        console.log("Respuesta de Google:", data);
         
-        // 2. Lógica para generar los QR dinámicos
-        const qrContainer = document.getElementById('qr-container');
-        qrContainer.innerHTML = ""; // Limpiar por si acaso
-        
-        let asistentesConfirmados = 0;
-
-        // Recorremos los integrantes que guardamos en datosGlobal
-        datosGlobal.integrantes.forEach((nom, i) => {
-            const status = document.getElementById(`status-${i}`).value;
+        if (data.error) {
+            showError("Invitación no encontrada. Revisa el código.");
+        } else if (data.estatus === "ok") {
+            document.getElementById('enviando').style.display = 'none';
+            document.getElementById('success').style.display = 'block';
             
-            // Solo generamos QR para los que marcaron "Asistirá"
-            if (status === "Asistirá") {
-                asistentesConfirmados++;
-                
-                // Crear el contenedor individual del pase
-                const qrDiv = document.createElement('div');
-                qrDiv.style.textAlign = "center";
-                qrDiv.style.padding = "10px";
-                qrDiv.style.border = "1px solid #c5a059";
-                qrDiv.style.borderRadius = "10px";
-                qrDiv.style.background = "#fff";
-                
-                // Texto descriptivo arriba del QR
-                qrDiv.innerHTML = `<p style="font-size:12px; margin:0 0 8px 0; color:#444;">
-                                    <strong>PASE ${asistentesConfirmados}</strong><br>${nom.trim()}
-                                   </p>`;
-                
-                // Div donde se dibujará el QR
-                const qrCanvas = document.createElement('div');
-                qrDiv.appendChild(qrCanvas);
-                qrContainer.appendChild(qrDiv);
+            const qrContainer = document.getElementById('qr-container');
+            qrContainer.innerHTML = ""; 
+            
+            let asistentesConfirmados = 0;
+            const idURL = new URLSearchParams(window.location.search).get('id');
 
-                // Generar el código QR usando la librería qrcode.min.js
-                new QRCode(qrCanvas, {
-                    text: `EVENTO:XV-NANCY|ID:${data.id || 'INV'}|GUEST:${nom.trim()}`,
-                    width: 128,
-                    height: 128,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
+            datosGlobal.integrantes.forEach((nom, i) => {
+                const status = document.getElementById(`status-${i}`).value;
+                
+                if (status === "Asistirá") {
+                    asistentesConfirmados++;
+                    
+                    const qrDiv = document.createElement('div');
+                    qrDiv.style.textAlign = "center";
+                    qrDiv.style.padding = "10px";
+                    qrDiv.style.border = "1px solid #c5a059";
+                    qrDiv.style.borderRadius = "10px";
+                    qrDiv.style.background = "#fff";
+                    
+                    // Mostramos el nombre del invitado en el pase
+                    qrDiv.innerHTML = `<p style="font-size:12px; margin:0 0 8px 0; color:#444;">
+                                        <strong>PASE ${asistentesConfirmados}</strong><br>${nom.trim()}
+                                       </p>`;
+                    
+                    const qrCanvas = document.createElement('div');
+                    qrDiv.appendChild(qrCanvas);
+                    qrContainer.appendChild(qrDiv);
+
+                    // CAMBIO CLAVE: El QR ahora es una URL con el ID o Nombre
+                    // Esto permite que la cámara del celular lo reconozca como LINK
+                    const contenidoQR = `${validadorURL}?id=${encodeURIComponent(nom.trim())}`;
+
+                    new QRCode(qrCanvas, {
+                        text: contenidoQR,
+                        width: 128,
+                        height: 128,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }
+            });
+
+            if (asistentesConfirmados > 0) {
+                document.getElementById('btnImprimir').style.display = 'block';
             }
-        });
-
-        // Si hubo al menos un asistente, mostramos el botón de impresión/guardado
-        if (asistentesConfirmados > 0) {
-            document.getElementById('btnImprimir').style.display = 'block';
+        } else {
+            datosGlobal = data;
+            showInvite(data);
         }
-    } else {
-        datosGlobal = data;
-        showInvite(data);
-    }
-};
+    };
 
-
+    // ... Resto de tus funciones (window.onload, llamarGoogle, showInvite, etc.) se mantienen igual
     window.onload = function() {
-
         const urlParams = new URLSearchParams(window.location.search);
-
         const id = urlParams.get('id');
-
         if (!id) return showError("Falta el ID en la invitación.");
- 
-       // Dentro de window.onload
         llamarGoogle(`${scriptURL}?id=${encodeURIComponent(id.toUpperCase())}&callback=recibirDatos`);
     };
 
-
-
     function llamarGoogle(url) {
-
         const script = document.createElement('script');
-
         script.src = url;
-
         script.onerror = () => showError("Error de red. Por favor, refresca la página.");
-
         document.body.appendChild(script);
-
     }
-
-
 
     function showInvite(data) {
-
         document.getElementById('loader').style.display = 'none';
-
         document.getElementById('contenido').style.display = 'block';
-
         document.getElementById('tituloFamilia').innerText = "Bienvenidos, " + data.familia;
-
-       
-
         let html = "";
-
         data.integrantes.forEach((nom, i) => {
-
             html += `<div class="familiar-row">
-
                 <span class="nombre">${nom.trim()}</span>
-
                 <select id="status-${i}">
-
                     <option value="Asistirá">Asistirá ✅</option>
-
                     <option value="No asistirá">No asistirá ❌</option>
-
                 </select>
-
             </div>`;
-
         });
-
         document.getElementById('listaIntegrantes').innerHTML = html;
-
     }
-
-
 
     function showError(msg) {
-
         document.getElementById('loader').style.display = 'none';
-
         document.getElementById('error').style.display = 'block';
-
         document.getElementById('mensajeError').innerText = msg;
-
     }
-
-
 
     function enviarConfirmacion() {
-
         document.getElementById('btnEnviar').style.display = 'none';
-
         document.getElementById('enviando').style.display = 'block';
-
-
-
         let respuestas = [];
-
         datosGlobal.integrantes.forEach((nom, i) => {
-
             respuestas.push(`${nom.trim()}: ${document.getElementById('status-'+i).value}`);
-
         });
-
-
-
         const id = new URLSearchParams(window.location.search).get('id');
-
         llamarGoogle(`${scriptURL}?id=${encodeURIComponent(id.toUpperCase())}&confirmacion=${encodeURIComponent(respuestas.join(" | "))}&callback=recibirDatos`);
-
     }
-
 </script>
 
 </body>
