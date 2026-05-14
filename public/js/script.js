@@ -1,7 +1,7 @@
 // ===============================
 // URL GOOGLE APPS SCRIPT
 // ===============================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbuxCkdG9ksX76yyLMv5TiiXhy1RFmtKUqGmBJXFIZww2sIEkZGQRKr98-Ul3wzqbUCw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRRSe0V8ZWxVKn9AmE_VShkOFI_2CexgW7bOVwtw9FodejrQF7_63M7T2BPRBPHLfiuQ/exec";
 
 // ===============================
 // ABRIR INVITACIÓN
