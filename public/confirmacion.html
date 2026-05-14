@@ -3,132 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmación de Asistencia - XV Nancy Paola</title>
+    <title>Confirmación - XV Nancy Paola</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         :root { --oro: #c5a059; --fondo: #f9f7f2; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--fondo); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 450px; text-align: center; border: 1px solid #eee; }
-        h2 { color: var(--oro); margin-bottom: 20px; font-weight: 300; }
-        .familiar-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px dashed #ddd; }
-        .nombre { font-size: 1.1rem; color: #444; text-align: left; padding-right: 10px; }
-        select { padding: 8px; border-radius: 8px; border: 1px solid #ccc; outline: none; background: white; }
-        .btn-enviar { background: var(--oro); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-size: 1rem; cursor: pointer; margin-top: 25px; transition: 0.3s; }
-        .btn-enviar:hover { background: #b38f4d; }
-        #loader, #enviando { font-style: italic; color: #888; margin-top: 10px; }
-        .success-msg { color: #2ecc71; font-weight: bold; display: none; margin-top: 20px; }
-        #qr-container { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-        .pase-qr { text-align: center; padding: 10px; border: 1px solid var(--oro); border-radius: 10px; background: #fff; }
-        @media print {
-            body * { visibility: hidden; }
-            #qr-container, #qr-container * { visibility: visible; }
-            #qr-container { position: absolute; left: 0; top: 0; width: 100%; }
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--fondo); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 450px; text-align: center; border: 1px solid #eee; }
+        h2 { color: var(--oro); margin-bottom: 15px; font-weight: 300; }
+        .familiar-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #ddd; }
+        .nombre { font-size: 1rem; color: #444; text-align: left; }
+        .btn-enviar { background: var(--oro); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-size: 1rem; cursor: pointer; margin-top: 20px; }
+        .btn-modificar { background: none; border: 1px solid var(--oro); color: var(--oro); padding: 10px; border-radius: 8px; cursor: pointer; margin-top: 15px; width: 100%; }
+        .status-badge { background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; display: none; }
+        #qr-container { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .pase-qr { padding: 10px; border: 1px solid #eee; border-radius: 10px; background: #fff; font-size: 11px; }
+        #loader { font-style: italic; color: #888; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div id="loader">Buscando tu invitación...</div>
+    <div id="loader">Cargando información...</div>
     
     <div id="contenido" style="display:none;">
         <h2 id="tituloFamilia"></h2>
-        <div id="listaIntegrantes"></div>
-        <div id="enviando" style="display:none;">Guardando respuesta...</div>
-        <button id="btnEnviar" onclick="enviarConfirmacion()" class="btn-enviar">Confirmar Asistencia</button>
-        <div id="success" class="success-msg">¡Gracias! Tu respuesta ha sido guardada.</div>
+        <div id="statusBadge" class="status-badge">✓ ASISTENCIA CONFIRMADA</div>
+        
+        <div id="formularioConfirmacion">
+            <div id="listaIntegrantes"></div>
+            <button id="btnEnviar" onclick="enviarConfirmacion()" class="btn-enviar">Guardar Confirmación</button>
+        </div>
 
-        <!-- Contenedor para los QRs -->
-        <div id="qr-container"></div>
-        <button id="btnImprimir" style="display:none; margin: 20px auto;" onclick="window.print()">Guardar Pases (PDF)</button>
-    </div>
-
-    <div id="error" style="display:none;">
-        <h2>¡Ups!</h2>
-        <p id="mensajeError">No pudimos conectar con la invitación.</p>
-        <button onclick="location.reload()" style="background:none; border:1px solid #ccc; padding:5px 10px; cursor:pointer; border-radius:5px;">Reintentar</button>
+        <div id="vistaConfirmada" style="display:none;">
+            <p id="resumenTexto" style="color: #666; font-size: 0.9rem;"></p>
+            <div id="qr-container"></div>
+            <button onclick="habilitarEdicion()" class="btn-modificar">Modificar mi respuesta</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // URL de tu Script de Google (Mismo que en validador.html)
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyi7m_8Ssed3HXGxcrsD-Vd0Yv1a8R3jDXS7SI3SjIblurxc7rRL1Yzhh_kT3Jq7hs6NQ/exec";
-    // URL de tu Validador en Vercel
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxr5pBVXdTzze-cBuFv0DnQZkllBFvbRfxLh44ZxbcBRvFLBBjBU4Vaj0TtBd4kSx-HZw/exec";
     const validadorURL = "https://xvnancy.vercel.app/validador.html";
-    
     let datosGlobal = null;
 
     window.recibirDatos = function(data) {
-        if (data.error) {
-            showError("Invitación no encontrada. Revisa el código.");
-        } else if (data.estatus === "ok") {
-            // Se ejecutó después de enviar la confirmación
-            document.getElementById('enviando').style.display = 'none';
-            document.getElementById('success').style.display = 'block';
-            generarQRs();
-        } else {
-            // Se ejecutó al cargar la página (trae los datos de la familia)
-            datosGlobal = data;
-            showInvite(data);
-        }
-    };
-
-    function generarQRs() {
-        const qrContainer = document.getElementById('qr-container');
-        qrContainer.innerHTML = ""; 
-        let asistentesConfirmados = 0;
-
-        datosGlobal.integrantes.forEach((nom, i) => {
-            const status = document.getElementById(`status-${i}`).value;
-            if (status === "Asistirá") {
-                asistentesConfirmados++;
-                const qrDiv = document.createElement('div');
-                qrDiv.className = "pase-qr";
-                qrDiv.innerHTML = `<p style="font-size:12px; margin:0 0 8px 0; color:#444;"><strong>PASE ${asistentesConfirmados}</strong><br>${nom.trim()}</p>`;
-                
-                const qrCanvas = document.createElement('div');
-                qrDiv.appendChild(qrCanvas);
-                qrContainer.appendChild(qrDiv);
-
-                // El QR apunta al validador con el nombre del invitado
-                const contenidoQR = `${validadorURL}?id=${encodeURIComponent(nom.trim())}`;
-
-                new QRCode(qrCanvas, {
-                    text: contenidoQR,
-                    width: 128,
-                    height: 128,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-            }
-        });
-
-        if (asistentesConfirmados > 0) {
-            document.getElementById('btnImprimir').style.display = 'block';
-        }
-    }
-
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
-        if (!id) return showError("Falta el ID en la invitación.");
-        llamarGoogle(`${scriptURL}?id=${encodeURIComponent(id.toUpperCase())}&callback=recibirDatos`);
-    };
-
-    function llamarGoogle(url) {
-        const script = document.createElement('script');
-        script.src = url;
-        script.onerror = () => showError("Error de red. Por favor, refresca la página.");
-        document.body.appendChild(script);
-    }
-
-    function showInvite(data) {
         document.getElementById('loader').style.display = 'none';
         document.getElementById('contenido').style.display = 'block';
-        document.getElementById('tituloFamilia').innerText = "Bienvenidos, " + data.familia;
+        
+        if (data.error) {
+            alert("Error: " + data.error);
+            return;
+        }
+
+        datosGlobal = data;
+        document.getElementById('tituloFamilia').innerText = "Familia " + data.familia;
+
+        // Si ya hay algo escrito en la columna de asistencia (confirmacion)
+        if (data.confirmacionAnterior && data.confirmacionAnterior !== "") {
+            mostrarVistaConfirmada(data.confirmacionAnterior);
+        } else {
+            generarFormulario();
+        }
+    };
+
+    function generarFormulario() {
+        document.getElementById('vistaConfirmada').style.display = 'none';
+        document.getElementById('formularioConfirmacion').style.display = 'block';
+        document.getElementById('statusBadge').style.display = 'none';
+        
         let html = "";
-        data.integrantes.forEach((nom, i) => {
+        datosGlobal.integrantes.forEach((nom, i) => {
             html += `<div class="familiar-row">
                 <span class="nombre">${nom.trim()}</span>
                 <select id="status-${i}">
@@ -140,21 +85,68 @@
         document.getElementById('listaIntegrantes').innerHTML = html;
     }
 
-    function showError(msg) {
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('error').style.display = 'block';
-        document.getElementById('mensajeError').innerText = msg;
+    function mostrarVistaConfirmada(resumen) {
+        document.getElementById('formularioConfirmacion').style.display = 'none';
+        document.getElementById('vistaConfirmada').style.display = 'block';
+        document.getElementById('statusBadge').style.display = 'block';
+        document.getElementById('resumenTexto').innerText = "Tu respuesta actual: " + resumen;
+        
+        const qrContainer = document.getElementById('qr-container');
+        qrContainer.innerHTML = "";
+
+        // Generar QRs solo para los que dicen "Asistirá" en el resumen
+        datosGlobal.integrantes.forEach((nom) => {
+            if (resumen.includes(`${nom.trim()}: Asistirá`)) {
+                const qrDiv = document.createElement('div');
+                qrDiv.className = "pase-qr";
+                qrDiv.innerHTML = `<strong>PASE</strong><br>${nom.trim()}<br><div id="qr-${nom.trim()}"></div>`;
+                qrContainer.appendChild(qrDiv);
+
+                new QRCode(document.getElementById(`qr-${nom.trim()}`), {
+                    text: `${validadorURL}?id=${encodeURIComponent(nom.trim())}`,
+                    width: 100, height: 100
+                });
+            }
+        });
+    }
+
+    function habilitarEdicion() {
+        if(confirm("¿Deseas cambiar tu respuesta de asistencia?")) {
+            generarFormulario();
+        }
     }
 
     function enviarConfirmacion() {
-        document.getElementById('btnEnviar').style.display = 'none';
-        document.getElementById('enviando').style.display = 'block';
+        const btn = document.getElementById('btnEnviar');
+        btn.innerText = "Guardando...";
+        btn.disabled = true;
+
         let respuestas = [];
         datosGlobal.integrantes.forEach((nom, i) => {
             respuestas.push(`${nom.trim()}: ${document.getElementById('status-'+i).value}`);
         });
+
         const id = new URLSearchParams(window.location.search).get('id');
-        llamarGoogle(`${scriptURL}?id=${encodeURIComponent(id.toUpperCase())}&confirmacion=${encodeURIComponent(respuestas.join(" | "))}&callback=recibirDatos`);
+        const finalResp = respuestas.join(" | ");
+        
+        llamarGoogle(`${scriptURL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`);
+    }
+
+    window.procesarGuardado = function(res) {
+        if (res.estatus === "ok") {
+            location.reload(); // Recargamos para que muestre los QRs actualizados
+        }
+    };
+
+    window.onload = function() {
+        const id = new URLSearchParams(window.location.search).get('id');
+        if (id) llamarGoogle(`${scriptURL}?id=${encodeURIComponent(id)}&callback=recibirDatos`);
+    };
+
+    function llamarGoogle(url) {
+        const s = document.createElement('script');
+        s.src = url;
+        document.body.appendChild(s);
     }
 </script>
 </body>
