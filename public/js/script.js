@@ -1,13 +1,13 @@
-// ===============================
-// URL GOOGLE APPS SCRIPT
-// ===============================
+// ==========================================================================
+// 1. CONFIGURACIÓN GLOBAL DE LA API (GOOGLE APPS SCRIPT)
+// ==========================================================================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzrFGoUqKJK2xzXqIztaggMq4u3pq-KtFu9pdHlb-ZdwjpJk3fvIOyycV_sbZDr24GcZQ/exec";
 
-// ===============================
-// ABRIR INVITACIÓN (Solo para index.html)
-// ===============================
+// ==========================================================================
+// 2. FUNCIONES DE LA INVITACIÓN PRINCIPAL (index.html)
+// ==========================================================================
 function abrirInvitacion() {
-    /* 1. MÚSICA RANDOM */
+    /* --- MÚSICA DE FONDO RANDOM --- */
     const canciones = ["audio/cancion1.mp3", "audio/cancion2.mp3"];
     const audio = document.getElementById('musica-fondo');
 
@@ -20,11 +20,11 @@ function abrirInvitacion() {
         audio.play().then(() => {
             console.log("Reproduciendo: " + canciones[randomIndex]);
         }).catch(error => {
-            console.warn("El navegador bloqueó el autoplay. Se requiere interacción.");
+            console.warn("El navegador bloqueó el autoplay. Se requiere interacción del usuario.");
         });
     }
 
-    /* 2. ANIMACIÓN DEL SOBRE Y CONTENIDO */
+    /* --- ANIMACIÓN DEL SOBRE VIRTUAL --- */
     const pantallaSobre = document.getElementById("pantalla-sobre");
     const contenido = document.getElementById('contenido');
 
@@ -41,7 +41,7 @@ function abrirInvitacion() {
         }, 1200);
     }
 
-    /* 3. INICIAR EFECTOS (Pétalos y ScrollReveal) */
+    /* --- INICIALIZACIÓN DE EFECTOS --- */
     iniciarPetalos();
 
     if (typeof ScrollReveal !== "undefined") {
@@ -51,13 +51,10 @@ function abrirInvitacion() {
     }
 }
 
-// ==========================================
-// EFECTO DE PÉTALOS
-// ==========================================
+/* --- EFECTO DE PÉTALOS MEJORADO --- */
 function iniciarPetalos() {
-    // Si ya existe el contenedor duro en el HTML, lo usamos, si no, lo creamos.
     let contenedor = document.getElementById('contenedor-petalos');
-    if(!contenedor) {
+    if (!contenedor) {
         contenedor = document.createElement('div');
         contenedor.id = 'contenedor-petalos';
         Object.assign(contenedor.style, {
@@ -96,25 +93,26 @@ function iniciarPetalos() {
             width: `${size}px`, height: `${size}px`, left: `${Math.random() * 100}vw`,
             animationDuration: `${duration}s`, filter: `hue-rotate(${Math.random() * 25}deg)`
         });
+
         contenedor.appendChild(p);
         setTimeout(() => { if (p.parentNode) p.remove(); }, duration * 1000);
     };
 
-    for(let i = 0; i < 15; i++) { setTimeout(crearPetalo, Math.random() * 4000); }
+    for (let i = 0; i < 15; i++) { setTimeout(crearPetalo, Math.random() * 4000); }
     setInterval(crearPetalo, 500);
 }
 
-// ===============================
-// EJECUCIÓN CONDICIONAL POR PÁGINA (EVITA ERRORES DE CONSOLA)
-// ===============================
+// ==========================================================================
+// 3. ENRUTADOR SEGURO (EVITA CONFLICTOS EN PÁGINAS SECUNDARIAS)
+// ==========================================================================
 const rutaActual = window.location.pathname;
 
-// ---------------------------------------------------------
-// BLOQUE 1: CÓDIGO EXCLUSIVO PARA LA INVITACIÓN (index.html)
-// ---------------------------------------------------------
+// --------------------------------------------------------------------------
+// Lógica para INVITACIÓN PRINCIPAL (index.html / raíz)
+// --------------------------------------------------------------------------
 if (!rutaActual.includes("validador") && !rutaActual.includes("confirmacion")) {
     
-    // Cuenta Regresiva
+    // Cuenta regresiva del evento
     const fechaEvento = new Date("Aug 15, 2026 18:00:00").getTime();
     setInterval(() => {
         const ahora = new Date().getTime();
@@ -132,7 +130,7 @@ if (!rutaActual.includes("validador") && !rutaActual.includes("confirmacion")) {
         if (segundos) segundos.innerText = Math.floor((distancia % (1000 * 60)) / 1000);
     }, 1000);
 
-    // Slider de Fotos
+    // Slider de imágenes
     let sliderIndex = 0;
     setInterval(() => {
         const slider = document.getElementById('slider');
@@ -143,7 +141,7 @@ if (!rutaActual.includes("validador") && !rutaActual.includes("confirmacion")) {
         slider.style.transform = `translateX(-${sliderIndex * 100}%)`;
     }, 3000);
 
-    // Carga de Nombre en el Sobre
+    // Inicialización del Invitado por URL
     document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(window.location.search);
         const idInvitado = params.get('id');
@@ -156,10 +154,10 @@ if (!rutaActual.includes("validador") && !rutaActual.includes("confirmacion")) {
             document.body.appendChild(script);
         } else {
             if (nombreSobre) nombreSobre.innerText = "¡Te esperamos!";
-            if (btnAbrir) btnAbrir.style.display = "flex"; // Usa flex por tu CSS
+            if (btnAbrir) btnAbrir.style.display = "flex"; 
         }
-        
-        // Listener para el botón de confirmar
+
+        // Configuración segura del botón Asistencia
         const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
         if (btnConfirmar) {
             btnConfirmar.addEventListener('click', function(e) {
@@ -167,7 +165,7 @@ if (!rutaActual.includes("validador") && !rutaActual.includes("confirmacion")) {
                 if (idInvitado) {
                     window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
                 } else {
-                    alert("Error: No se encontró el ID del invitado en el enlace.");
+                    alert("Error: No se encontró el identificador del invitado en el enlace.");
                 }
             });
         }
@@ -186,9 +184,9 @@ if (!rutaActual.includes("validador") && !rutaActual.includes("confirmacion")) {
     };
 }
 
-// ---------------------------------------------------------
-// BLOQUE 2: CÓDIGO EXCLUSIVO PARA VALIDADOR (validador.html)
-// ---------------------------------------------------------
+// --------------------------------------------------------------------------
+// Lógica para VALIDADOR QR (validador.html)
+// --------------------------------------------------------------------------
 if (rutaActual.includes("validador.html")) {
     let statusDiv;
     let html5QrcodeScanner;
@@ -215,9 +213,10 @@ if (rutaActual.includes("validador.html")) {
         }
 
         mostrarMensaje("Consultando lista en tiempo real...", "consultando");
+        
         const script = document.createElement('script');
         script.src = `${SCRIPT_URL}?id=${encodeURIComponent(idInvitado)}&callback=recibirRespuesta`;
-        script.onerror = () => mostrarMensaje("Error de red.", "error");
+        script.onerror = () => mostrarMensaje("Error de comunicación de red.", "error");
         document.body.appendChild(script);
     };
 
@@ -238,9 +237,9 @@ if (rutaActual.includes("validador.html")) {
     });
 }
 
-// ---------------------------------------------------------
-// BLOQUE 3: CÓDIGO EXCLUSIVO PARA CONFIRMACIÓN (confirmacion.html)
-// ---------------------------------------------------------
+// --------------------------------------------------------------------------
+// Lógica para CONFIRMACIÓN DE ASISTENCIA (confirmacion.html)
+// --------------------------------------------------------------------------
 if (rutaActual.includes("confirmacion.html")) {
     const validadorURL = "https://xvnancy.vercel.app/validador.html";
     let datosGlobal = null;
@@ -249,7 +248,10 @@ if (rutaActual.includes("confirmacion.html")) {
         document.getElementById('loader').style.display = 'none';
         document.getElementById('contenido').style.display = 'block';
         
-        if (data.error) { alert("Error: " + data.error); return; }
+        if (data.error) { 
+            alert("Error: " + data.error); 
+            return; 
+        }
 
         datosGlobal = data;
         document.getElementById('tituloFamilia').innerText = "Familia " + data.familia;
@@ -306,12 +308,15 @@ if (rutaActual.includes("confirmacion.html")) {
     };
 
     window.habilitarEdicion = function() {
-        if(confirm("¿Deseas cambiar tu respuesta de asistencia?")) generarFormulario();
+        if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) {
+            generarFormulario();
+        }
     };
 
     window.enviarConfirmacion = function() {
         const btn = document.getElementById('btnEnviar');
-        btn.innerText = "Guardando..."; btn.disabled = true;
+        btn.innerText = "Guardando..."; 
+        btn.disabled = true;
 
         let respuestas = [];
         datosGlobal.integrantes.forEach((nom, i) => {
@@ -327,7 +332,9 @@ if (rutaActual.includes("confirmacion.html")) {
     };
 
     window.procesarGuardado = function(res) {
-        if (res.estatus === "ok") location.reload(); 
+        if (res.estatus === "ok") {
+            location.reload(); 
+        }
     };
 
     window.onload = function() {
