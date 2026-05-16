@@ -1,25 +1,30 @@
 /* =========================================
    SCRIPT.JS — XV Nancy Paola
-   Limpio, sin duplicados, comentado
    ========================================= */
 
+// URL de la API en Google Apps Script para validar pases e invitados
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
 
+
 /* =========================================
-   ABRIR INVITACIÓN
+   INTERACCIÓN DEL SOBRE (APERTURA)
    ========================================= */
 function abrirInvitacion() {
-  // 1. Música aleatoria
+  // Elegimos música de fondo aleatoria para sorprender al usuario
   const canciones = ["audio/cancion1.mp3", "audio/cancion2.mp3"];
   const audio = document.getElementById('musica-fondo');
+  
   if (audio) {
     audio.src = canciones[Math.floor(Math.random() * canciones.length)];
     audio.volume = 0.5;
     audio.load();
-    audio.play().catch(() => {/* autoplay bloqueado por el navegador, no pasa nada */});
+    audio.play().catch(() => {
+      // Navegadores modernos bloquean el autoplay si el usuario no interactúa primero.
+      // No pasa nada, se maneja en silencio.
+    });
   }
 
-  // 2. Animación mejorada del sobre (clase CSS maneja escala + traslado + blur)
+  // Ocultamos el sobre con la animación CSS y activamos el layout principal
   const pantallaSobre = document.getElementById('pantalla-sobre');
   const contenido     = document.getElementById('contenido');
 
@@ -30,7 +35,8 @@ function abrirInvitacion() {
       pantallaSobre.style.display = 'none';
       if (contenido) {
         contenido.classList.add('visible');
-        // ScrollReveal — sólo si está disponible
+        
+        // Animaciones de entrada sólo si la librería ScrollReveal está en el HTML
         if (typeof ScrollReveal !== 'undefined') {
           ScrollReveal().reveal('.reveal', {
             delay: 200, duration: 800, distance: '20px',
@@ -41,15 +47,15 @@ function abrirInvitacion() {
     }, 1200);
   }
 
-  // 3. Pétalos
+  // Despegamos el efecto visual de pétalos flotantes
   iniciarPetalos();
 }
 
+
 /* =========================================
-   PÉTALOS (flujo continuo, sin memory leak)
+   EFECTO DE PÉTALOS EN PANTALLA
    ========================================= */
 function iniciarPetalos() {
-  // Evita crear el contenedor dos veces
   if (document.getElementById('sakura-container')) return;
 
   const contenedor = document.createElement('div');
@@ -61,7 +67,7 @@ function iniciarPetalos() {
   });
   document.body.appendChild(contenedor);
 
-  // Inyectar keyframes una sola vez
+  // Reglas CSS mínimas para controlar la caída fluida de los pétalos
   const style = document.createElement('style');
   style.innerHTML = `
     .petalo {
@@ -82,7 +88,7 @@ function iniciarPetalos() {
   document.head.appendChild(style);
 
   const crearPetalo = () => {
-    const p   = document.createElement('div');
+    const p = document.createElement('div');
     p.className = 'petalo';
     const size     = Math.random() * 8 + 10;
     const duration = Math.random() * 5 + 6;
@@ -99,14 +105,13 @@ function iniciarPetalos() {
     setTimeout(() => p.remove(), duration * 1000);
   };
 
-  // Ráfaga inicial escalonada
+  // Ráfaga rápida al abrir la invitación y luego flujo regular constante
   for (let i = 0; i < 15; i++) {
     setTimeout(crearPetalo, Math.random() * 4000);
   }
-
-  // Generación constante
   setInterval(crearPetalo, 500);
 }
+
 
 /* =========================================
    CUENTA REGRESIVA
@@ -124,8 +129,9 @@ setInterval(() => {
   if (get('segundos')) get('segundos').innerText = Math.floor((distancia % 60000)    / 1000);
 }, 1000);
 
+
 /* =========================================
-   CARRUSEL CON FLECHAS Y DOTS
+   CARRUSEL DE FOTOS
    ========================================= */
 function initCarrusel() {
   const slider      = document.getElementById('slider');
@@ -137,7 +143,7 @@ function initCarrusel() {
   let idx     = 0;
   let timer;
 
-  // Crear dots dinámicamente
+  // Renderizador dinámico de los indicadores inferiores (dots)
   if (dotsWrapper) {
     imgs.forEach((_, i) => {
       const dot = document.createElement('button');
@@ -167,18 +173,71 @@ function initCarrusel() {
     timer = setInterval(() => ir(idx + 1), 3500);
   }
 
-  // Flechas
+  // Listeners para las flechas de navegación manual
   const btnPrev = document.querySelector('.carousel-btn.prev');
   const btnNext = document.querySelector('.carousel-btn.next');
   if (btnPrev) btnPrev.addEventListener('click', () => ir(idx - 1));
   if (btnNext) btnNext.addEventListener('click', () => ir(idx + 1));
 
-  // Arrancar autoplay
   reiniciarTimer();
 }
 
+
 /* =========================================
-   CARGA DE INVITADO (JSONP)
+   SISTEMA DE LECTURA Y VALIDACIÓN QR
+   ========================================= */
+let html5QrcodeScanner = null;
+
+function onScanSuccess(decodedText) {
+  // Apagamos el escáner al capturar lectura para congelar la cámara mientras procesa
+  if (html5QrcodeScanner) {
+    html5QrcodeScanner.clear();
+  }
+  
+  let idInvitado;
+  try {
+    // Si escaneamos el link de la invitación completo, extraemos solo el valor de "id="
+    const url = new URL(decodedText);
+    idInvitado = url.searchParams.get("id") || decodedText;
+  } catch (e) {
+    // Si no es URL válida, asumimos que el QR contiene el ID de texto crudo directamente
+    idInvitado = decodedText;
+  }
+
+  mostrarMensajeQR("Consultando lista en tiempo real...", "consultando");
+
+  // Inyectamos script dinámico (JSONP) para brincarnos restricciones de CORS en el navegador
+  const finalURL = `${SCRIPT_URL}?id=${encodeURIComponent(idInvitado)}&callback=recibirRespuestaQR`;
+  
+  const script = document.createElement('script');
+  script.src = finalURL;
+  script.onerror = () => mostrarMensajeQR("Error de red: No se pudo conectar con el servidor.", "error");
+  document.body.appendChild(script);
+}
+
+// Callback global que procesa la respuesta devuelta por la hoja de cálculo
+window.recibirRespuestaQR = function(data) {
+  if (data.familia) {
+    mostrarMensajeQR("✅ ACCESO PERMITIDO:<br>" + data.familia, "exito");
+  } else if (data.error) {
+    mostrarMensajeQR("❌ " + data.error, "error");
+  } else {
+    mostrarMensajeQR("❌ INVITADO NO ENCONTRADO", "error");
+  }
+};
+
+function mostrarMensajeQR(texto, clase) {
+  const statusDiv = document.getElementById('status');
+  if (!statusDiv) return;
+  
+  statusDiv.innerHTML = texto;
+  statusDiv.className = "mensaje " + clase;
+  statusDiv.style.display = "block";
+}
+
+
+/* =========================================
+   CARGA DE DATOS VÍA JSONP (SOBRE)
    ========================================= */
 function llamarGoogle(url) {
   const s = document.createElement('script');
@@ -186,11 +245,10 @@ function llamarGoogle(url) {
   document.body.appendChild(s);
 }
 
-// Callback que recibe datos del sobre
+// Callback para actualizar el nombre del invitado impreso sobre la tarjeta inicial
 window.actualizarNombreSobre = function(data) {
   const elemNombre = document.getElementById('nombre-invitado-sobre');
-  const btnAbrir   = document.getElementById('btn-abrir') ||
-                     document.getElementById('btn-abrir-sobre');
+  const btnAbrir   = document.getElementById('btn-abrir') || document.getElementById('btn-abrir-sobre');
 
   if (data && data.familia) {
     if (elemNombre) elemNombre.innerText = data.familia;
@@ -201,22 +259,23 @@ window.actualizarNombreSobre = function(data) {
   if (btnAbrir) btnAbrir.style.display = 'inline-block';
 };
 
+
 /* =========================================
-   DOM READY — único bloque
+   PUNTO DE ENTRADA ÚNICO (DOM READY)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
   const params      = new URLSearchParams(window.location.search);
   const idInvitado  = params.get('id');
   const nombreSobre = document.getElementById('nombre-invitado-sobre');
 
-  // Personalizar nombre en el sobre vía JSONP
+  // 1. Personalizar el sobre según la URL
   if (idInvitado) {
     llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&callback=actualizarNombreSobre`);
   } else {
     if (nombreSobre) nombreSobre.innerText = '¡Te esperamos!';
   }
 
-  // Botón confirmar → redirige con el mismo id
+  // 2. Manejo del botón para Confirmar Asistencia desde la vista
   const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
   if (btnConfirmar) {
     btnConfirmar.addEventListener('click', (e) => {
@@ -229,6 +288,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Iniciar carrusel
+  // 3. Inicializar Carrusel de fotos
   initCarrusel();
+
+  // 4. Arrancar el escáner QR solo si el contenedor existe en este HTML (evita romper código si es otra vista)
+  if (document.getElementById('reader')) {
+    html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess);
+  }
 });
