@@ -1,29 +1,40 @@
 /* =========================================
    SCRIPT.JS — XV Nancy Paola
-   Limpio, modular y protegido contra errores
+   Incluye lógica de: index, confirmacion y validador
    ========================================= */
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmulogslNI4BnVUu8ScUWXw6Qs-WHNYiGHYHlrFHWKFE8Ad1O0wnIy5w2YZqWBglt6Hg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
+const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* =========================================
-   ABRIR INVITACIÓN (Index)
+   UTILIDAD: JSONP
+   ========================================= */
+function llamarGoogle(url) {
+  const s = document.createElement('script');
+  s.src = url;
+  document.body.appendChild(s);
+}
+
+/* =========================================
+   ABRIR INVITACIÓN (index.html)
    ========================================= */
 function abrirInvitacion() {
+  // 1. Música aleatoria
   const canciones = ["audio/cancion1.mp3", "audio/cancion2.mp3"];
   const audio = document.getElementById('musica-fondo');
   if (audio) {
     audio.src = canciones[Math.floor(Math.random() * canciones.length)];
     audio.volume = 0.5;
     audio.load();
-    audio.play().catch(() => {/* Autoplay bloqueado por el navegador */});
+    audio.play().catch(() => {});
   }
 
+  // 2. Animación del sobre
   const pantallaSobre = document.getElementById('pantalla-sobre');
   const contenido     = document.getElementById('contenido');
 
   if (pantallaSobre) {
     pantallaSobre.classList.add('cerrar');
-
     setTimeout(() => {
       pantallaSobre.style.display = 'none';
       if (contenido) {
@@ -38,11 +49,12 @@ function abrirInvitacion() {
     }, 1200);
   }
 
+  // 3. Pétalos
   iniciarPetalos();
 }
 
 /* =========================================
-   PÉTALOS SAKURA (Flujo continuo)
+   PÉTALOS (index.html)
    ========================================= */
 function iniciarPetalos() {
   if (document.getElementById('sakura-container')) return;
@@ -80,7 +92,6 @@ function iniciarPetalos() {
     p.className = 'petalo';
     const size     = Math.random() * 8 + 10;
     const duration = Math.random() * 5 + 6;
-
     Object.assign(p.style, {
       width:             `${size}px`,
       height:            `${size}px`,
@@ -88,7 +99,6 @@ function iniciarPetalos() {
       animationDuration: `${duration}s`,
       filter:            `hue-rotate(${Math.random() * 25}deg)`
     });
-
     contenedor.appendChild(p);
     setTimeout(() => p.remove(), duration * 1000);
   };
@@ -100,14 +110,13 @@ function iniciarPetalos() {
 }
 
 /* =========================================
-   CUENTA REGRESIVA
+   CUENTA REGRESIVA (index.html)
    ========================================= */
 const fechaEvento = new Date("Aug 15, 2026 18:00:00").getTime();
 
 setInterval(() => {
   const distancia = fechaEvento - Date.now();
   if (distancia < 0) return;
-
   const get = (id) => document.getElementById(id);
   if (get('dias'))     get('dias').innerText     = Math.floor(distancia / 86400000);
   if (get('horas'))    get('horas').innerText    = Math.floor((distancia % 86400000) / 3600000);
@@ -116,7 +125,7 @@ setInterval(() => {
 }, 1000);
 
 /* =========================================
-   CARRUSEL CON FLECHAS Y DOTS
+   CARRUSEL (index.html)
    ========================================= */
 function initCarrusel() {
   const slider      = document.getElementById('slider');
@@ -128,7 +137,7 @@ function initCarrusel() {
   let idx     = 0;
   let timer;
 
-  if (dotsWrapper && dotsWrapper.children.length === 0) {
+  if (dotsWrapper) {
     imgs.forEach((_, i) => {
       const dot = document.createElement('button');
       dot.className = 'dot' + (i === 0 ? ' active' : '');
@@ -166,18 +175,12 @@ function initCarrusel() {
 }
 
 /* =========================================
-   INYECTOR JSONP DE GOOGLE SHEETS
+   CARGA DE INVITADO JSONP (index.html)
    ========================================= */
-function llamarGoogle(url) {
-  const s = document.createElement('script');
-  s.src = url;
-  document.body.appendChild(s);
-}
-
-// Callback global para la pantalla del sobre
 window.actualizarNombreSobre = function(data) {
   const elemNombre = document.getElementById('nombre-invitado-sobre');
-  const btnAbrir   = document.getElementById('btn-abrir') || document.getElementById('btn-abrir-sobre');
+  const btnAbrir   = document.getElementById('btn-abrir') ||
+                     document.getElementById('btn-abrir-sobre');
 
   if (data && data.familia) {
     if (elemNombre) elemNombre.innerText = data.familia;
@@ -188,111 +191,19 @@ window.actualizarNombreSobre = function(data) {
 };
 
 /* =========================================
-   LÓGICA EXCLUSIVA DE CONFIRMACIÓN
+   DOM READY — index.html
    ========================================= */
-window.procesarDatosConfirmacion = function(data) {
-  const loader = document.getElementById('loader');
-  const contenido = document.getElementById('contenido-confirmacion');
-  const tituloFamilia = document.getElementById('tituloFamilia');
+function initIndex() {
+  if (!document.getElementById('pantalla-sobre')) return;
 
-  if (loader) loader.classList.add('oculto');
-  if (!contenido) return;
-  
-  contenido.classList.remove('oculto');
-
-  if (!data || data.error) {
-    if (tituloFamilia) tituloFamilia.innerText = "Invitación no encontrada";
-    return;
-  }
-
-  if (tituloFamilia) tituloFamilia.innerText = data.familia;
-  
-  // Renderizar la lista dinámica de familiares
-  const lista = document.getElementById('listaIntegrantes');
-  if (lista && data.integrantes) {
-    lista.innerHTML = '';
-    data.integrantes.forEach((persona, i) => {
-      lista.innerHTML += `
-        <div class="familiar-row">
-          <span class="nombre">${persona.nombre}</span>
-          <input type="checkbox" id="p_${i}" ${persona.asiste ? 'checked' : ''} class="chk-asistencia">
-        </div>
-      `;
-    });
-  }
-
-  // Verificar estado de visualización previa
-  if (data.confirmado) {
-    mostrarPasesConfirmados(data);
-  }
-};
-
-function enviarConfirmacion() {
-  const btnEnviar = document.getElementById('btnEnviar');
-  if (btnEnviar) {
-    btnEnviar.disabled = true;
-    btnEnviar.innerText = "Guardando...";
-  }
-  
-  // Aquí recolectas las respuestas del DOM para mandarlas de vuelta a tu WebApp de Sheets
-  // Simulación de éxito tras guardado:
-  setTimeout(() => {
-    const statusBadge = document.getElementById('statusBadge');
-    if (statusBadge) statusBadge.classList.remove('oculto');
-    // Lógica para alternar a vista confirmada y generar tus QRs dinámicos...
-    if (btnEnviar) {
-      btnEnviar.disabled = false;
-      btnEnviar.innerText = "Guardar Confirmación";
-    }
-  }, 1000);
-}
-
-function habilitarEdicion() {
-  const form = document.getElementById('formularioConfirmacion');
-  const vista = document.getElementById('vistaConfirmada');
-  const badge = document.getElementById('statusBadge');
-
-  if (form) form.classList.remove('oculto');
-  if (vista) vista.classList.add('oculto');
-  if (badge) badge.classList.add('oculto');
-}
-
-function mostrarPasesConfirmados(data) {
-  const form = document.getElementById('formularioConfirmacion');
-  const vista = document.getElementById('vistaConfirmada');
-  const badge = document.getElementById('statusBadge');
-  
-  if (form) form.classList.add('oculto');
-  if (vista) vista.classList.remove('oculto');
-  if (badge) badge.classList.remove('oculto');
-
-  // Ejemplo generador de QR si se cuenta con la librería cargada en el DOM
-  const qrContainer = document.getElementById('qr-container');
-  if (qrContainer && typeof QRCode !== 'undefined') {
-    qrContainer.innerHTML = '';
-    new QRCode(qrContainer, {
-      text: `ID:${data.id}-CONFIRMADO`,
-      width: 128,
-      height: 128
-    });
-  }
-}
-
-/* =========================================
-   MANEJADOR DOM READY INTEGRADO
-   ========================================= */
-document.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
+  const params     = new URLSearchParams(window.location.search);
   const idInvitado = params.get('id');
-
-  // 1. Inicialización en Pantalla de Inicio (index)
   const nombreSobre = document.getElementById('nombre-invitado-sobre');
-  if (nombreSobre) {
-    if (idInvitado) {
-      llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&callback=actualizarNombreSobre`);
-    } else {
-      nombreSobre.innerText = '¡Te esperamos!';
-    }
+
+  if (idInvitado) {
+    llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&callback=actualizarNombreSobre`);
+  } else {
+    if (nombreSobre) nombreSobre.innerText = '¡Te esperamos!';
   }
 
   const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
@@ -300,69 +211,208 @@ document.addEventListener('DOMContentLoaded', () => {
     btnConfirmar.addEventListener('click', (e) => {
       e.preventDefault();
       if (idInvitado) {
-        window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
+        window.location.href = `confirmacion?id=${encodeURIComponent(idInvitado)}`;
       } else {
         alert('Error: No se encontró el ID en el enlace.');
       }
     });
   }
 
-  // Inicializa carrusel si existe en la página actual
   initCarrusel();
+}
 
-  // 2. Inicialización en Pantalla de Confirmación
-  const contenidoConf = document.getElementById('contenido-confirmacion');
-  if (contenidoConf && idInvitado) {
-    llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&action=get&callback=procesarDatosConfirmacion`);
+/* =========================================
+   CONFIRMACIÓN — confirmacion.html
+   ========================================= */
+let datosGlobal = null;
+
+window.recibirDatosConfirmacion = function(data) {
+  // LOG DE DIAGNÓSTICO — puedes quitarlo después de confirmar que funciona
+  console.log('[XV] Datos recibidos del Google Script:', JSON.stringify(data));
+
+  const loader    = document.getElementById('confirmacion-loader');
+  const contenido = document.getElementById('confirmacion-contenido');
+  if (loader)    loader.style.display = 'none';
+  if (contenido) contenido.style.display = 'block';
+
+  if (data.error) {
+    alert("Error: " + data.error);
+    return;
   }
 
-  // Registro de Event Listeners limpios (Buenas prácticas - No onClick inline)
-  const btnEnviar = document.getElementById('btnEnviar');
-  if (btnEnviar) btnEnviar.addEventListener('click', enviarConfirmacion);
+  // Normalizar integrantes: puede llegar como string "Nombre1, Nombre2" o ya como array
+  if (typeof data.integrantes === 'string') {
+    data.integrantes = data.integrantes.split(',').map(n => n.trim()).filter(Boolean);
+  } else if (!Array.isArray(data.integrantes)) {
+    data.integrantes = [data.familia]; // fallback: al menos el nombre de la familia
+  }
 
-  const btnModificar = document.getElementById('btnModificar');
-  if (btnModificar) btnModificar.addEventListener('click', habilitarEdicion);
-});
+  datosGlobal = data;
+  const titulo = document.getElementById('tituloFamilia');
+  if (titulo) titulo.innerText = "Familia " + data.familia;
 
-window.enviarConfirmacion = function() {
-  const params = new URLSearchParams(window.location.search);
-  const idInvitado = params.get('id');
-  
-  const filas = document.querySelectorAll('.familiar-row');
-  let confirmados = [];
-  let noAsisten = [];
+  if (data.confirmacionAnterior && data.confirmacionAnterior !== "") {
+    mostrarVistaConfirmada(data.confirmacionAnterior);
+  } else {
+    generarFormulario();
+  }
+};
 
-  filas.forEach(fila => {
-    const nombre = fila.querySelector('.nombre').innerText;
-    const asiste = fila.querySelector('input[type="checkbox"]').checked;
-    
-    if (asiste) {
-      confirmados.push(nombre);
-    } else {
-      noAsisten.push(nombre);
+function generarFormulario() {
+  const vistaConfirmada   = document.getElementById('vistaConfirmada');
+  const formulario        = document.getElementById('formularioConfirmacion');
+  const badge             = document.getElementById('statusBadge');
+  const listaIntegrantes  = document.getElementById('listaIntegrantes');
+
+  if (vistaConfirmada) vistaConfirmada.style.display = 'none';
+  if (formulario)      formulario.style.display = 'block';
+  if (badge)           badge.style.display = 'none';
+
+  if (!listaIntegrantes || !datosGlobal) return;
+
+  let html = "";
+  datosGlobal.integrantes.forEach((nom, i) => {
+    html += `<div class="familiar-row">
+      <span class="familiar-nombre">${nom.trim()}</span>
+      <select id="status-${i}">
+        <option value="Asistirá">Asistirá ✅</option>
+        <option value="No asistirá">No asistirá ❌</option>
+      </select>
+    </div>`;
+  });
+  listaIntegrantes.innerHTML = html;
+}
+
+function mostrarVistaConfirmada(resumen) {
+  const formulario      = document.getElementById('formularioConfirmacion');
+  const vistaConfirmada = document.getElementById('vistaConfirmada');
+  const badge           = document.getElementById('statusBadge');
+  const resumenTexto    = document.getElementById('resumenTexto');
+  const qrContainer     = document.getElementById('qr-container');
+
+  if (formulario)      formulario.style.display = 'none';
+  if (vistaConfirmada) vistaConfirmada.style.display = 'block';
+  if (badge)           badge.style.display = 'block';
+  if (resumenTexto)    resumenTexto.innerText = "Tu respuesta actual: " + resumen;
+
+  if (!qrContainer || !datosGlobal) return;
+  qrContainer.innerHTML = "";
+
+  datosGlobal.integrantes.forEach((nom) => {
+    if (resumen.includes(`${nom.trim()}: Asistirá`)) {
+      const qrDiv = document.createElement('div');
+      qrDiv.className = "pase-qr";
+      const qrId = `qr-${nom.trim().replace(/\s+/g, '-')}`;
+      qrDiv.innerHTML = `<strong>PASE</strong><br>${nom.trim()}<br><div id="${qrId}"></div>`;
+      qrContainer.appendChild(qrDiv);
+
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(document.getElementById(qrId), {
+          text: `${VALIDADOR_URL}?id=${encodeURIComponent(nom.trim())}`,
+          width: 100,
+          height: 100
+        });
+      }
     }
   });
+}
 
-  // Creamos un texto descriptivo para guardar en la Columna F
-  const textoConfirmacion = `Asisten: ${confirmados.join(', ')} | No asisten: ${noAsisten.join(', ')}`;
+function habilitarEdicion() {
+  if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) {
+    generarFormulario();
+  }
+}
 
-  // Desplegamos el llamado JSONP hacia Google Apps Script
-  const scriptUrlCompleto = `${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&confirmacion=${encodeURIComponent(textoConfirmacion)}&callback=respuestaGuardada`;
-  
-  // Crear el elemento script para enviar los datos (JSONP)
-  const script = document.createElement('script');
-  script.src = scriptUrlCompleto;
-  document.body.appendChild(script);
-};
+function enviarConfirmacion() {
+  const btn = document.getElementById('btnEnviar');
+  if (btn) { btn.innerText = "Guardando..."; btn.disabled = true; }
 
-window.respuestaGuardada = function(response) {
-  if (response.estatus === "ok") {
-    alert("¡Confirmación guardada con éxito!");
-    // Aquí puedes alternar tus divs para mostrar el QR simulado o el mensaje final
-    document.getElementById('formularioConfirmacion').style.display = 'none';
-    document.getElementById('vistaConfirmada').style.display = 'block';
-    document.getElementById('resumenTexto').innerText = "Tu selección ha sido registrada en nuestra lista de asistencia.";
-  } else {
-    alert("Hubo un problema al guardar tu respuesta.");
+  const respuestas = [];
+  if (datosGlobal) {
+    datosGlobal.integrantes.forEach((nom, i) => {
+      const sel = document.getElementById('status-' + i);
+      if (sel) respuestas.push(`${nom.trim()}: ${sel.value}`);
+    });
+  }
+
+  const id = new URLSearchParams(window.location.search).get('id');
+  const finalResp = respuestas.join(" | ");
+  llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`);
+}
+
+window.procesarGuardado = function(res) {
+  if (res.estatus === "ok") {
+    location.reload();
   }
 };
+
+function initConfirmacion() {
+  if (!document.getElementById('confirmacion-loader')) return;
+
+  const id = new URLSearchParams(window.location.search).get('id');
+  if (id) {
+    llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
+  }
+
+  // Exponer funciones al scope global para onclick en HTML
+  window.habilitarEdicion   = habilitarEdicion;
+  window.enviarConfirmacion = enviarConfirmacion;
+}
+
+/* =========================================
+   VALIDADOR — validador.html
+   ========================================= */
+function initValidador() {
+  const reader = document.getElementById('reader');
+  if (!reader || typeof Html5QrcodeScanner === 'undefined') return;
+
+  const statusDiv = document.getElementById('validador-status');
+
+  function mostrarMensajeValidador(texto, clase) {
+    if (!statusDiv) return;
+    statusDiv.innerHTML = texto;
+    statusDiv.className = "validador-mensaje " + clase;
+    statusDiv.style.display = "block";
+  }
+
+  function onScanSuccess(decodedText) {
+    html5QrcodeScanner.clear();
+
+    let idInvitado;
+    try {
+      const url = new URL(decodedText);
+      idInvitado = url.searchParams.get("id") || decodedText;
+    } catch (e) {
+      idInvitado = decodedText;
+    }
+
+    mostrarMensajeValidador("Consultando lista en tiempo real...", "validador-consultando");
+
+    const script = document.createElement('script');
+    script.src = `${SCRIPT_URL}?id=${encodeURIComponent(idInvitado)}&callback=recibirRespuestaValidador`;
+    script.onerror = () => mostrarMensajeValidador("Error de red: No se pudo conectar con el servidor.", "validador-error");
+    document.body.appendChild(script);
+  }
+
+  window.recibirRespuestaValidador = function(data) {
+    if (data.familia) {
+      mostrarMensajeValidador("✅ ACCESO PERMITIDO:<br>" + data.familia, "validador-exito");
+    } else if (data.error) {
+      mostrarMensajeValidador("❌ " + data.error, "validador-error");
+    } else {
+      mostrarMensajeValidador("❌ INVITADO NO ENCONTRADO", "validador-error");
+    }
+  };
+
+  const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+  html5QrcodeScanner.render(onScanSuccess);
+}
+
+/* =========================================
+   DOM READY — enrutador de páginas
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  initIndex();
+  initConfirmacion();
+  initValidador();
+});
