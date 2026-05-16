@@ -1,1763 +1,917 @@
 /* =========================================
-   IMPORTACIÓN DE FUENTES (Google Fonts)
+   IMPORTACIÓN DE FUENTES
    ========================================= */
-/* He añadido Great Vibes para el nombre y mantenido Montserrat y Cormorant */
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;700;800&family=Cormorant+Garamond:ital,wght@0,700;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,700;1,700&display=swap');
 
 /* =========================================
-   PALETA DE COLORES: VINO & DORADO LUXURY
+   VARIABLES GLOBALES
    ========================================= */
 :root {
-  /* Tonos Principales */
-       --vino: #4A0F1B;
-    --vino-light: #6E1C2F;
+  --vino:         #5A0D15;
+  --vino-light:   #800020;
+  --dorado:       #C5A059;
+  --dorado-claro: #E8D2A6;
+  --dorado-metal: #f3e5ab;
+  --rosa-bebe:    #fce4ec;
+  --rosa-medio:   #ebb7c9;
+  --text-dark:    #1a1a1a;
+  --text-soft:    #555;
+  --bg-glass:     rgba(255, 255, 255, 0.45);
 
-    --gold: #C6A56B;
-    --gold-soft: #E7D5B0;
-
-    --rose-soft: #F7E8EC;
-    --rose-medium: #EBC7D2;
-
-    --white: #FFFFFF;
-    --ivory: #FFFDFB;
-
-    --text-dark: #1F1F1F;
-    --text-soft: #555;
-
-    /* Tonos Principales */
-    --color-primary: #5A0D15;    /* Vino Profundo (Títulos y énfasis) */
-    --color-secondary: #800020;  /* Borgoña (Botones y realce) */
-    --rosa-bebe: #fce4ec; /*Rosa bebe*/
-    --rosa-medio: #ebb7c9;
-
-    /* Tonos Dorado */
-    --color-accent: #C5A059;     /* Dorado Mate (Bordes y detalles) */
-    --color-gold-light: #E8D2A6; /* Dorado Claro (Textos sobre fondo oscuro) */
-    
-    /* Fondos y Texto */
-    --bg-glass: rgba(255, 255, 255, 0.55); /* Cristal más blanco para legibilidad */
-    --text-body: #1a1a1a;        /* Texto oscuro con peso */
-    --text-light: #FAF5F7;       
-    --blanco-puro: #ffffff;
-    
-    /* Tipografías */
-    --font-serif: 'Cormorant Garamond', serif; 
-    --font-script: 'Great Vibes', cursive;     /* ACTUALIZADA A LA DE LA IMAGEN */
-    --font-sans: 'Montserrat', sans-serif;    
+  --font-script: 'Great Vibes', cursive;
+  --font-serif:  'Cormorant Garamond', serif;
+  --font-sans:   'Montserrat', sans-serif;
 }
 
 /* =========================================
-   ESTILOS BASE CON PRESENCIA (NEGRITAS)
+   RESET BASE
    ========================================= */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-body { 
-    font-family: var(--font-serif); 
-    background-color: #000; 
-    color: var(--text-body); 
-    overflow-x: hidden; 
-    line-height: 1.6;
-    font-size: 19px; 
+body {
+  font-family: var(--font-serif);
+  background-color: #000;
+  color: var(--text-dark);
+  overflow-x: hidden;
+  line-height: 1.6;
+  font-size: 18px;
 }
 
-/* --- PANTALLA INICIAL (SOBRE) --- */
-/* Definición de la Paleta en el Root si no la tienes */
-:root {
-    --vino: #5A0D15;
-    --dorado: #C5A059;
-    --rosa-bebe: #FDF2F5;
-    --blanco-marfil: #FFFFFF;
-    --font-script: 'Great vibes', cursive; /* La de la imagen de Nancy Paola */
+img { max-width: 100%; height: auto; display: block; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 800;
+  color: var(--vino);
+  margin-bottom: 20px;
 }
-
-/* --- PANTALLA INICIAL (SOBRE) --- */
-/* =========================================
-   PANTALLA SOBRE PREMIUM XV
-========================================= */
-
-#pantalla-sobre{
-    position: fixed;
-    inset: 0;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    background:
-        radial-gradient(
-            circle at top,
-            #fff 0%,
-            #fdf3f6 45%,
-            #f7e7ec 100%
-        );
-
-    overflow: hidden;
-
-    z-index: 9999;
-
-    transition:
-        transform 1.2s cubic-bezier(.77,0,.18,1);
-}
-
 
 /* =========================================
-   CONTENEDOR GENERAL
-========================================= */
+   PANTALLA SOBRE
+   ========================================= */
+#pantalla-sobre {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top, #fff 0%, #fdf3f6 45%, #f7e7ec 100%);
+  z-index: 9999;
+  overflow: hidden;
+  transition:
+    transform 1.2s cubic-bezier(0.77, 0, 0.18, 1),
+    opacity   0.7s ease 0.4s,
+    filter    0.6s ease;
+}
 
-.sobre-visual{
+/* Animación mejorada: escala + traslado + blur + fade */
+#pantalla-sobre.cerrar {
+  transform: scale(1.06) translateY(-105%);
+  opacity: 0;
+  filter: blur(4px);
+  pointer-events: none;
+}
 
-    position: relative;
+/* Contenedor del sobre */
+.sobre-visual {
+  position: relative;
+  width: 90vw;
+  max-width: 420px;
+  height: 280px;
+  perspective: 1200px;
+  animation: luxuryFloat 5s ease-in-out infinite;
+  background: linear-gradient(135deg, #f9e9ee 0%, #f6dbe4 100%);
+  border-radius: 0 0 25px 25px;
+  box-shadow: 0 30px 60px rgba(90, 13, 21, 0.18);
+  overflow: visible;
+}
 
-    width: 90vw;
-    max-width: 420px;
-    height: 280px;
+/* Carta interior */
+.sobre-visual::after {
+  content: "";
+  position: absolute;
+  width: 92%;
+  height: 240px;
+  background: linear-gradient(to bottom, #fff 0%, #fffafc 100%);
+  left: 50%;
+  top: -45px;
+  transform: translateX(-50%);
+  border-radius: 18px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  z-index: 1;
+}
 
-    perspective: 1200px;
+/* Tapa del sobre */
+.sobre-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #fff 0%, #f8dfe6 100%);
+  clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
+  border: 1px solid rgba(197, 160, 89, 0.45);
+  z-index: 3;
+}
+
+.sobre-visual > * { position: relative; z-index: 5; }
+
+/* Textos del sobre */
+.sobre-label {
+  margin-top: 25px;
+  text-align: center;
+  font-family: var(--font-sans);
+  letter-spacing: 6px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--vino);
+  font-weight: 700;
 }
 
 .name-sobre {
-    font-size: clamp(2.5rem, 10vw, 4.3rem); 
+  font-family: var(--font-script);
+  font-size: clamp(2.5rem, 10vw, 4.3rem);
+  text-align: center;
+  color: var(--vino);
+  line-height: 1;
+  margin: 10px 0 15px;
+}
+
+#nombre-invitado-sobre {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--dorado);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#sobre-fecha {
+  text-align: right;
+  font-family: var(--font-serif);
+  letter-spacing: 4px;
+  color: var(--vino-light);
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-top: 30px;
+  text-transform: uppercase;
+}
+
+/* Sello circular */
+.boton-abrir {
+  position: absolute;
+  left: 50%;
+  bottom: -45px;
+  transform: translateX(-50%);
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  border: 4px solid var(--dorado);
+  background: radial-gradient(circle, #fff 0%, #f6dfe6 100%);
+  color: var(--vino);
+  font-family: var(--font-script);
+  font-size: 2.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  z-index: 20;
+  overflow: hidden;
+  transition: transform 0.35s ease, background 0.35s ease,
+              box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.boton-abrir::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+}
+
+.boton-abrir::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.8), transparent, rgba(197,160,89,0.5));
+  z-index: -1;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.boton-abrir:hover {
+  transform: translateX(-50%) scale(1.12) rotate(-4deg);
+  background: radial-gradient(circle, #ebb7c9 0%, #C5A059 100%);
+  box-shadow: 0 20px 45px rgba(197, 160, 89, 0.45);
+  border-color: #f3d9a4;
+}
+
+@keyframes luxuryFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
 }
 
 /* =========================================
-   CARTA INTERIOR
-========================================= */
-
-.sobre-visual::after{
-
-    content: "";
-
-    position: absolute;
-
-    width: 92%;
-    height: 240px;
-
-    background:
-        linear-gradient(
-            to bottom,
-            #fff 0%,
-            #fffafc 100%
-        );
-
-    left: 50%;
-    top: -45px;
-
-    transform:
-        translateX(-50%);
-
-    border-radius: 18px;
-
-    box-shadow:
-        0 15px 40px rgba(0,0,0,.08);
-
-    border:
-        1px solid rgba(197,160,89,.35);
-
-    z-index: 1;
-}
-
-
-/* =========================================
-   CUERPO SOBRE
-========================================= */
-
-.sobre-visual{
-
-    background:
-        linear-gradient(
-            135deg,
-            #f9e9ee 0%,
-            #f6dbe4 100%
-        );
-
-    border-radius:
-        0 0 25px 25px;
-
-    box-shadow:
-        0 30px 60px rgba(90,13,21,.18);
-
-    overflow: visible;
-}
-
-
-/* =========================================
-   TAPA DEL SOBRE
-========================================= */
-
-.sobre-visual::before{
-
-    content: "";
-
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #fff 0%,
-            #f8dfe6 100%
-        );
-
-    clip-path:
-        polygon(
-            0 0,
-            50% 52%,
-            100% 0,
-            100% 100%,
-            0 100%
-        );
-
-    border:
-        1px solid rgba(197,160,89,.45);
-
-    z-index: 3;
-}
-
-
-/* =========================================
-   CONTENIDO INTERIOR
-========================================= */
-
-.sobre-visual > *{
-
-    position: relative;
-
-    z-index: 5;
-}
-
-
-/* =========================================
-   TEXTOS
-========================================= */
-
-.sobre-label{
-
-    margin-top: 25px;
-
-    text-align: center;
-
-    font-family: 'Montserrat', sans-serif;
-
-    letter-spacing: 6px;
-
-    font-size: .7rem;
-
-    text-transform: uppercase;
-
-    color: var(--vino);
-
-    font-weight: 700;
-}
-
-
-.name-sobre{
-
-    font-family: var(--font-script);
-
-    font-size: 4.3rem;
-
-    text-align: center;
-
-    color: var(--vino);
-
-    line-height: 1;
-
-    margin: 10px 0 15px;
-}
-
-
-#nombre-invitado-sobre{
-
-    font-family: var(--font-serif);
-
-    font-size: 2rem;
-
-    color: var(--dorado);
-
-    text-align: center;
-
-    margin-bottom: 20px;
-}
-#sobre-fecha{
-
-    text-align: right;
-
-    font-family: var(--font-serif);
-
-    letter-spacing: 4px;
-
-    color: var(--color-secondary);
-
-    font-size: .82rem;
-
-    font-weight: 800;
-
-    margin-top: 30px;
-
-    text-transform: uppercase;
-
-    text-shadow:
-        0 1px 2px rgba(255,255,255,.8);
-}
-
-/* =========================================
-   SELLO CENTRAL
-========================================= */
-.boton-abrir{
-
-    position: absolute;
-
-    left: 50%;
-    bottom: -45px;
-
-    width: 105px;
-    height: 105px;
-
-    border-radius: 50%;
-    border: 4px solid var(--dorado);
-
-    background:
-        radial-gradient(
-            circle,
-            #fff 0%,
-            #f6dfe6 100%
-        );
-
-    color: var(--vino);
-
-    font-family: var(--font-script);
-    font-size: 2.3rem;
-
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    box-shadow:
-        0 10px 30px rgba(0,0,0,.18);
-
-    z-index: 20;
-
-    transition:
-        all .35s ease;
-
-    transform:
-        translateX(-50%);
-
-    overflow: hidden;
-}
-
-
-/* IMPORTANTE */
-.boton-abrir::before,
-.boton-abrir::after{
-    pointer-events: none;
-}
-
-
-/* HOVER */
-.boton-abrir:hover{
-
-    transform:
-        translateX(-50%)
-        scale(1.12);
-
-    background:
-        radial-gradient(
-            circle,
-            #ebb7c9 0%,
-            #4A0F1B 100%
-        );
-
-    box-shadow:
-        0 20px 45px rgba(197,160,89,.45);
-
-    border-color: #f3d9a4;
-}
-
-
-/* =========================================
-   HOVER PREMIUM REAL
-========================================= */
-
-.boton-abrir:hover{
-
-    transform:
-        translateX(-50%)
-        scale(1.12)
-        rotate(-4deg);
-
-    box-shadow:
-        0 18px 35px rgba(197,160,89,.45);
-
-    background:
-        radial-gradient(
-            circle,
-            #ebb7c9 0%,
-            #C5A059 100%
-        );
-}
-
-/* =========================================
-   BRILLO DORADO
-========================================= */
-
-.boton-abrir::before{
-
-    content: "";
-
-    position: absolute;
-
-    inset: -4px;
-
-    border-radius: 50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255,255,255,.8),
-            transparent,
-            rgba(197,160,89,.5)
-        );
-
-    z-index: -1;
-
-    opacity: .7;
-}
-
-
-/* =========================================
-   ANIMACIÓN SUAVE
-========================================= */
-
-@keyframes luxuryFloat{
-
-    0%{
-        transform:
-            translateY(0px);
-    }
-
-    50%{
-        transform:
-            translateY(-8px);
-    }
-
-    100%{
-        transform:
-            translateY(0px);
-    }
-}
-
-.sobre-visual{
-
-    animation:
-        luxuryFloat 5s ease-in-out infinite;
-}
-
-
-/* =========================================
-   RESPONSIVE
-========================================= */
-
-@media(max-width:680px){
-
-    .sobre-visual{
-
-        width: 92%;
-        height: 270px;
-    }
-
-    .name-sobre{
-
-        font-size: 3.5rem;
-    }
-
-    #nombre-invitado-sobre{
-
-        font-size: 1.5rem;
-    }
-
-    .boton-abrir{
-
-        width: 92px;
-        height: 92px;
-
-        font-size: 2rem;
-    }
-}
-
-
-/* Forzar negritas en toda la jerarquía de títulos */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 800 !important;
-    color: var(--color-primary);
-    margin-bottom: 20px;
-}
-
-/* Párrafos con mayor peso visual */
-p, span, div {
-    font-weight: 700; 
-}
-
-/* =========================================
-   IMAGEN DE FONDO (FIJA Y NÍTIDA)
+   FONDO FIJO
    ========================================= */
 .fixed-bg {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: url('../img/principal.png') center/cover no-repeat;
-    z-index: -2;
-    filter: blur(2px) brightness(0.6); 
-    transform: scale(1.05); 
-    will-change: filter;
+  position: fixed;
+  inset: 0;
+  background: url('../img/principal.png') center / cover no-repeat;
+  z-index: -2;
+  filter: blur(2px) brightness(0.6);
+  transform: scale(1.05);
+  will-change: filter;
 }
 
 /* =========================================
-   CONTENEDOR GLOBAL
+   CONTENIDO PRINCIPAL
    ========================================= */
+#contenido         { display: none; }
+#contenido.visible { display: block; }
+
 .main-wrapper {
-    width: 95%;
-    max-width: 600px; 
-    margin: 0 auto;   
-    padding: 20px;    
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    min-height: 100vh;
+  width: 95%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* =========================================
-   EFECTO GLASSMORPHISM (TARJETAS)
+   TARJETAS GLASSMORPHISM
    ========================================= */
 .section-card {
-    width: 100%;  
-    box-sizing: border-box;    
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(2px);
-    margin-bottom: 30px; 
-    border-radius: 20px;
-    padding: 40px 20px; 
-    box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
-    text-align: center; 
-    border: 1.5px solid var(--color-accent); 
-}
-
-@media (max-width: 480px) {
-    .section-card {
-        padding: 30px 15px; /* Más espacio para el texto en celulares pequeños */
-    }
-}
-section-card img {
-    max-width: 100% !important; /* No permite que sea más ancha que la card */
-    height: auto !important;     /* Mantiene la proporción para que no se vea estirada */
-    display: block;
-    margin: 0 auto 15px auto;    /* La centra y le da espacio abajo */
-    border-radius: 10px;         /* Opcional: para que combine con tus bordes redondeados */
-}
-
-@media (max-width: 680px) {
-    .section-card { padding: 10px 10px; }
-    .main-wrapper { padding: 10px; }
+  width: 100%;
+  background: var(--bg-glass);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  margin-bottom: 30px;
+  border-radius: 20px;
+  padding: 40px 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  border: 1.5px solid var(--dorado);
 }
 
 /* =========================================
-   HERO / PORTADA
+   HERO
    ========================================= */
-.hero { 
-    background: transparent; 
-    box-shadow: none; 
-    border: none; 
-    padding-top: 50vh; 
-    padding-bottom: 20px; 
-} 
-
-.hero-name { 
-    font-family: var(--font-script) !important; /* APLICANDO LA NUEVA LETRA */
-    font-size: clamp(4rem, 15vw, 6.5rem);      /* Ajuste de tamaño para resaltar */
-    color: var(--color-gold-light); 
-    text-shadow: 3px 3px 15px rgba(0,0,0,0.8); 
-    margin: 15px 0;
-    font-weight: 400 !important; 
+.hero {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding-top: 50vh;
+  padding-bottom: 20px;
 }
 
-.hero-fecha { 
-    font-family: var(--font-sans); 
-    letter-spacing: 12px; 
-    color: var(--rosa-bebe); 
-    font-weight: 800; 
-    font-size: 0.9rem; 
-    text-shadow: 0 2px 8px rgba(0,0,0,0.5); 
+.hero-fecha {
+  font-family: var(--font-sans);
+  letter-spacing: 12px;
+  color: var(--rosa-bebe);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.hero-name {
+  font-family: var(--font-script);
+  font-size: clamp(4rem, 15vw, 6.5rem);
+  color: var(--dorado-claro);
+  text-shadow: 3px 3px 15px rgba(0, 0, 0, 0.8);
+  margin: 15px 0;
+  font-weight: 400;
 }
 
 /* =========================================
    CONTADOR
    ========================================= */
-.contador-grid { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; gap: 8px; margin-top: 40px; max-width: 400px; margin-left: auto; margin-right: auto; }
-.contador-item { 
-    background: rgba(90, 13, 21, 0.6); /* Fondo vino transparente */
-    padding: 15px 5px; 
-    border-radius: 12px; 
-    backdrop-filter: blur(5px); 
-    border: 1px solid var(--color-accent); 
+.contador-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 40px auto 0;
+  max-width: 400px;
 }
-.count-num { font-family: var(--font-sans); display: block; font-size: 1.8rem; font-weight: 800; color: var(--color-gold-light); }
-.count-lab { font-family: var(--font-sans); font-size: 0.6rem; text-transform: uppercase; color: white; letter-spacing: 1px; font-weight: 700; }
+
+.contador-item {
+  background: rgba(90, 13, 21, 0.6);
+  padding: 15px 5px;
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--dorado);
+}
+
+.count-num {
+  font-family: var(--font-sans);
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--dorado-claro);
+}
+
+.count-lab {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: white;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
 
 /* =========================================
-   BLOQUES DE TEXTO Y TÍTULOS
+   TIPOGRAFÍA GENERAL
    ========================================= */
-.modern-title { 
-    font-family: var(--font-sans); 
-    text-transform: uppercase; 
-    letter-spacing: 3px; 
-    color: var(--color-secondary); 
-    font-size: 0.9rem; 
-    font-weight: 800; 
+.modern-title {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--vino-light);
+  font-size: 0.9rem;
+  font-weight: 800;
 }
 
 .serif-title {
-    font-family: var(--font-serif); 
-    font-size: 2.8rem; 
-    color: var(--color-primary);
-    font-style: italic; 
-    font-weight: 700; 
+  font-family: var(--font-serif);
+  font-size: 2.8rem;
+  color: var(--vino);
+  font-style: italic;
+  font-weight: 700;
 }
 
-.fecha-destacada { 
-    font-family: var(--font-serif); 
-    font-size: 2.2rem; 
-    font-weight: 800; 
-    color: var(--color-primary); 
-    padding: 25px 0; 
-    border-top: 2px solid var(--color-accent); 
-    border-bottom: 2px solid var(--color-accent); 
-    margin: 30px auto; 
-    letter-spacing: 1px; 
+.fecha-destacada {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--vino);
+  padding: 25px 0;
+  border-top: 2px solid var(--dorado);
+  border-bottom: 2px solid var(--dorado);
+  margin: 30px auto;
+  letter-spacing: 1px;
+}
+
+.hora-texto {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--vino-light);
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+
+.mensaje-emotivo {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1.8;
+  color: var(--text-dark);
+  font-style: italic;
+  padding: 20px;
+  max-width: 90%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.divisor {
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--dorado), transparent);
+  margin: 20px auto;
 }
 
 /* =========================================
-   BOTONES VINO Y DORADO
+   FAMILIA / BENDICIÓN
    ========================================= */
-.btn-action { 
-    display: inline-block; padding: 18px 35px; border-radius: 50px; 
-    font-family: var(--font-sans); font-weight: 800; 
-    text-decoration: none; 
-    margin: 12px; transition: all 0.3s ease; font-size: 0.8rem; 
-    letter-spacing: 2px; border: none; cursor: pointer; text-transform: uppercase; 
+.bendicion-container { text-align: center; padding: 20px; }
+
+.grid-linea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 15px 0;
 }
 
-.btn-map { background: var(--color-secondary); color: white; border: 1.5px solid var(--color-accent); }
-.btn-map:hover { background: var(--color-primary); transform: scale(1.05); }
+.linea-dorada {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--dorado), transparent);
+  max-width: 100px;
+}
 
-.btn-cal { background: white; color: var(--color-primary); border: 2px solid var(--color-accent); }
-.btn-cal:hover { background: var(--color-gold-light); }
+.tipo-titulo {
+  font-family: var(--font-serif);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--vino-light);
+}
+
+.nombres-bendicion {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  color: var(--vino);
+  margin-bottom: 20px;
+}
 
 /* =========================================
-   ITINERARIO (TIMELINE)
+   CARRUSEL CON CONTROLES
    ========================================= */
-.timeline { max-width: 500px; text-align: left; border-left: 2px solid var(--color-accent); padding-left: 30px; margin: 40px auto; }
-.timeline-item { position: relative; margin-bottom: 35px; font-size: 1.2rem; color: var(--text-body); font-weight: 700; }
-.timeline-item b { color: var(--color-secondary); font-family: var(--font-sans); font-weight: 800; }
-.timeline-item::before { 
-    content: ''; position: absolute; left: -42px; top: 5px; width: 22px; height: 22px; 
-    background: var(--color-accent); border: 2px solid var(--color-gold-light); border-radius: 50%; 
+.carousel-wrapper {
+  position: relative;
+  width: 85%;
+  max-width: 320px;
+  margin: 20px auto 0;
+}
+
+.carousel-container {
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-slide {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.carousel-slide img {
+  width: 100%;
+  flex-shrink: 0;
+  height: 320px;
+  object-fit: cover;
+}
+
+/* Flechas */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(90, 13, 21, 0.75);
+  color: var(--dorado-claro);
+  border: 1.5px solid var(--dorado);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  line-height: 1;
+  transition: background 0.25s ease, transform 0.25s ease, color 0.25s ease;
+}
+
+.carousel-btn:hover {
+  background: var(--dorado);
+  color: var(--vino);
+  transform: translateY(-50%) scale(1.12);
+}
+
+.carousel-btn.prev { left: -19px; }
+.carousel-btn.next { right: -19px; }
+
+/* Dots indicadores */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(197, 160, 89, 0.3);
+  border: 1px solid var(--dorado);
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.dot.active {
+  background: var(--dorado);
+  transform: scale(1.35);
 }
 
 /* =========================================
-   AVISO ROSA (PERSONALIZADO)
+   REDES SOCIALES
    ========================================= */
-.regla-rosa { 
-    background: rgba(255, 255, 255, 0.7); 
-    border: 2px dashed var(--color-accent); 
-    padding: 20px; 
-    border-radius: 15px; 
-    max-width: 500px; 
-    margin: 30px auto 0; 
-    text-align: center; 
-    
+.hashtag-main {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dorado);
+  letter-spacing: 1px;
+  margin: 10px 0 25px;
 }
 
-.aviso-text { 
-    font-size: 1.1rem !important; 
-    font-weight: 800 !important; 
-    color: var(--color-primary); 
-    text-align: center; 
-    display: block;
+.social-buttons-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.social-btn {
+  text-decoration: none;
+  color: var(--text-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-svg {
+  width: 35px;
+  height: 35px;
+  fill: #888;
+  transition: fill 0.3s ease, transform 0.3s ease;
+}
+
+.social-btn span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.social-btn.instagram:hover .icon-svg { fill: #E1306C; transform: translateY(-5px); }
+.social-btn.tiktok:hover   .icon-svg { fill: #000;    transform: translateY(-5px); }
+.social-btn:hover span { color: #333; }
+
+/* =========================================
+   ITINERARIO
+   ========================================= */
+.timeline {
+  max-width: 500px;
+  text-align: left;
+  border-left: 2px solid var(--dorado);
+  padding-left: 30px;
+  margin: 40px auto;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 35px;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+.timeline-item b {
+  color: var(--vino-light);
+  font-family: var(--font-sans);
+  font-weight: 800;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -42px;
+  top: 5px;
+  width: 22px;
+  height: 22px;
+  background: var(--dorado);
+  border: 2px solid var(--dorado-claro);
+  border-radius: 50%;
+}
+
+/* =========================================
+   MAPAS
+   ========================================= */
+.map-block { margin-bottom: 30px; }
+
+.map-p {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: 3px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--vino-light);
+  margin-bottom: 10px;
+}
+
+.img-mapa {
+  width: 100%;
+  max-width: 380px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin: 0 auto 10px;
+  border: 1.5px solid var(--dorado);
+}
+
+.place-name {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--vino);
+  margin-bottom: 10px;
+}
+
+/* =========================================
+   VESTIMENTA
+   ========================================= */
+.vestimenta-tipo {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--vino);
+  letter-spacing: 2px;
+  margin: 15px 0;
+}
+
+/* Aviso ROSA — hover dorado */
+.regla-rosa {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--rosa-medio);
+  padding: 28px 22px;
+  margin: 30px auto 0;
+  border-radius: 18px;
+  text-align: center;
+  border: 1px solid rgba(197, 160, 89, 0.2);
+  box-shadow: 0 8px 20px rgba(255, 182, 193, 0.12);
+  max-width: 520px;
+  cursor: pointer;
+  transition: background 0.45s ease, transform 0.4s ease,
+              box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.regla-rosa p:first-child {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--vino);
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+
+.aviso-text {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #444;
+  transition: color 0.4s ease;
+}
+
+.regla-rosa::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -110%;
+  width: 100%; height: 200%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+  transform: rotate(30deg);
+  transition: left 0.65s ease;
+}
+
+.regla-rosa:hover {
+  background: linear-gradient(135deg, var(--dorado) 0%, var(--dorado-metal) 50%, var(--dorado) 100%);
+  border-color: var(--dorado-metal);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(197, 160, 89, 0.5);
+}
+
+.regla-rosa:hover p,
+.regla-rosa:hover .aviso-text { color: var(--vino); }
+.regla-rosa:hover::before      { left: 110%; }
+
+/* =========================================
+   LIVERPOOL
+   ========================================= */
+.liverpool-card {
+  display: block;
+  text-decoration: none;
+  max-width: 380px;
+  margin: 20px auto 0;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.5s ease;
+}
+
+.liverpool-container {
+  position: relative;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.liverpool-img {
+  width: 100%;
+  height: auto;
+  transition: transform 0.8s ease, filter 0.5s ease;
+}
+
+.overlay-glow {
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-25deg);
+  transition: left 0.7s ease;
+}
+
+.btn-liverpool {
+  background-color: var(--vino);
+  color: white;
+  padding: 15px 25px;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-top: 2px solid var(--dorado);
+  transition: background 0.4s ease, color 0.4s ease, letter-spacing 0.4s ease;
+}
+
+.liverpool-card:hover                { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px rgba(90,13,21,0.2); }
+.liverpool-card:hover .liverpool-img { transform: scale(1.08); filter: brightness(1.1); }
+.liverpool-card:hover .btn-liverpool { background: var(--dorado); color: var(--vino); letter-spacing: 4px; }
+.liverpool-card:hover .overlay-glow  { left: 150%; }
+
+/* =========================================
+   BOTONES
+   ========================================= */
+.btn-action {
+  display: inline-block;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  text-decoration: none;
+  margin: 12px;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.btn-map { background: var(--vino-light); color: white; border: 1.5px solid var(--dorado); }
+.btn-map:hover { background: var(--vino); transform: scale(1.05); }
+
+.btn-cal {
+  position: relative;
+  overflow: hidden;
+  background: var(--vino);
+  color: white;
+  border: 2px solid var(--dorado);
+  z-index: 1;
+}
+.btn-cal::before {
+  content: '';
+  position: absolute;
+  inset: 0; left: -100%;
+  background: linear-gradient(90deg, var(--dorado) 0%, var(--dorado-metal) 50%, var(--dorado) 100%);
+  transition: left 0.5s ease;
+  z-index: -1;
+}
+.btn-cal:hover         { color: var(--vino); transform: translateY(-3px); border-color: #fff; }
+.btn-cal:hover::before { left: 0; }
+
+.btn-outline { background: transparent; color: var(--vino); border: 2px solid var(--dorado); }
+.btn-outline:hover { background: var(--dorado-claro); }
+
+.btn-elegante {
+  display: inline-block;
+  padding: 18px 45px;
+  background: var(--vino);
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 3px;
+  border-radius: 50px;
+  border: 2px solid var(--dorado);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 10px 20px rgba(90, 13, 21, 0.2);
+  transition: color 0.5s ease, transform 0.4s ease,
+              box-shadow 0.4s ease, border-color 0.4s ease;
+}
+.btn-elegante::before {
+  content: '';
+  position: absolute;
+  inset: 0; left: -100%;
+  background: linear-gradient(90deg, var(--dorado) 0%, var(--dorado-metal) 50%, var(--dorado) 100%);
+  transition: left 0.6s ease;
+  z-index: -1;
+}
+.btn-elegante span          { margin-right: 10px; font-size: 1.1rem; vertical-align: middle; }
+.btn-elegante:hover         { color: var(--vino); transform: translateY(-5px); box-shadow: 0 15px 30px rgba(197,160,89,0.4); border-color: #fff; }
+.btn-elegante:hover::before { left: 0; }
+
+/* =========================================
+   CONFIRMACIÓN
+   ========================================= */
+.confirm-date {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  margin-bottom: 20px;
+  font-weight: 600;
 }
 
 /* =========================================
    FOOTER
    ========================================= */
-.main-footer { 
-    padding: 60px 20px; 
-    color: var(--color-gold-light); 
-    font-family: var(--font-sans); 
-    font-size: 0.8rem; 
-    text-align: center; 
-    letter-spacing: 4px; 
-    font-weight: 800;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-}
-
-/* Actualiza este bloque en tu CSS */
-.pantalla-inicial {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('../img/fondo-sobre.jpg') center/cover no-repeat;
-    z-index: 2000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.8s ease-in-out, opacity 0.5s;
-}
-
-
-/* Galería */
-.carousel-container { position: relative; width: 85%; max-width: 300px; margin: 20px auto; overflow: hidden; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-.carousel-slide { display: flex; transition: transform 0.5s ease; }
-.carousel-slide img { width: 100%; flex-shrink: 0; height: 320px; object-fit: cover; }
-
-/* --- AJUSTE SECCIÓN LIVERPOOL --- */
-
-.liverpool-card {
-    text-decoration: none;
-    display: block;
-    width: 100%;
-    max-width: 350px; /* Limitamos el ancho para que no se vea gigante en PC */
-    margin: 20px auto;
-    border-radius: 15px;
-    overflow: hidden; /* Esto corta la imagen si se sale de las esquinas redondeadas */
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-    background: #fff;
-}
-
-.liverpool-card:hover {
-    transform: translateY(-5px);
-}
-
-.liverpool-img {
-    width: 70%;
-    height: auto;
-    display: block;
-    object-fit: cover; /* Mantiene la proporción de la imagen */
-}
-
-.btn-liverpool {
-    background-color: #e6007e; /* Rosa corporativo de Liverpool */
-    color: white;
-    padding: 15px;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-/* Asegurar que la sección card no tenga padding extra que rompa la imagen */
-.section-card .reveal {
-    width: 100%;
-}
-
-/* --- ESTILO BOTÓN CONFIRMAR CON HOVER DORADO --- */
-.btn-elegante {
-    display: inline-block;
-    padding: 18px 45px;
-    background-color: var(--vino); /* Fondo inicial */
-    color: #ffffff;
-    text-decoration: none;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    letter-spacing: 3px;
-    border-radius: 50px;
-    border: 2px solid var(--dorado);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-    box-shadow: 0 10px 20px rgba(90, 13, 21, 0.2);
-}
-
-/* Capa interna para el efecto de llenado dorado */
-.btn-elegante::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg, 
-        var(--dorado) 0%, 
-        #f3e5ab 50%, 
-        var(--dorado) 100%
-    ); /* Degradado metálico */
-    transition: all 0.6s ease;
-    z-index: -1;
-}
-
-/* --- ESTADO HOVER (AL PASAR EL MOUSE) --- */
-.btn-elegante:hover {
-    color: var(--vino); /* El texto cambia a vino para resaltar sobre el oro */
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(197, 160, 89, 0.4);
-    border-color: #ffffff;
-}
-
-.btn-elegante:hover::before {
-    left: 0; /* El color dorado entra desde la izquierda */
-}
-
-/* Ajuste para el icono del celular */
-.btn-elegante span {
-    margin-right: 10px;
-    font-size: 1.1rem;
-    vertical-align: middle;
-}
-
-/* --- ESTILO BASE PARA BOTONES CON HOVER DORADO --- */
-.btn-elegante-hover {
-    display: inline-block;
-    padding: 15px 30px;
-    text-decoration: none;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
-    border-radius: 50px;
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 2px solid var(--dorado);
-    cursor: pointer;
-}
-
-/* El "baño de oro" oculto a la izquierda */
-.btn-elegante-hover::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg, 
-        #C5A059 0%, 
-        #F3E5AB 50%, 
-        #C5A059 100%
-    );
-    transition: all 0.6s ease;
-    z-index: -1;
-}
-
-/* --- COMPORTAMIENTO AL PASAR EL MOUSE --- */
-.btn-elegante-hover:hover {
-    color: var(--vino) !important; /* El texto cambia a vino para resaltar */
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(197, 160, 89, 0.3);
-    border-color: #fff;
-}
-
-.btn-elegante-hover:hover::before {
-    left: 0; /* Entra el dorado */
-}
-
-/* Asegurar que el contenido (span) esté por encima del efecto */
-.btn-elegante-hover span {
-    position: relative;
-    z-index: 2;
-}
-
-/* Ajuste específico para el botón de calendario si quieres que sea Vino de inicio */
-.btn-cal {
-    background-color: var(--vino);
-    color: white;
-    margin-top: 20px;
-}
-
-/* --- BOTÓN VESTIMENTA: DESTELLO DE JOYERÍA --- */
-.btn-vestimenta-joya {
-    display: inline-block;
-    padding: 16px 40px;
-    background-color: #5A0D15; /* Fondo vino sólido para visibilidad */
-    color: #ffffff !important; /* Texto blanco siempre visible */
-    text-decoration: none;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: 3px;
-    border-radius: 4px;
-    position: relative;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(197, 160, 89, 0.5); /* Borde dorado inicial */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    overflow: hidden; /* Importante para que el brillo no se salga */
-}
-
-/* El "Brillo" que recorre el botón */
-.btn-vestimenta-joya::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        120deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.4), 
-        transparent
-    );
-    transform: translateX(-100%);
-    transition: 0.6s;
-    z-index: 1;
-}
-
-/* --- INTERACTIVIDAD (EL CAMBIO) --- */
-.btn-vestimenta-joya:hover {
-    background-color: #7a121d; /* Vino más vibrante */
-    transform: translateY(-5px); /* Elevación suave */
-    letter-spacing: 5px; /* El texto se expande elegantemente */
-    border-color: #C5A059; /* El dorado se intensifica */
-    
-    /* Resplandor dorado exterior (Glow) */
-    box-shadow: 0 0 25px rgba(197, 160, 89, 0.7), 
-                0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* El destello cruza el botón al hacer hover */
-.btn-vestimenta-joya:hover::before {
-    transform: translateX(100%);
-}
-
-/* Animación del icono ✨ y texto */
-.btn-vestimenta-joya span {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.4s ease;
-    position: relative;
-    z-index: 2; /* Por encima del brillo */
-}
-
-.btn-vestimenta-joya:hover span {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-    transform: scale(1.05);
-}
-
-/* --- REGLA ROSA MEJORADA --- */
-.regla-rosa {
-    background: #fff;
-    border: 1px solid #eee;
-    border-left: 5px solid #5A0D15;
-    padding: 25px;
-    margin-top: 40px;
-    border-radius: 0 15px 15px 0;
-    box-shadow: 5px 5px 20px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease;
-    text-align: left; /* Asegura legibilidad */
-}
-
-.regla-rosa:hover {
-    transform: translateX(10px);
-}
-
-/* --- CONTENEDOR DE LA TARJETA --- */
-.liverpool-card {
-    display: block;
-    text-decoration: none;
-    max-width: 400px;
-    margin: 0 auto;
-    position: relative;
-    transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
-    border-radius: 15px;
-    overflow: hidden;
-}
-
-.liverpool-container {
-    position: relative;
-    line-height: 0;
-    overflow: hidden;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.liverpool-img {
-    width: 100%;
-    height: auto;
-    transition: transform 0.8s ease, filter 0.5s ease;
-}
-
-/* --- EL BOTÓN DENTRO DE LA TARJETA --- */
-.btn-liverpool {
-    background-color: #5A0D15; /* Tu color Vino */
-    color: white;
-    padding: 15px 25px;
-    text-align: center;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    transition: all 0.4s ease;
-    border-top: 2px solid #C5A059; /* Línea dorada divisoria */
-}
-
-/* --- INTERACTIVIDAD (HOVER) --- */
-
-/* La tarjeta entera se eleva */
-.liverpool-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(90, 13, 21, 0.2);
-}
-
-/* La imagen hace zoom suave y se ilumina */
-.liverpool-card:hover .liverpool-img {
-    transform: scale(1.1);
-    filter: brightness(1.1);
-}
-
-/* El botón cambia a Dorado al pasar sobre la imagen */
-.liverpool-card:hover .btn-liverpool {
-    background-color: #C5A059; /* Cambia a Dorado */
-    color: #5A0D15; /* Texto en Vino para contraste */
-    letter-spacing: 4px; /* El texto se expande */
-}
-
-/* Destello sutil sobre la imagen */
-.overlay-glow {
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(
-        to right,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-    );
-    transform: skewX(-25deg);
-    transition: 0.7s;
-}
-
-.liverpool-card:hover .overlay-glow {
-    left: 150%; /* El brillo cruza la imagen de Liverpool */
-}
-
-/* --- BLOQUE AVISO: ROSA BEBÉ & HOVER DORADO --- */
-.regla-rosa {
-    background-color: var(--rosa-medio); /* FONDO ROSA BEBÉ INICIAL (Lavender Blush) */
-    padding: 30px 25px;
-    margin-top: 50px;
-    border-radius: 20px;
-    text-align: center; /* ALINEACIÓN CENTRADA */
-    
-    /* Borde inicial muy sutil para definición */
-    border: 1px solid rgba(197, 160, 89, 0.2);
-    
-    /* Sombra inicial suave */
-    box-shadow: 0 10px 25px rgba(255, 182, 193, 0.15);
-    
-    max-width: 550px;
-    margin-left: auto;
-    margin-right: auto;
-    
-    /* Transición suave para todos los cambios */
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden; /* Necesario para el efecto de brillo dorado */
-    cursor: pointer;
-}
-
-/* Título del aviso (Color Vino para contraste inicial) */
-.aviso-titulo {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #5A0D15; /* Color Vino */
-    letter-spacing: 3px;
-    margin-bottom: 18px;
-    transition: color 0.4s ease;
-}
-
-/* Texto del cuerpo */
-.aviso-text {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: #444; /* Gris oscuro para lectura */
-    margin: 0;
-    transition: color 0.4s ease;
-}
-
-/* Destaque específico de la palabra ROSA (Inicial) */
-.destaque-rosa {
-    color: #f1b1c7; /* Un rosa más intenso para la palabra clave */
-    font-weight: 800;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-}
-
-/* --- INTERACTIVIDAD (HOVER DORADO METÁLICO) --- */
-
-/* 1. Fondo cambia a Dorado Sólido o Degradado */
-.regla-rosa:hover {
-    background: linear-gradient(
-        135deg, 
-        #C5A059 0%, 
-        #f3e5ab 50%, 
-        #C5A059 100%
-    ); /* Degradado metálico de oro */
-    
-    border-color: #f3e5ab; /* Borde se aclara con el oro */
-    transform: translateY(-8px) scale(1.03); /* Se eleva y crece un poco */
-    
-    /* Sombra dorada intensa (Glow) */
-    box-shadow: 0 15px 35px rgba(197, 160, 89, 0.5);
-}
-
-/* 2. Textos cambian a Blanco o Vino para legibilidad sobre el oro */
-.regla-rosa:hover .aviso-titulo,
-.regla-rosa:hover .aviso-text,
-.regla-rosa:hover .destaque-rosa {
-    color: #5A0D15 !important; /* Volvemos al Vino para máximo contraste sobre el dorado */
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
-}
-
-/* 3. El texto "ROSA" pierde su color inicial para no chocar con el oro */
-.regla-rosa:hover .destaque-rosa {
-    color: #5A0D15 !important;
-}
-
-/* Capa de brillo opcional que cruza el bloque al hover (Efecto Joya) */
-.regla-rosa::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -110%;
-    width: 100%;
-    height: 200%;
-    background: linear-gradient(
-        to right,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-    );
-    transform: rotate(30deg);
-    transition: 0.7s;
-}
-
-.regla-rosa:hover::before {
-    left: 110%; /* El brillo cruza la tarjeta dorada */
-}
-
-/* =========================================
-   FOOTER COMPACTO (GRID PEQUEÑO)
-   ========================================= */
-/* Ajuste para que el footer sea igual a las cards */
 footer {
-    background: rgba(255, 255, 255, 0.8); /* Fondo semi-transparente como tus cards */
-    backdrop-filter: blur(10px);
-    border-radius: 20px; /* Misma curvatura que la card de confirmación */
-    
-    /* Control de dimensiones */
-    width: 90%; 
-    max-width: 500px; /* Ajusta este valor al ancho exacto de tus otras cards */
-    margin: 20px auto; /* Centrado horizontal */
-    
-    /* Hacerlo más delgado (menos alto) */
-    padding: 10px 20px; 
-    
-    /* Alineación de contenido */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); /* Sombra suave */
-}
-
-/* Ajuste del texto pequeño */
-footer p {
-    font-size: 0.8rem;
-    margin: 5px 0;
-    color: #666;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
 }
 
 .footer-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
 }
 
-/* Columna de la marca */
 .font-script-footer {
-    font-family: var(--font-script);
-    font-size: 2.2rem;
-    color: var(--color-primary);
-    line-height: 1;
-    margin: 0;
+  font-family: var(--font-script);
+  font-size: 2.2rem;
+  color: var(--vino);
+  line-height: 1;
 }
 
 .mini-tag {
-    font-family: var(--font-sans);
-    font-size: 0.6rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--color-secondary);
-    font-weight: 800;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--vino-light);
+  font-weight: 800;
 }
 
-/* Botón Minimalista de WhatsApp */
 .btn-ws-minimal {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: var(--color-secondary);
-    color: white !important;
-    text-decoration: none;
-    padding: 10px 18px;
-    border-radius: 30px;
-    font-size: 0.75rem;
-    font-family: var(--font-sans);
-    font-weight: 700;
-    transition: all 0.3s ease;
-    border: 1px solid var(--color-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--vino-light);
+  color: white;
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  border: 1px solid var(--dorado);
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
+.btn-ws-minimal:hover { background: var(--dorado); color: var(--vino); transform: translateY(-2px); }
 
-.btn-ws-minimal:hover {
-    background: var(--color-accent);
-    color: var(--color-primary) !important;
-    transform: translateY(-2px);
-}
-
-/* Copyright pequeño al fondo */
 .copyright {
-    font-family: var(--font-sans);
-    font-size: 0.6rem;
-    letter-spacing: 1px;
-    color: #666;
-    border-top: 1px solid rgba(197, 160, 89, 0.3);
-    padding-top: 10px;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: #666;
+  border-top: 1px solid rgba(197, 160, 89, 0.3);
+  padding-top: 8px;
+  width: 100%;
+  text-align: center;
 }
 
-/* Ajuste móvil */
+/* =========================================
+   RESPONSIVE
+   ========================================= */
 @media (max-width: 680px) {
-    .footer-grid {
-        grid-template-columns: 1fr; /* Se apila en pantallas muy pequeñas */
-        gap: 10px;
-    }
-    .fixed-bg {
-        /* En móviles es mejor que el fondo se mueva con el scroll para evitar saltos */
+  .section-card  { padding: 25px 15px; }
+  .main-wrapper  { padding: 10px; }
+  .footer-grid   { grid-template-columns: 1fr; }
+  .fixed-bg      { height: 100vh; }
 
-        height: 100vh; /* Un poco más alto para cubrir el rebote del scroll */
-    }
-}
+  .sobre-visual          { width: 92%; height: 270px; }
+  .name-sobre            { font-size: 3.5rem; }
+  #nombre-invitado-sobre { font-size: 1.5rem; }
+  .boton-abrir           { width: 92px; height: 92px; font-size: 2rem; }
 
-.boton-abrir::after{
-
-    content: "";
-
-    position: absolute;
-
-    inset: 6px;
-
-    border-radius: 50%;
-
-    border:
-        1px solid rgba(255,255,255,.7);
-
-    pointer-events: none;
-}
-
-/* Contenedor principal */
-.bendicion-container {
-    text-align: center;
-    padding: 20px;
-    color: #800020; /* Color guinda de tu paleta */
-}
-
-/* Grid para la línea dorada con texto central */
-.grid-linea {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin: 15px 0;
-}
-
-/* La línea dorada */
-.linea-dorada {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #d4af37, transparent); /* Degradado dorado */
-    max-width: 100px;
-}
-
-/* Tipografía para "Mis Padres" y "Mis Padrinos" */
-.tipo-titulo {
-    font-family: 'Cormorant Garamond', serif; /* O la fuente serif que uses */
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 1.1rem;
-    margin: 0;
-    color: #800020;
-}
-
-/* Tipografía para los nombres (Elegante como Nancy Paola) */
-.nombres-bendicion {
-    font-family: var(--font-serif), cursive !important;
-    font-size: 1.8rem;
-    color: var(--vino); /* Un gris oscuro o guinda suave para contraste */
-    margin-bottom: 20px;
-}
-
-/* Estilo para el contenedor del mensaje */
-.mensaje-emotivo {
-    font-family: var(--font-serif);
-    font-size: 1.40rem;
-    line-height: 1.8;
-    color: var(--gris); /* Gris oscuro para el cuerpo del texto */
-    text-align: center;
-    font-style: italic;
-    padding: 20px;
-    max-width: 90%;
-    margin: 0 auto;
-}
-
-/* El divisor dorado al final del mensaje */
-.divisor {
-    width: 60%;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #d4af37, transparent); /* Degradado dorado */
-    margin: 20px auto;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    
+  .carousel-btn      { width: 32px; height: 32px; font-size: 0.85rem; }
+  .carousel-btn.prev { left: -14px; }
+  .carousel-btn.next { right: -14px; }
 }
 
 @media print {
-    body { background: white; }
-    .card { box-shadow: none; border: none; width: 100%; max-width: none; }
-    .btn-enviar, h2, #listaIntegrantes, select, .familiar-row { display: none !important; }
-    #qr-container { display: flex !important; }
+  body { background: white; }
 }
-
-:root { 
-    --oro: #c5a059; 
-    --fondo: #f9f7f2; 
-}
-
-body { 
-    font-family: 'Segoe UI', sans-serif; 
-    background: var(--fondo); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    min-height: 100vh; 
-    margin: 0; 
-    padding: 20px; 
-}
-
-.card { 
-    background: white; 
-    padding: 30px; 
-    border-radius: 20px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-    width: 100%; 
-    max-width: 450px; 
-    text-align: center; 
-    border: 1px solid #eee; 
-}
-
-h2 { 
-    color: var(--oro); 
-    margin-bottom: 15px; 
-    font-weight: 300; 
-}
-
-.familiar-row { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 12px 0; 
-    border-bottom: 1px dashed #ddd; 
-}
-
-.nombre { 
-    font-size: 1rem; 
-    color: #444; 
-    text-align: left; 
-}
-
-.btn-enviar { 
-    background: var(--oro); 
-    color: white; 
-    border: none; 
-    width: 100%; 
-    padding: 15px; 
-    border-radius: 10px; 
-    font-size: 1rem; 
-    cursor: pointer; 
-    margin-top: 20px; 
-}
-
-.btn-modificar { 
-    background: none; 
-    border: 1px solid var(--oro); 
-    color: var(--oro); 
-    padding: 10px; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    margin-top: 15px; 
-    width: 100%; 
-}
-
-.status-badge { 
-    background: #e8f5e9; 
-    color: #2e7d32; 
-    padding: 10px; 
-    border-radius: 10px; 
-    margin-bottom: 20px; 
-    font-weight: bold; 
-    display: none; 
-}
-
-#qr-container { 
-    margin-top: 20px; 
-    display: flex; 
-    flex-wrap: wrap; 
-    justify-content: center; 
-    gap: 10px; 
-}
-
-.pase-qr { 
-    padding: 10px; 
-    border: 1px solid #eee; 
-    border-radius: 10px; 
-    background: #fff; 
-    font-size: 11px; 
-}
-
-#loader { 
-    font-style: italic; 
-    color: #888; 
-}
-
-:root {
-    --oro: #c5a059;
-    --oro-oscuro: #a38243;
-    --crema: #f9f7f2;
-    --blanco: #ffffff;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: var(--crema);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.container {
-    position: relative;
-    text-align: center;
-}
-
-.envelope-wrapper {
-    position: relative;
-    width: 300px;
-    height: 200px;
-    background-color: var(--oro);
-    cursor: pointer;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-}
-
-.envelope-wrapper:hover {
-    transform: scale(1.02);
-}
-
-.envelope {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-/* Solapa del sobre */
-.flap {
-    position: absolute;
-    top: 0;
-    width: 0;
-    height: 0;
-    border-left: 150px solid transparent;
-    border-right: 150px solid transparent;
-    border-top: 110px solid var(--oro-oscuro);
-    transform-origin: top;
-    transition: transform 0.6s ease;
-    z-index: 3;
-}
-
-/* Bolsillo del sobre */
-.pocket {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--oro);
-    border-left: 150px solid transparent;
-    border-right: 150px solid transparent;
-    border-bottom: 100px solid var(--oro);
-    z-index: 2;
-    box-sizing: border-box;
-}
-
-/* La carta interna */
-.letter {
-    position: absolute;
-    bottom: 10px;
-    left: 10%;
-    width: 80%;
-    height: 85%;
-    background: var(--blanco);
-    padding: 20px;
-    box-sizing: border-box;
-    transition: transform 0.6s ease;
-    z-index: 1;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.letter-content {
-    border: 1px solid var(--oro);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-}
-
-.letter-header { font-size: 2rem; color: var(--oro); font-weight: bold; }
-.letter-name { font-size: 1.2rem; margin-bottom: 10px; color: #444; }
-.letter-content p { font-size: 0.8rem; color: #777; margin: 0; }
-
-.btn-abrir-inv {
-    margin-top: 15px;
-    background: var(--oro);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.7rem;
-}
-
-/* Animación de apertura */
-.envelope-wrapper.open .flap {
-    transform: rotateX(180deg);
-    z-index: 0;
-}
-
-.envelope-wrapper.open .letter {
-    transform: translateY(-100px);
-    z-index: 2;
-}
-
-.instruccion {
-    margin-top: 30px;
-    color: var(--oro);
-    font-style: italic;
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-}
-
-/* Sección Redes */
-.social-links-section {
-    padding: 50px 20px;
-    text-align: center;
-}
-
-.hashtag-display {
-    margin: 20px 0;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.hashtag-hash {
-    color: #c5a059; /* Tu color oro */
-    font-size: 2rem;
-    font-weight: 300;
-}
-
-.hashtag-main {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #444;
-    letter-spacing: -1px;
-}
-
-.social-text-info {
-    font-size: 0.9rem;
-    color: #888;
-    max-width: 300px;
-    margin: 0 auto 30px auto;
-    line-height: 1.4;
-}
-
-/* Grid de Botones */
-.social-buttons-grid {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.social-btn {
-    text-decoration: none;
-    background: white;
-    border: 1px solid #eee;
-    padding: 12px 20px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 100px;
-    transition: all 0.3s ease;
-}
-
-.social-btn .icon {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
-.social-btn span {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Efecto al pasar el mouse o tocar */
-.social-btn:hover {
-    transform: translateY(-5px);
-    border-color: #c5a059;
-    box-shadow: 0 5px 15px rgba(197, 160, 89, 0.2);
-}
-
-/* Colores sutiles para los íconos al hacer hover (opcional) */
-.instagram:hover .icon { filter: drop-shadow(0 0 5px #E1306C); }
-.tiktok:hover .icon { filter: drop-shadow(0 0 5px #000); }
-
-.social-links-section {
-    padding: 50px 20px;
-    text-align: center;
-}
-
-.hashtag-main {
-    display: inline-block;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--oro, #c5a059);
-    margin-bottom: 30px;
-    letter-spacing: 1px;
-}
-
-.social-buttons-grid {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.social-btn {
-    text-decoration: none;
-    color: #555;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-}
-
-/* Tamaño de los iconos */
-.icon-svg {
-    width: 35px;
-    height: 35px;
-    fill: #888; /* Color gris por defecto */
-    transition: fill 0.3s ease, transform 0.3s ease;
-}
-
-.social-btn span {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Efectos Hover por red social */
-.social-btn.instagram:hover .icon-svg {
-    fill: #E1306C;
-    transform: translateY(-5px);
-}
-
-.social-btn.tiktok:hover .icon-svg {
-    fill: #000000;
-    transform: translateY(-5px);
-}
-
-.social-btn:hover span {
-    color: #333;
-}
-
-/*confirmacion*/
-
-:root { --oro: #c5a059; --fondo: #f9f7f2; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--fondo); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 450px; text-align: center; border: 1px solid #eee; }
-        h2 { color: var(--oro); margin-bottom: 15px; font-weight: 300; }
-        .familiar-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #ddd; }
-        .nombre { font-size: 1rem; color: #444; text-align: left; }
-        .btn-enviar { background: var(--oro); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-size: 1rem; cursor: pointer; margin-top: 20px; }
-        .btn-modificar { background: none; border: 1px solid var(--oro); color: var(--oro); padding: 10px; border-radius: 8px; cursor: pointer; margin-top: 15px; width: 100%; }
-        .status-badge { background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; display: none; }
-        #qr-container { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .pase-qr { padding: 10px; border: 1px solid #eee; border-radius: 10px; background: #fff; font-size: 11px; }
-        #loader { font-style: italic; color: #888; }
-
-        /*validador*/
-
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9; color: #333; }
-        #reader { width: 100%; max-width: 500px; margin: auto; border-radius: 15px; overflow: hidden; border: 2px solid #ccc; }
-        .mensaje { margin-top: 20px; padding: 20px; border-radius: 12px; display: none; font-weight: bold; font-size: 1.2rem; }
-        .exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .consultando { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
-        button { margin-top: 25px; padding: 15px 30px; font-size: 16px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 8px; transition: 0.3s; }
-        button:hover { background: #2980b9; }
