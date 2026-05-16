@@ -3,7 +3,7 @@
    Limpio, modular y protegido contra errores
    ========================================= */
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmulogslNI4BnVUu8ScUWXw6Qs-WHNYiGHYHlrFHWKFE8Ad1O0wnIy5w2YZqWBglt6Hg/exec";
 
 /* =========================================
    ABRIR INVITACIÓN (Index)
