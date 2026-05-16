@@ -1,14 +1,36 @@
 /* =========================================
-   SCRIPT GLOBALES Y CONSTANTES
+   SCRIPT.JS — XV Nancy Paola
    ========================================= */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
-const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
+
+/**
+ * Hace una petición externa a Google Apps Script utilizando la técnica JSONP.
+ * Crea e inyecta un elemento <script> de forma dinámica en el DOM.
+ * Incluye un manejador de errores por si falla la conexión con el servidor.
+ * * @param {string} url - La URL completa con los parámetros de consulta y el callback.
+ */
 function llamarGoogle(url) {
   const s = document.createElement('script');
   s.src = url;
+  
+  // Captura de errores: Si la inyección del script falla (ej. caída de servidor o problemas de red)
+  s.onerror = function() {
+    const loader = document.getElementById('loader');
+    if (loader) {
+      loader.innerHTML = "❌ Error de red: No se pudo conectar con el servidor de invitaciones.";
+      loader.style.color = "#721c24";
+      loader.style.fontWeight = "bold";
+    }
+  };
+  
   document.body.appendChild(s);
 }
+
+/* =========================================
+   ABRIR INVITACIÓN
+   ========================================= */
+// ... (aquí continúa tu función abrirInvitacion() y el resto de tu código)
 
 /* =========================================
    LÓGICA PRINCIPAL DE LA INVITACIÓN
@@ -304,6 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           if (idInvitado) {
               window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
+              
           } else {
               alert('Error: No se encontró el ID en el enlace.');
           }
