@@ -323,3 +323,46 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnModificar = document.getElementById('btnModificar');
   if (btnModificar) btnModificar.addEventListener('click', habilitarEdicion);
 });
+
+window.enviarConfirmacion = function() {
+  const params = new URLSearchParams(window.location.search);
+  const idInvitado = params.get('id');
+  
+  const filas = document.querySelectorAll('.familiar-row');
+  let confirmados = [];
+  let noAsisten = [];
+
+  filas.forEach(fila => {
+    const nombre = fila.querySelector('.nombre').innerText;
+    const asiste = fila.querySelector('input[type="checkbox"]').checked;
+    
+    if (asiste) {
+      confirmados.push(nombre);
+    } else {
+      noAsisten.push(nombre);
+    }
+  });
+
+  // Creamos un texto descriptivo para guardar en la Columna F
+  const textoConfirmacion = `Asisten: ${confirmados.join(', ')} | No asisten: ${noAsisten.join(', ')}`;
+
+  // Desplegamos el llamado JSONP hacia Google Apps Script
+  const scriptUrlCompleto = `${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&confirmacion=${encodeURIComponent(textoConfirmacion)}&callback=respuestaGuardada`;
+  
+  // Crear el elemento script para enviar los datos (JSONP)
+  const script = document.createElement('script');
+  script.src = scriptUrlCompleto;
+  document.body.appendChild(script);
+};
+
+window.respuestaGuardada = function(response) {
+  if (response.estatus === "ok") {
+    alert("¡Confirmación guardada con éxito!");
+    // Aquí puedes alternar tus divs para mostrar el QR simulado o el mensaje final
+    document.getElementById('formularioConfirmacion').style.display = 'none';
+    document.getElementById('vistaConfirmada').style.display = 'block';
+    document.getElementById('resumenTexto').innerText = "Tu selección ha sido registrada en nuestra lista de asistencia.";
+  } else {
+    alert("Hubo un problema al guardar tu respuesta.");
+  }
+};
