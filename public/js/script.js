@@ -1,11 +1,9 @@
 /* =========================================
    SCRIPT.JS — XV Nancy Paola
+   Limpio, sin duplicados, comentado
    ========================================= */
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
-const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
-
-let datosGlobal = null;
 
 /* =========================================
    ABRIR INVITACIÓN
@@ -180,7 +178,7 @@ function initCarrusel() {
 }
 
 /* =========================================
-   CARGA DE INVITADO E INFRAESTRUCTURA JSONP
+   CARGA DE INVITADO (JSONP)
    ========================================= */
 function llamarGoogle(url) {
   const s = document.createElement('script');
@@ -188,7 +186,7 @@ function llamarGoogle(url) {
   document.body.appendChild(s);
 }
 
-// Callback original para personalizar la vista del sobre exterior
+// Callback que recibe datos del sobre
 window.actualizarNombreSobre = function(data) {
   const elemNombre = document.getElementById('nombre-invitado-sobre');
   const btnAbrir   = document.getElementById('btn-abrir') ||
@@ -204,148 +202,21 @@ window.actualizarNombreSobre = function(data) {
 };
 
 /* =========================================
-   GESTIÓN DE CONFIRMACIONES Y PASES QR
-   ========================================= */
-window.recibirDatos = function(data) {
-  const loader = document.getElementById('loader');
-  const contenido = document.getElementById('contenido');
-  
-  if (loader) loader.style.display = 'none';
-  if (contenido) contenido.style.display = 'block';
-  
-  if (data.error) {
-    alert("Error: " + data.error);
-    return;
-  }
-
-  datosGlobal = data;
-  
-  const tituloFamilia = document.getElementById('tituloFamilia');
-  if (tituloFamilia) tituloFamilia.innerText = "Familia " + data.familia;
-
-  // Si ya hay una confirmación previa guardada en la hoja de cálculo
-  if (data.confirmacionAnterior && data.confirmacionAnterior !== "") {
-    mostrarVistaConfirmada(data.confirmacionAnterior);
-  } else {
-    generarFormulario();
-  }
-};
-
-function generarFormulario() {
-  const vistaConfirmada = document.getElementById('vistaConfirmada');
-  const formularioConfirmacion = document.getElementById('formularioConfirmacion');
-  const statusBadge = document.getElementById('statusBadge');
-  
-  if (vistaConfirmada) vistaConfirmada.style.display = 'none';
-  if (formularioConfirmacion) formularioConfirmacion.style.display = 'block';
-  if (statusBadge) statusBadge.style.display = 'none';
-  
-  let html = "";
-  datosGlobal.integrantes.forEach((nom, i) => {
-    html += `<div class="familiar-row">
-        <span class="nombre-invitado-row">${nom.trim()}</span>
-        <select id="status-${i}">
-            <option value="Asistirá">Asistirá ✅</option>
-            <option value="No asistirá">No asistirá ❌</option>
-        </select>
-    </div>`;
-  });
-  
-  const listaIntegrantes = document.getElementById('listaIntegrantes');
-  if (listaIntegrantes) listaIntegrantes.innerHTML = html;
-}
-
-function mostrarVistaConfirmada(resumen) {
-  const formularioConfirmacion = document.getElementById('formularioConfirmacion');
-  const vistaConfirmada = document.getElementById('vistaConfirmada');
-  const statusBadge = document.getElementById('statusBadge');
-  const resumenTexto = document.getElementById('resumenTexto');
-  
-  if (formularioConfirmacion) formularioConfirmacion.style.display = 'none';
-  if (vistaConfirmada) vistaConfirmada.style.display = 'block';
-  if (statusBadge) statusBadge.style.display = 'block';
-  if (resumenTexto) resumenTexto.innerText = "Tu respuesta actual: " + resumen;
-  
-  const qrContainer = document.getElementById('qr-container');
-  if (!qrContainer) return;
-  qrContainer.innerHTML = "";
-
-  // Generar códigos QR únicamente para quienes asistirán
-  datosGlobal.integrantes.forEach((nom) => {
-    if (resumen.includes(`${nom.trim()}: Asistirá`)) {
-      const qrDiv = document.createElement('div');
-      qrDiv.className = "pase-qr";
-      qrDiv.innerHTML = `<strong>PASE</strong><br>${nom.trim()}<br><div id="qr-${nom.trim()}"></div>`;
-      qrContainer.appendChild(qrDiv);
-
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(document.getElementById(`qr-${nom.trim()}`), {
-          text: `${VALIDADOR_URL}?id=${encodeURIComponent(nom.trim())}`,
-          width: 100, 
-          height: 100
-        });
-      }
-    }
-  });
-}
-
-function habilitarEdicion() {
-  if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) {
-    generarFormulario();
-  }
-}
-
-function enviarConfirmacion() {
-  const btn = document.getElementById('btnEnviar');
-  if (btn) {
-    btn.innerText = "Guardando...";
-    btn.disabled = true;
-  }
-
-  let respuestas = [];
-  datosGlobal.integrantes.forEach((nom, i) => {
-    const selector = document.getElementById('status-' + i);
-    if (selector) {
-      respuestas.push(`${nom.trim()}: ${selector.value}`);
-    }
-  });
-
-  const id = new URLSearchParams(window.location.search).get('id');
-  const finalResp = respuestas.join(" | ");
-  
-  llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`);
-}
-
-window.procesarGuardado = function(res) {
-  if (res.estatus === "ok") {
-    location.reload(); // Recarga la página para refrescar los datos y dibujar los QRs
-  }
-};
-
-/* =========================================
-   DOM READY — bloque de inicialización
+   DOM READY — único bloque
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const idInvitado = params.get('id');
+  const params      = new URLSearchParams(window.location.search);
+  const idInvitado  = params.get('id');
   const nombreSobre = document.getElementById('nombre-invitado-sobre');
 
-  // 1. Inicializar flujos dependiendo de si es la vista del Sobre o la vista de Confirmación
+  // Personalizar nombre en el sobre vía JSONP
   if (idInvitado) {
-    const idMayuscula = idInvitado.toUpperCase();
-    
-    // Si el HTML actual contiene elementos de la tarjeta de confirmación de asistencia
-    if (document.getElementById('listaIntegrantes') || document.getElementById('qr-container')) {
-      llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idMayuscula)}&callback=recibirDatos`);
-    } else {
-      // Si es el index normal, personaliza la cubierta del sobre
-      llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idMayuscula)}&callback=actualizarNombreSobre`);
-    }
+    llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&callback=actualizarNombreSobre`);
   } else {
     if (nombreSobre) nombreSobre.innerText = '¡Te esperamos!';
   }
 
-  // 2. Vinculación del evento del botón de confirmación en la invitación principal
+  // Botón confirmar → redirige con el mismo id
   const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
   if (btnConfirmar) {
     btnConfirmar.addEventListener('click', (e) => {
@@ -358,17 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Vinculación de funciones de acción del panel de asistencia si existen en el DOM
-  const btnEnviarForm = document.getElementById('btnEnviar');
-  if (btnEnviarForm) {
-    btnEnviarForm.addEventListener('click', enviarConfirmacion);
-  }
-
-  const btnModificarResp = document.getElementById('btnModificar');
-  if (btnModificarResp) {
-    btnModificarResp.addEventListener('click', habilitarEdicion);
-  }
-
-  // 4. Iniciar componentes visuales compartidos
+  // Iniciar carrusel
   initCarrusel();
 });
