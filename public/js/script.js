@@ -1,14 +1,16 @@
 /* =========================================
    SCRIPT.JS — XV Nancy Paola
+   Arquitectura Centralizada y Limpia
    ========================================= */
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
+const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /**
  * Hace una petición externa a Google Apps Script utilizando la técnica JSONP.
  * Crea e inyecta un elemento <script> de forma dinámica en el DOM.
  * Incluye un manejador de errores por si falla la conexión con el servidor.
- * * @param {string} url - La URL completa con los parámetros de consulta y el callback.
+ * @param {string} url - La URL completa con los parámetros de consulta y el callback.
  */
 function llamarGoogle(url) {
   const s = document.createElement('script');
@@ -28,12 +30,7 @@ function llamarGoogle(url) {
 }
 
 /* =========================================
-   ABRIR INVITACIÓN
-   ========================================= */
-// ... (aquí continúa tu función abrirInvitacion() y el resto de tu código)
-
-/* =========================================
-   LÓGICA PRINCIPAL DE LA INVITACIÓN
+   MÓDULO: INVITACIÓN PRINCIPAL
    ========================================= */
 function abrirInvitacion() {
   const canciones = ["audio/cancion1.mp3", "audio/cancion2.mp3"];
@@ -90,16 +87,26 @@ function iniciarPetalos() {
   setInterval(crearPetalo, 500);
 }
 
-const fechaEvento = new Date("Aug 15, 2026 18:00:00").getTime();
-setInterval(() => {
-  const distancia = fechaEvento - Date.now();
-  if (distancia < 0) return;
-  const get = (id) => document.getElementById(id);
-  if (get('dias')) get('dias').innerText = Math.floor(distancia / 86400000);
-  if (get('horas')) get('horas').innerText = Math.floor((distancia % 86400000) / 3600000);
-  if (get('minutos')) get('minutos').innerText = Math.floor((distancia % 3600000) / 60000);
-  if (get('segundos')) get('segundos').innerText = Math.floor((distancia % 60000) / 1000);
-}, 1000);
+// Inicializador del Contador (Protegido para que solo corra si los elementos existen)
+function initContador() {
+  const fechaEvento = new Date("Aug 15, 2026 18:00:00").getTime();
+  const d = document.getElementById('dias');
+  if (!d) return; // Si no está en la página actual, salimos de la función sin tronar el script
+
+  setInterval(() => {
+    const distancia = fechaEvento - Date.now();
+    if (distancia < 0) return;
+    
+    const h = document.getElementById('horas');
+    const m = document.getElementById('minutos');
+    const s = document.getElementById('segundos');
+
+    if (d) d.innerText = Math.floor(distancia / 86400000);
+    if (h) h.innerText = Math.floor((distancia % 86400000) / 3600000);
+    if (m) m.innerText = Math.floor((distancia % 3600000) / 60000);
+    if (s) s.innerText = Math.floor((distancia % 60000) / 1000);
+  }, 1000);
+}
 
 function initCarrusel() {
   const slider = document.getElementById('slider');
@@ -157,64 +164,28 @@ window.actualizarNombreSobre = function(data) {
 };
 
 /* =========================================
-   LÓGICA DEL VALIDADOR
-   ========================================= */
-function initValidador() {
-  const reader = document.getElementById('reader');
-  if (!reader || typeof Html5QrcodeScanner === 'undefined') return;
-
-  const statusDiv = document.getElementById('status');
-  
-  function onScanSuccess(decodedText) {
-      html5QrcodeScanner.clear();
-      let idInvitado;
-      try {
-          const url = new URL(decodedText);
-          idInvitado = url.searchParams.get("id") || decodedText;
-      } catch (e) {
-          idInvitado = decodedText;
-      }
-
-      mostrarMensaje("Consultando lista en tiempo real...", "consultando");
-      llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado)}&callback=recibirRespuestaValidador`);
-  }
-
-  window.recibirRespuestaValidador = function(data) {
-      if (data.familia) {
-          mostrarMensaje("✅ ACCESO PERMITIDO:<br>" + data.familia, "exito");
-      } else if (data.error) {
-          mostrarMensaje("❌ " + data.error, "error");
-      } else {
-          mostrarMensaje("❌ INVITADO NO ENCONTRADO", "error");
-      }
-  };
-
-  function mostrarMensaje(texto, clase) {
-      statusDiv.innerHTML = texto;
-      statusDiv.className = "mensaje " + clase;
-      statusDiv.style.display = "block";
-  }
-
-  const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-  html5QrcodeScanner.render(onScanSuccess);
-}
-
-/* =========================================
-   LÓGICA DE CONFIRMACIÓN
+   MÓDULO: CONFIRMACIÓN DE ASISTENCIA
    ========================================= */
 let datosGlobal = null;
 
 function initConfirmacion() {
   const loader = document.getElementById('loader');
-  if (!loader) return; 
+  if (!loader) return; // Si no estamos en confirmacion.html, salimos
 
   const id = new URLSearchParams(window.location.search).get('id');
-  if (id) llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
+  if (id) {
+    llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
+  } else {
+    loader.innerHTML = "❌ Error: Enlace no válido (Falta ID de invitado).";
+  }
 }
 
 window.recibirDatosConfirmacion = function(data) {
-  document.getElementById('loader').style.display = 'none';
-  document.getElementById('contenido-confirmacion').style.display = 'block';
+  const loader = document.getElementById('loader');
+  const contenido = document.getElementById('contenido-confirmacion');
+  
+  if (loader) loader.style.display = 'none';
+  if (contenido) contenido.style.display = 'block';
   
   if (data.error) {
       alert("Error: " + data.error);
@@ -222,7 +193,8 @@ window.recibirDatosConfirmacion = function(data) {
   }
 
   datosGlobal = data;
-  document.getElementById('tituloFamilia').innerText = "Familia " + data.familia;
+  const titulo = document.getElementById('tituloFamilia');
+  if (titulo) titulo.innerText = "Familia " + data.familia;
 
   if (data.confirmacionAnterior && data.confirmacionAnterior !== "") {
       mostrarVistaConfirmada(data.confirmacionAnterior);
@@ -232,9 +204,13 @@ window.recibirDatosConfirmacion = function(data) {
 };
 
 window.generarFormulario = function() {
-  document.getElementById('vistaConfirmada').style.display = 'none';
-  document.getElementById('formularioConfirmacion').style.display = 'block';
-  document.getElementById('statusBadge').style.display = 'none';
+  const vistaConf = document.getElementById('vistaConfirmada');
+  const formConf = document.getElementById('formularioConfirmacion');
+  const badge = document.getElementById('statusBadge');
+  
+  if (vistaConf) vistaConf.style.display = 'none';
+  if (formConf) formConf.style.display = 'block';
+  if (badge) badge.style.display = 'none';
   
   let html = "";
   datosGlobal.integrantes.forEach((nom, i) => {
@@ -246,16 +222,23 @@ window.generarFormulario = function() {
           </select>
       </div>`;
   });
-  document.getElementById('listaIntegrantes').innerHTML = html;
+  const lista = document.getElementById('listaIntegrantes');
+  if (lista) lista.innerHTML = html;
 };
 
 window.mostrarVistaConfirmada = function(resumen) {
-  document.getElementById('formularioConfirmacion').style.display = 'none';
-  document.getElementById('vistaConfirmada').style.display = 'block';
-  document.getElementById('statusBadge').style.display = 'block';
-  document.getElementById('resumenTexto').innerText = "Tu respuesta actual: " + resumen;
+  const formConf = document.getElementById('formularioConfirmacion');
+  const vistaConf = document.getElementById('vistaConfirmada');
+  const badge = document.getElementById('statusBadge');
+  const resumenTxt = document.getElementById('resumenTexto');
+  
+  if (formConf) formConf.style.display = 'none';
+  if (vistaConf) vistaConf.style.display = 'block';
+  if (badge) badge.style.display = 'block';
+  if (resumenTxt) resumenTxt.innerText = "Tu respuesta actual: " + resumen;
   
   const qrContainer = document.getElementById('qr-container');
+  if (!qrContainer) return;
   qrContainer.innerHTML = "";
 
   datosGlobal.integrantes.forEach((nom) => {
@@ -265,7 +248,7 @@ window.mostrarVistaConfirmada = function(resumen) {
           qrDiv.innerHTML = `<strong>PASE</strong><br>${nom.trim()}<br><div id="qr-${nom.trim()}"></div>`;
           qrContainer.appendChild(qrDiv);
 
-          if(typeof QRCode !== 'undefined') {
+          if (typeof QRCode !== 'undefined') {
             new QRCode(document.getElementById(`qr-${nom.trim()}`), {
                 text: `${VALIDADOR_URL}?id=${encodeURIComponent(nom.trim())}`,
                 width: 100, height: 100
@@ -276,19 +259,24 @@ window.mostrarVistaConfirmada = function(resumen) {
 };
 
 window.habilitarEdicion = function() {
-  if(confirm("¿Deseas cambiar tu respuesta de asistencia?")) {
+  if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) {
       generarFormulario();
   }
 };
 
 window.enviarConfirmacion = function() {
   const btn = document.getElementById('btnEnviar');
-  btn.innerText = "Guardando...";
-  btn.disabled = true;
+  if (btn) {
+    btn.innerText = "Guardando...";
+    btn.disabled = true;
+  }
 
   let respuestas = [];
   datosGlobal.integrantes.forEach((nom, i) => {
-      respuestas.push(`${nom.trim()}: ${document.getElementById('status-'+i).value}`);
+      const selectElement = document.getElementById('status-'+i);
+      if (selectElement) {
+        respuestas.push(`${nom.trim()}: ${selectElement.value}`);
+      }
   });
 
   const id = new URLSearchParams(window.location.search).get('id');
@@ -304,38 +292,49 @@ window.procesarGuardadoConfirmacion = function(res) {
 };
 
 /* =========================================
-   INICIALIZACIÓN SEGÚN LA VISTA
+   MÓDULO: VALIDADOR DE ENTRADAS (QR)
    ========================================= */
-document.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const idInvitado = params.get('id');
+function initValidador() {
+  const reader = document.getElementById('reader');
+  // Si no estamos en la página del validador o la librería no cargó, salimos pacíficamente
+  if (!reader || typeof Html5QrcodeScanner === 'undefined') return;
+
+  const statusDiv = document.getElementById('status');
   
-  // 1. Inicialización de la invitación principal
-  const nombreSobre = document.getElementById('nombre-invitado-sobre');
-  if (nombreSobre) {
-      if (idInvitado) {
-          llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&callback=actualizarNombreSobre`);
-      } else {
-          nombreSobre.innerText = '¡Te esperamos!';
+  function onScanSuccess(decodedText) {
+      html5QrcodeScanner.clear();
+      let idInvitado;
+      try {
+          const url = new URL(decodedText);
+          idInvitado = url.searchParams.get("id") || decodedText;
+      } catch (e) {
+          idInvitado = decodedText;
       }
+
+      mostrarMensaje("Consultando lista en tiempo real...", "consultando");
+      // Reutiliza la función global llamarGoogle con el control de errores integrado
+      llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado)}&callback=recibirRespuestaValidador`);
   }
 
-  const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
-  if (btnConfirmar) {
-      btnConfirmar.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (idInvitado) {
-              window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
-              
-          } else {
-              alert('Error: No se encontró el ID en el enlace.');
-          }
-      });
+  // Definimos el callback global que espera Google Sheets
+  window.recibirRespuestaValidador = function(data) {
+      if (data.familia) {
+          mostrarMensaje("✅ ACCESO PERMITIDO:<br>" + data.familia, "exito");
+      } else if (data.error) {
+          mostrarMensaje("❌ " + data.error, "error");
+      } else {
+          mostrarMensaje("❌ INVITADO NO ENCONTRADO", "error");
+      }
+  };
+
+  function mostrarMensaje(texto, clase) {
+      if (!statusDiv) return;
+      statusDiv.innerHTML = texto;
+      statusDiv.className = "mensaje " + clase;
+      statusDiv.style.display = "block";
   }
 
-  initCarrusel();
-  
-  // 2. Inicialización automática si estamos en Validador o Confirmación
-  initValidador();
-  initConfirmacion();
-});
+  // Inicialización segura del escáner QR
+  const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+  html5QrcodeScanner.render(onScanSuccess);
+}
