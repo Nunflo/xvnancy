@@ -338,3 +338,24 @@ function initValidador() {
   const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
   html5QrcodeScanner.render(onScanSuccess);
 }
+
+// =========================================================
+  // Botón confirmar → Redirige de forma segura a la vista de confirmación
+  // =========================================================
+  const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
+  
+  if (btnConfirmar) {
+    btnConfirmar.addEventListener('click', (e) => {
+      e.preventDefault(); // Previene comportamientos extraños del navegador o recargas de página
+      
+      if (idInvitado) {
+        // Redirección explícita incluyendo la extensión .html para evitar fallos de enrutamiento en Vercel
+        window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
+      } else {
+        alert('Error: No se encontró un ID de invitado válido en el enlace.');
+      }
+    });
+  } else {
+    // Registro de depuración en consola en caso de que el ID en el HTML esté mal escrito
+    console.warn("Advertencia: No se encontró el elemento con ID 'btn-confirmar-asistencia' en esta página.");
+  }
