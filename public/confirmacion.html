@@ -7,30 +7,28 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
-
 <body>
 
-<div class="card">
-    <div id="loader">Cargando información...</div>
+<div class="card" style="margin: 20px auto; z-index: 10; position: relative;">
+    <div id="loader">Cargando información de tu invitación...</div>
     
     <div id="contenido" style="display:none;">
-        <h2 id="tituloFamilia"></h2>
+        <h2 id="tituloFamilia" class="title-serif" style="color: var(--vino); margin-bottom: 20px;"></h2>
         <div id="statusBadge" class="status-badge">✓ ASISTENCIA CONFIRMADA</div>
         
         <div id="formularioConfirmacion">
             <div id="listaIntegrantes"></div>
-            <button id="btnEnviar" onclick="enviarConfirmacion()" class="btn-enviar">Guardar Confirmación</button>
+            <button id="btnEnviar" class="btn-enviar" style="background: var(--vino); color: white;">Guardar Confirmación</button>
         </div>
 
         <div id="vistaConfirmada" style="display:none;">
-            <p id="resumenTexto" style="color: #666; font-size: 0.9rem;"></p>
+            <p id="resumenTexto" style="color: #666; font-size: 0.9rem; margin-bottom: 15px;"></p>
             <div id="qr-container"></div>
-            <button onclick="habilitarEdicion()" class="btn-modificar">Modificar mi respuesta</button>
+            <button id="btnModificar" class="btn-modificar">Modificar mi respuesta</button>
         </div>
     </div>
 </div>
 
     <script src="js/script.js"></script>
-
 </body>
 </html>
