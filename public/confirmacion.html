@@ -4,31 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmación - XV Nancy Paola</title>
-    <link rel="stylesheet" href="/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script src="/js/script.js" defer></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="confirmacion-body">
+<body class="body-confirmacion">
 
-<div class="card">
-    <div id="loader">Cargando información...</div>
+<div class="card-confirmacion">
+    <div id="loader" class="loader-text">Cargando información...</div>
     
-    <div id="contenido-confirmacion" style="display:none;">
+    <div id="contenido-confirmacion" class="oculto">
         <h2 id="tituloFamilia"></h2>
-        <div id="statusBadge" class="status-badge">✓ ASISTENCIA CONFIRMADA</div>
+        <div id="statusBadge" class="status-badge oculto">✓ ASISTENCIA CONFIRMADA</div>
         
         <div id="formularioConfirmacion">
             <div id="listaIntegrantes"></div>
-            <button id="btnEnviar" onclick="enviarConfirmacion()" class="btn-enviar">Guardar Confirmación</button>
+            <button id="btnEnviar" class="btn-enviar">Guardar Confirmación</button>
         </div>
 
-        <div id="vistaConfirmada" style="display:none;">
-            <p id="resumenTexto" style="color: #666; font-size: 0.9rem;"></p>
+        <div id="vistaConfirmada" class="oculto">
+            <p id="resumenTexto" class="resumen-texto"></p>
             <div id="qr-container"></div>
-            <button onclick="habilitarEdicion()" class="btn-modificar">Modificar mi respuesta</button>
+            <button id="btnModificar" class="btn-modificar">Modificar mi respuesta</button>
         </div>
     </div>
 </div>
 
+<script src="script.js"></script>
 </body>
 </html>
