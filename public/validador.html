@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validador de Invitados - XV Nancy Paola</title>
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9; color: #333; }
@@ -22,54 +23,6 @@
     <div id="status" class="mensaje"></div>
     <button onclick="location.reload()">Escanear nuevo</button>
 
-    <script>
-        const statusDiv = document.getElementById('status');
-        
-        // LINK ACTUALIZADO CON TU NUEVA IMPLEMENTACIÓN
-        const scriptURL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
-
-        function onScanSuccess(decodedText) {
-            html5QrcodeScanner.clear();
-            
-            let idInvitado;
-            try {
-                // Extrae el ID si el QR viene como URL completa, si no, toma el texto
-                const url = new URL(decodedText);
-                idInvitado = url.searchParams.get("id") || decodedText;
-            } catch (e) {
-                idInvitado = decodedText;
-            }
-
-            mostrarMensaje("Consultando lista en tiempo real...", "consultando");
-
-            // Técnica JSONP para evitar bloqueos de seguridad (CORS)
-            const finalURL = `${scriptURL}?id=${encodeURIComponent(idInvitado)}&callback=recibirRespuesta`;
-            
-            const script = document.createElement('script');
-            script.src = finalURL;
-            script.onerror = () => mostrarMensaje("Error de red: No se pudo conectar con el servidor.", "error");
-            document.body.appendChild(script);
-        }
-
-        // Función que procesa la respuesta del Excel
-        window.recibirRespuesta = function(data) {
-            if (data.familia) {
-                mostrarMensaje("✅ ACCESO PERMITIDO:<br>" + data.familia, "exito");
-            } else if (data.error) {
-                mostrarMensaje("❌ " + data.error, "error");
-            } else {
-                mostrarMensaje("❌ INVITADO NO ENCONTRADO", "error");
-            }
-        };
-
-        function mostrarMensaje(texto, clase) {
-            statusDiv.innerHTML = texto;
-            statusDiv.className = "mensaje " + clase;
-            statusDiv.style.display = "block";
-        }
-
-        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-        html5QrcodeScanner.render(onScanSuccess);
-    </script>
+    <script src="js/script.js"></script>
 </body>
 </html>
