@@ -63,7 +63,6 @@ h1, h2, h3, h4, h5, h6 {
     filter    0.6s ease;
 }
 
-/* Animación mejorada: escala + traslado + blur + fade */
 #pantalla-sobre.cerrar {
   transform: scale(1.06) translateY(-105%);
   opacity: 0;
@@ -71,7 +70,6 @@ h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
 }
 
-/* Contenedor del sobre */
 .sobre-visual {
   position: relative;
   width: 90vw;
@@ -85,7 +83,6 @@ h1, h2, h3, h4, h5, h6 {
   overflow: visible;
 }
 
-/* Carta interior */
 .sobre-visual::after {
   content: "";
   position: absolute;
@@ -101,7 +98,6 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 1;
 }
 
-/* Tapa del sobre */
 .sobre-visual::before {
   content: "";
   position: absolute;
@@ -114,7 +110,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .sobre-visual > * { position: relative; z-index: 5; }
 
-/* Textos del sobre */
 .sobre-label {
   margin-top: 25px;
   text-align: center;
@@ -154,7 +149,6 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: uppercase;
 }
 
-/* Sello circular */
 .boton-abrir {
   position: absolute;
   left: 50%;
@@ -445,7 +439,6 @@ h1, h2, h3, h4, h5, h6 {
   object-fit: cover;
 }
 
-/* Flechas */
 .carousel-btn {
   position: absolute;
   top: 50%;
@@ -476,7 +469,6 @@ h1, h2, h3, h4, h5, h6 {
 .carousel-btn.prev { left: -19px; }
 .carousel-btn.next { right: -19px; }
 
-/* Dots indicadores */
 .carousel-dots {
   display: flex;
   justify-content: center;
@@ -629,7 +621,6 @@ h1, h2, h3, h4, h5, h6 {
   margin: 15px 0;
 }
 
-/* Aviso ROSA — hover dorado */
 .regla-rosa {
   position: relative;
   overflow: hidden;
@@ -825,75 +816,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =========================================
-   SISTEMA QR / MENSAJES DE ESTADO
-   ========================================= */
-#reader {
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto 20px;
-  border-radius: 15px;
-  overflow: hidden;
-  border: 2px solid var(--dorado);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-
-.mensaje {
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 12px;
-  display: none;
-  font-family: var(--font-sans);
-  font-weight: bold;
-  font-size: 1.1rem;
-  text-align: center;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.exito {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.consultando {
-  background-color: #e2e3e5;
-  color: #383d41;
-  border: 1px solid #d6d8db;
-}
-
-/* Botón general personalizado para el contexto QR */
-.section-card button {
-  margin-top: 25px;
-  padding: 16px 35px;
-  font-family: var(--font-sans);
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  cursor: pointer;
-  background: var(--vino);
-  color: white;
-  border: 2px solid var(--dorado);
-  border-radius: 50px;
-  box-shadow: 0 6px 20px rgba(90, 13, 21, 0.2);
-  transition: all 0.4s ease;
-}
-
-.section-card button:hover {
-  background: var(--dorado);
-  color: var(--vino);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(197, 160, 89, 0.4);
-}
-
-/* =========================================
    FOOTER
    ========================================= */
 footer {
@@ -963,6 +885,111 @@ footer {
 }
 
 /* =========================================
+   VISTAS DEL PANEL QR / CONFIRMACIONES
+   ========================================= */
+.card-qr-panel {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  border: 1px solid #eeeeee;
+  margin: 20px auto;
+}
+
+.card-qr-panel h2 {
+  color: var(--dorado);
+  margin-bottom: 15px;
+  font-weight: 300;
+}
+
+.familiar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed #dddddd;
+}
+
+.nombre-invitado-row {
+  font-size: 1rem;
+  color: #444444;
+  text-align: left;
+  font-family: var(--font-sans);
+}
+
+.btn-qr-action {
+  background: var(--dorado);
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 20px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+.btn-qr-action:hover {
+  background: var(--vino);
+}
+
+.btn-qr-secondary {
+  background: none;
+  border: 1px solid var(--dorado);
+  color: var(--dorado);
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 15px;
+  width: 100%;
+  font-family: var(--font-sans);
+  transition: all 0.3s ease;
+}
+.btn-qr-secondary:hover {
+  background: rgba(197, 160, 89, 0.1);
+}
+
+.status-badge {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  display: none;
+  font-family: var(--font-sans);
+}
+
+#qr-container {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pase-qr {
+  padding: 10px;
+  border: 1px solid #eeeeee;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+#loader-qr {
+  font-style: italic;
+  color: #888888;
+  font-family: var(--font-sans);
+}
+
+/* =========================================
    RESPONSIVE
    ========================================= */
 @media (max-width: 680px) {
@@ -980,7 +1007,7 @@ footer {
   .carousel-btn.prev { left: -14px; }
   .carousel-btn.next { right: -14px; }
   
-  #reader { max-width: 100%; }
+  .card-qr-panel     { width: 95%; padding: 20px 15px; }
 }
 
 @media print {

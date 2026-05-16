@@ -2,29 +2,26 @@
    SCRIPT.JS — XV Nancy Paola
    ========================================= */
 
-// URL de la API en Google Apps Script para validar pases e invitados
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
+const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
+let datosGlobal = null;
 
 /* =========================================
-   INTERACCIÓN DEL SOBRE (APERTURA)
+   ABRIR INVITACIÓN
    ========================================= */
 function abrirInvitacion() {
-  // Elegimos música de fondo aleatoria para sorprender al usuario
+  // 1. Música aleatoria
   const canciones = ["audio/cancion1.mp3", "audio/cancion2.mp3"];
   const audio = document.getElementById('musica-fondo');
-  
   if (audio) {
     audio.src = canciones[Math.floor(Math.random() * canciones.length)];
     audio.volume = 0.5;
     audio.load();
-    audio.play().catch(() => {
-      // Navegadores modernos bloquean el autoplay si el usuario no interactúa primero.
-      // No pasa nada, se maneja en silencio.
-    });
+    audio.play().catch(() => {/* autoplay bloqueado por el navegador, no pasa nada */});
   }
 
-  // Ocultamos el sobre con la animación CSS y activamos el layout principal
+  // 2. Animación mejorada del sobre (clase CSS maneja escala + traslado + blur)
   const pantallaSobre = document.getElementById('pantalla-sobre');
   const contenido     = document.getElementById('contenido');
 
@@ -35,8 +32,7 @@ function abrirInvitacion() {
       pantallaSobre.style.display = 'none';
       if (contenido) {
         contenido.classList.add('visible');
-        
-        // Animaciones de entrada sólo si la librería ScrollReveal está en el HTML
+        // ScrollReveal — sólo si está disponible
         if (typeof ScrollReveal !== 'undefined') {
           ScrollReveal().reveal('.reveal', {
             delay: 200, duration: 800, distance: '20px',
@@ -47,15 +43,15 @@ function abrirInvitacion() {
     }, 1200);
   }
 
-  // Despegamos el efecto visual de pétalos flotantes
+  // 3. Pétalos
   iniciarPetalos();
 }
 
-
 /* =========================================
-   EFECTO DE PÉTALOS EN PANTALLA
+   PÉTALOS (flujo continuo, sin memory leak)
    ========================================= */
 function iniciarPetalos() {
+  // Evita crear el contenedor dos veces
   if (document.getElementById('sakura-container')) return;
 
   const contenedor = document.createElement('div');
@@ -67,7 +63,7 @@ function iniciarPetalos() {
   });
   document.body.appendChild(contenedor);
 
-  // Reglas CSS mínimas para controlar la caída fluida de los pétalos
+  // Inyectar keyframes una sola vez
   const style = document.createElement('style');
   style.innerHTML = `
     .petalo {
@@ -88,7 +84,7 @@ function iniciarPetalos() {
   document.head.appendChild(style);
 
   const crearPetalo = () => {
-    const p = document.createElement('div');
+    const p   = document.createElement('div');
     p.className = 'petalo';
     const size     = Math.random() * 8 + 10;
     const duration = Math.random() * 5 + 6;
@@ -105,13 +101,14 @@ function iniciarPetalos() {
     setTimeout(() => p.remove(), duration * 1000);
   };
 
-  // Ráfaga rápida al abrir la invitación y luego flujo regular constante
+  // Ráfaga inicial escalonada
   for (let i = 0; i < 15; i++) {
     setTimeout(crearPetalo, Math.random() * 4000);
   }
+
+  // Generación constante
   setInterval(crearPetalo, 500);
 }
-
 
 /* =========================================
    CUENTA REGRESIVA
@@ -129,9 +126,8 @@ setInterval(() => {
   if (get('segundos')) get('segundos').innerText = Math.floor((distancia % 60000)    / 1000);
 }, 1000);
 
-
 /* =========================================
-   CARRUSEL DE FOTOS
+   CARRUSEL CON FLECHAS Y DOTS
    ========================================= */
 function initCarrusel() {
   const slider      = document.getElementById('slider');
@@ -143,7 +139,7 @@ function initCarrusel() {
   let idx     = 0;
   let timer;
 
-  // Renderizador dinámico de los indicadores inferiores (dots)
+  // Crear dots dinámicamente
   if (dotsWrapper) {
     imgs.forEach((_, i) => {
       const dot = document.createElement('button');
@@ -173,71 +169,18 @@ function initCarrusel() {
     timer = setInterval(() => ir(idx + 1), 3500);
   }
 
-  // Listeners para las flechas de navegación manual
+  // Flechas
   const btnPrev = document.querySelector('.carousel-btn.prev');
   const btnNext = document.querySelector('.carousel-btn.next');
   if (btnPrev) btnPrev.addEventListener('click', () => ir(idx - 1));
   if (btnNext) btnNext.addEventListener('click', () => ir(idx + 1));
 
+  // Arrancar autoplay
   reiniciarTimer();
 }
 
-
 /* =========================================
-   SISTEMA DE LECTURA Y VALIDACIÓN QR
-   ========================================= */
-let html5QrcodeScanner = null;
-
-function onScanSuccess(decodedText) {
-  // Apagamos el escáner al capturar lectura para congelar la cámara mientras procesa
-  if (html5QrcodeScanner) {
-    html5QrcodeScanner.clear();
-  }
-  
-  let idInvitado;
-  try {
-    // Si escaneamos el link de la invitación completo, extraemos solo el valor de "id="
-    const url = new URL(decodedText);
-    idInvitado = url.searchParams.get("id") || decodedText;
-  } catch (e) {
-    // Si no es URL válida, asumimos que el QR contiene el ID de texto crudo directamente
-    idInvitado = decodedText;
-  }
-
-  mostrarMensajeQR("Consultando lista en tiempo real...", "consultando");
-
-  // Inyectamos script dinámico (JSONP) para brincarnos restricciones de CORS en el navegador
-  const finalURL = `${SCRIPT_URL}?id=${encodeURIComponent(idInvitado)}&callback=recibirRespuestaQR`;
-  
-  const script = document.createElement('script');
-  script.src = finalURL;
-  script.onerror = () => mostrarMensajeQR("Error de red: No se pudo conectar con el servidor.", "error");
-  document.body.appendChild(script);
-}
-
-// Callback global que procesa la respuesta devuelta por la hoja de cálculo
-window.recibirRespuestaQR = function(data) {
-  if (data.familia) {
-    mostrarMensajeQR("✅ ACCESO PERMITIDO:<br>" + data.familia, "exito");
-  } else if (data.error) {
-    mostrarMensajeQR("❌ " + data.error, "error");
-  } else {
-    mostrarMensajeQR("❌ INVITADO NO ENCONTRADO", "error");
-  }
-};
-
-function mostrarMensajeQR(texto, clase) {
-  const statusDiv = document.getElementById('status');
-  if (!statusDiv) return;
-  
-  statusDiv.innerHTML = texto;
-  statusDiv.className = "mensaje " + clase;
-  statusDiv.style.display = "block";
-}
-
-
-/* =========================================
-   CARGA DE DATOS VÍA JSONP (SOBRE)
+   CARGA DE INVITADO E INFRAESTRUCTURA JSONP
    ========================================= */
 function llamarGoogle(url) {
   const s = document.createElement('script');
@@ -245,10 +188,11 @@ function llamarGoogle(url) {
   document.body.appendChild(s);
 }
 
-// Callback para actualizar el nombre del invitado impreso sobre la tarjeta inicial
+// Callback original para personalizar la vista del sobre exterior
 window.actualizarNombreSobre = function(data) {
   const elemNombre = document.getElementById('nombre-invitado-sobre');
-  const btnAbrir   = document.getElementById('btn-abrir') || document.getElementById('btn-abrir-sobre');
+  const btnAbrir   = document.getElementById('btn-abrir') ||
+                     document.getElementById('btn-abrir-sobre');
 
   if (data && data.familia) {
     if (elemNombre) elemNombre.innerText = data.familia;
@@ -259,23 +203,149 @@ window.actualizarNombreSobre = function(data) {
   if (btnAbrir) btnAbrir.style.display = 'inline-block';
 };
 
+/* =========================================
+   GESTIÓN DE CONFIRMACIONES Y PASES QR
+   ========================================= */
+window.recibirDatos = function(data) {
+  const loader = document.getElementById('loader');
+  const contenido = document.getElementById('contenido');
+  
+  if (loader) loader.style.display = 'none';
+  if (contenido) contenido.style.display = 'block';
+  
+  if (data.error) {
+    alert("Error: " + data.error);
+    return;
+  }
+
+  datosGlobal = data;
+  
+  const tituloFamilia = document.getElementById('tituloFamilia');
+  if (tituloFamilia) tituloFamilia.innerText = "Familia " + data.familia;
+
+  // Si ya hay una confirmación previa guardada en la hoja de cálculo
+  if (data.confirmacionAnterior && data.confirmacionAnterior !== "") {
+    mostrarVistaConfirmada(data.confirmacionAnterior);
+  } else {
+    generarFormulario();
+  }
+};
+
+function generarFormulario() {
+  const vistaConfirmada = document.getElementById('vistaConfirmada');
+  const formularioConfirmacion = document.getElementById('formularioConfirmacion');
+  const statusBadge = document.getElementById('statusBadge');
+  
+  if (vistaConfirmada) vistaConfirmada.style.display = 'none';
+  if (formularioConfirmacion) formularioConfirmacion.style.display = 'block';
+  if (statusBadge) statusBadge.style.display = 'none';
+  
+  let html = "";
+  datosGlobal.integrantes.forEach((nom, i) => {
+    html += `<div class="familiar-row">
+        <span class="nombre-invitado-row">${nom.trim()}</span>
+        <select id="status-${i}">
+            <option value="Asistirá">Asistirá ✅</option>
+            <option value="No asistirá">No asistirá ❌</option>
+        </select>
+    </div>`;
+  });
+  
+  const listaIntegrantes = document.getElementById('listaIntegrantes');
+  if (listaIntegrantes) listaIntegrantes.innerHTML = html;
+}
+
+function mostrarVistaConfirmada(resumen) {
+  const formularioConfirmacion = document.getElementById('formularioConfirmacion');
+  const vistaConfirmada = document.getElementById('vistaConfirmada');
+  const statusBadge = document.getElementById('statusBadge');
+  const resumenTexto = document.getElementById('resumenTexto');
+  
+  if (formularioConfirmacion) formularioConfirmacion.style.display = 'none';
+  if (vistaConfirmada) vistaConfirmada.style.display = 'block';
+  if (statusBadge) statusBadge.style.display = 'block';
+  if (resumenTexto) resumenTexto.innerText = "Tu respuesta actual: " + resumen;
+  
+  const qrContainer = document.getElementById('qr-container');
+  if (!qrContainer) return;
+  qrContainer.innerHTML = "";
+
+  // Generar códigos QR únicamente para quienes asistirán
+  datosGlobal.integrantes.forEach((nom) => {
+    if (resumen.includes(`${nom.trim()}: Asistirá`)) {
+      const qrDiv = document.createElement('div');
+      qrDiv.className = "pase-qr";
+      qrDiv.innerHTML = `<strong>PASE</strong><br>${nom.trim()}<br><div id="qr-${nom.trim()}"></div>`;
+      qrContainer.appendChild(qrDiv);
+
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(document.getElementById(`qr-${nom.trim()}`), {
+          text: `${VALIDADOR_URL}?id=${encodeURIComponent(nom.trim())}`,
+          width: 100, 
+          height: 100
+        });
+      }
+    }
+  });
+}
+
+function habilitarEdicion() {
+  if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) {
+    generarFormulario();
+  }
+}
+
+function enviarConfirmacion() {
+  const btn = document.getElementById('btnEnviar');
+  if (btn) {
+    btn.innerText = "Guardando...";
+    btn.disabled = true;
+  }
+
+  let respuestas = [];
+  datosGlobal.integrantes.forEach((nom, i) => {
+    const selector = document.getElementById('status-' + i);
+    if (selector) {
+      respuestas.push(`${nom.trim()}: ${selector.value}`);
+    }
+  });
+
+  const id = new URLSearchParams(window.location.search).get('id');
+  const finalResp = respuestas.join(" | ");
+  
+  llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`);
+}
+
+window.procesarGuardado = function(res) {
+  if (res.estatus === "ok") {
+    location.reload(); // Recarga la página para refrescar los datos y dibujar los QRs
+  }
+};
 
 /* =========================================
-   PUNTO DE ENTRADA ÚNICO (DOM READY)
+   DOM READY — bloque de inicialización
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
-  const params      = new URLSearchParams(window.location.search);
-  const idInvitado  = params.get('id');
+  const params = new URLSearchParams(window.location.search);
+  const idInvitado = params.get('id');
   const nombreSobre = document.getElementById('nombre-invitado-sobre');
 
-  // 1. Personalizar el sobre según la URL
+  // 1. Inicializar flujos dependiendo de si es la vista del Sobre o la vista de Confirmación
   if (idInvitado) {
-    llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&callback=actualizarNombreSobre`);
+    const idMayuscula = idInvitado.toUpperCase();
+    
+    // Si el HTML actual contiene elementos de la tarjeta de confirmación de asistencia
+    if (document.getElementById('listaIntegrantes') || document.getElementById('qr-container')) {
+      llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idMayuscula)}&callback=recibirDatos`);
+    } else {
+      // Si es el index normal, personaliza la cubierta del sobre
+      llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idMayuscula)}&callback=actualizarNombreSobre`);
+    }
   } else {
     if (nombreSobre) nombreSobre.innerText = '¡Te esperamos!';
   }
 
-  // 2. Manejo del botón para Confirmar Asistencia desde la vista
+  // 2. Vinculación del evento del botón de confirmación en la invitación principal
   const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
   if (btnConfirmar) {
     btnConfirmar.addEventListener('click', (e) => {
@@ -288,12 +358,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Inicializar Carrusel de fotos
-  initCarrusel();
-
-  // 4. Arrancar el escáner QR solo si el contenedor existe en este HTML (evita romper código si es otra vista)
-  if (document.getElementById('reader')) {
-    html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-    html5QrcodeScanner.render(onScanSuccess);
+  // 3. Vinculación de funciones de acción del panel de asistencia si existen en el DOM
+  const btnEnviarForm = document.getElementById('btnEnviar');
+  if (btnEnviarForm) {
+    btnEnviarForm.addEventListener('click', enviarConfirmacion);
   }
+
+  const btnModificarResp = document.getElementById('btnModificar');
+  if (btnModificarResp) {
+    btnModificarResp.addEventListener('click', habilitarEdicion);
+  }
+
+  // 4. Iniciar componentes visuales compartidos
+  initCarrusel();
 });
