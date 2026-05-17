@@ -227,7 +227,6 @@ function initIndex() {
 let datosGlobal = null;
 
 window.recibirDatosConfirmacion = function(data) {
-  // LOG DE DIAGNÓSTICO — puedes quitarlo después de confirmar que funciona
   console.log('[XV] Datos recibidos del Google Script:', JSON.stringify(data));
 
   const loader    = document.getElementById('confirmacion-loader');
@@ -240,11 +239,10 @@ window.recibirDatosConfirmacion = function(data) {
     return;
   }
 
-  // Normalizar integrantes: puede llegar como string "Nombre1, Nombre2" o ya como array
   if (typeof data.integrantes === 'string') {
     data.integrantes = data.integrantes.split(',').map(n => n.trim()).filter(Boolean);
   } else if (!Array.isArray(data.integrantes)) {
-    data.integrantes = [data.familia]; // fallback: al menos el nombre de la familia
+    data.integrantes = [data.familia]; 
   }
 
   datosGlobal = data;
@@ -293,8 +291,6 @@ function mostrarVistaConfirmada(resumen) {
   if (formulario)      formulario.style.display = 'none';
   if (vistaConfirmada) vistaConfirmada.style.display = 'block';
 
-  // Badge dinámico: detectar si alguno asistirá
-  // El resumen tiene formato: "Nombre: Asistirá | Nombre2: No asistirá"
   const partes = resumen.split('|');
   const hayAsistentes = partes.some(p => {
     const limpio = p.replace('No asistirá', '');
@@ -312,7 +308,20 @@ function mostrarVistaConfirmada(resumen) {
     }
   }
 
-  if (resumenTexto)    resumenTexto.innerText = "Tu respuesta actual: " + resumen;
+  if (resumenTexto) resumenTexto.innerText = "Tu respuesta actual: " + resumen;
+
+  // Lógica de inyección del Número de Mesa
+  const contenedorMesa = document.getElementById('contenedor-mesa');
+  const spanNumeroMesa = document.getElementById('numero-mesa');
+  
+  if (contenedorMesa && spanNumeroMesa && datosGlobal) {
+    if (datosGlobal.mesa && datosGlobal.mesa !== "" && datosGlobal.mesa !== "0") {
+      spanNumeroMesa.innerText = datosGlobal.mesa;
+      contenedorMesa.style.display = "block";
+    } else {
+      contenedorMesa.style.display = "none";
+    }
+  }
 
   if (!qrContainer || !datosGlobal) return;
   qrContainer.innerHTML = "";
@@ -373,7 +382,6 @@ function initConfirmacion() {
     llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
   }
 
-  // Exponer funciones al scope global para onclick en HTML
   window.habilitarEdicion   = habilitarEdicion;
   window.enviarConfirmacion = enviarConfirmacion;
 }
@@ -413,9 +421,16 @@ function initValidador() {
     document.body.appendChild(script);
   }
 
+  // Lógica adaptada para mostrar el Número de Mesa en el Escáner
   window.recibirRespuestaValidador = function(data) {
     if (data.familia) {
-      mostrarMensajeValidador("✅ ACCESO PERMITIDO:<br>" + data.familia, "validador-exito");
+      let mensajeHTML = "✅ ACCESO PERMITIDO:<br><strong>" + data.familia + "</strong>";
+      
+      if (data.mesa && data.mesa !== "" && data.mesa !== "0") {
+        mensajeHTML += `<br><span style="font-size: 1.3em; color: #b58d3d; display: block; margin-top: 8px;">🪑 MESA: ${data.mesa}</span>`;
+      }
+      
+      mostrarMensajeValidador(mensajeHTML, "validador-exito");
     } else if (data.error) {
       mostrarMensajeValidador("❌ " + data.error, "validador-error");
     } else {

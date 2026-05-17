@@ -1295,3 +1295,39 @@ body.page-validador h2 {
   transform: translateY(-3px);
   box-shadow: 0 14px 28px rgba(90, 13, 21, 0.3);
 }
+
+/* =========================================
+   COMPONENTE: MESA ASIGNADA
+   ========================================= */
+.mesa-container {
+  display: none;
+  text-align: center;
+  margin: 15px auto 25px;
+  padding: 12px;
+  max-width: 90%;
+}
+
+.mesa-label {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--text-soft);
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.badge-mesa {
+  background: linear-gradient(135deg, var(--vino) 0%, var(--vino-light) 100%);
+  color: white;
+  font-family: var(--font-sans);
+  font-size: 1.4rem;
+  font-weight: 800;
+  padding: 12px 30px;
+  border-radius: 50px;
+  display: inline-block;
+  box-shadow: 0 6px 15px rgba(90, 13, 21, 0.25);
+  border: 1.5px solid var(--dorado);
+  letter-spacing: 1px;
+}

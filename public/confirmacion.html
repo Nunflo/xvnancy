@@ -20,7 +20,6 @@
 
       <div id="statusBadge" class="status-badge">✓ ASISTENCIA CONFIRMADA</div>
 
-      <!-- Formulario de selección -->
       <div id="formularioConfirmacion">
         <div id="listaIntegrantes"></div>
         <button id="btnEnviar" class="btn-confirmacion-enviar" onclick="enviarConfirmacion()">
@@ -28,9 +27,16 @@
         </button>
       </div>
 
-      <!-- Vista confirmada con QRs -->
       <div id="vistaConfirmada" style="display: none;">
         <p id="resumenTexto" class="confirmacion-resumen"></p>
+        
+        <div id="contenedor-mesa" class="mesa-container">
+          <span class="mesa-label">Tu lugar asignado</span>
+          <div class="badge-mesa">
+              🪑 MESA <span id="numero-mesa">--</span>
+          </div>
+        </div>
+
         <div id="qr-container"></div>
         <button class="btn-modificar-respuesta" onclick="habilitarEdicion()">
           Modificar mi respuesta
