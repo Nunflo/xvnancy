@@ -292,7 +292,26 @@ function mostrarVistaConfirmada(resumen) {
 
   if (formulario)      formulario.style.display = 'none';
   if (vistaConfirmada) vistaConfirmada.style.display = 'block';
-  if (badge)           badge.style.display = 'block';
+
+  // Badge dinámico: detectar si alguno asistirá
+  // El resumen tiene formato: "Nombre: Asistirá | Nombre2: No asistirá"
+  const partes = resumen.split('|');
+  const hayAsistentes = partes.some(p => {
+    const limpio = p.replace('No asistirá', '');
+    return limpio.includes('Asistirá');
+  });
+
+  if (badge) {
+    badge.style.display = 'block';
+    if (hayAsistentes) {
+      badge.className = 'status-badge status-asiste';
+      badge.innerHTML = '✅ ¡Asistencia confirmada! Te esperamos con gusto.';
+    } else {
+      badge.className = 'status-badge status-no-asiste';
+      badge.innerHTML = '🙏 Gracias por avisarnos. ¡Los tendremos en nuestros corazones!';
+    }
+  }
+
   if (resumenTexto)    resumenTexto.innerText = "Tu respuesta actual: " + resumen;
 
   if (!qrContainer || !datosGlobal) return;
