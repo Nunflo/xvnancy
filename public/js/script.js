@@ -3,7 +3,7 @@
    
    ========================================= */
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXCOMBg3XR9WKtETiw_rFJIaZ1vt_wwWvgGW_B5JfpLfeEaXWpi0WBFBmObLFu0Wu0kg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTwsGtisQkD7b4U-jya8rMjOF0wswQ5rdbq_0wELmQKKzuZ_EKU4DIXEc80sxUZdQ-cg/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* =========================================
