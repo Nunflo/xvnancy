@@ -1,9 +1,9 @@
 /* =========================================
    SCRIPT.JS — XV Nancy Paola
-   Incluye lógica de: index, confirmacion y validador
+   
    ========================================= */
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYQZsmz9O8zxSSwEbmK6Ewg6_f9JZh5F1br4uxUowxmyOllYiruqoPpWP0H0J6rrVkqQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXCOMBg3XR9WKtETiw_rFJIaZ1vt_wwWvgGW_B5JfpLfeEaXWpi0WBFBmObLFu0Wu0kg/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* =========================================
