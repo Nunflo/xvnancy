@@ -3,7 +3,7 @@
    Incluye lógica de: index, confirmacion y validador
    ========================================= */
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwb8vHdnLP5jgdcBTDuwxAkRnYKmlag_IOiLEs8s1mWBypbSbqvRQuyBidD-nwj82z5wA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYQZsmz9O8zxSSwEbmK6Ewg6_f9JZh5F1br4uxUowxmyOllYiruqoPpWP0H0J6rrVkqQ/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* =========================================
