@@ -568,7 +568,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .timeline-item b {
   color: var(--vino-light);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-weight: 800;
 }
 
@@ -817,12 +817,11 @@ h1, h2, h3, h4, h5, h6 {
    CONFIRMACIÓN
    ========================================= */
 .confirm-date {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   color: var(--text-soft);
   margin-bottom: 20px;
   font-weight: 600;
-  text-shadow: #000;
 }
 
 /* =========================================
@@ -858,7 +857,7 @@ footer {
 }
 
 .mini-tag {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 0.6rem;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -876,7 +875,7 @@ footer {
   padding: 10px 18px;
   border-radius: 30px;
   font-size: 0.75rem;
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-weight: 700;
   border: 1px solid var(--dorado);
   transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
@@ -922,7 +921,7 @@ footer {
    ========================================= */
 body.page-confirmacion,
 body.page-validador {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   min-height: 100vh;
   margin: 0;
   padding: 20px;
@@ -979,7 +978,7 @@ body.page-validador::before {
 }
 
 .confirmacion-card h2 {
-  font-family: var(--font-serif);
+  font-family: var(--font-script);
   font-size: 2.4rem;
   color: var(--vino);
   font-weight: 400;
@@ -988,7 +987,7 @@ body.page-validador::before {
 }
 
 .confirmacion-subtitulo {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   letter-spacing: 4px;
   text-transform: uppercase;
@@ -1038,7 +1037,7 @@ body.page-validador::before {
 }
 
 .familiar-row select {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 0.78rem;
   font-weight: 600;
   padding: 7px 10px;
@@ -1213,7 +1212,7 @@ body.page-validador {
 }
 
 body.page-validador h2 {
-  font-family: var(--font-serif);
+  font-family: var(--font-script);
   font-size: 2.6rem;
   color: var(--vino);
   font-weight: 400;
@@ -1298,37 +1297,285 @@ body.page-validador h2 {
 }
 
 /* =========================================
-   COMPONENTE: MESA ASIGNADA
+   PASE INDIVIDUAL (confirmacion.html)
    ========================================= */
-.mesa-container {
-  display: none;
-  text-align: center;
-  margin: 15px auto 25px;
-  padding: 12px;
-  max-width: 90%;
+.pases-titulo {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--dorado);
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+.pases-subtitulo {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  margin-bottom: 20px;
 }
 
-.mesa-label {
+.pase-individual {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1.5px solid rgba(197,160,89,0.4);
+  box-shadow: 0 8px 30px rgba(90,13,21,0.12);
+  margin: 0 auto 20px;
+  max-width: 320px;
+  position: relative;
+}
+
+.pase-header {
+  background: linear-gradient(135deg, var(--vino) 0%, var(--vino-light) 100%);
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--dorado);
+}
+.pase-evento {
+  font-family: var(--font-script);
+  font-size: 1.4rem;
+  color: var(--dorado-claro);
+  line-height: 1;
+}
+.pase-fecha {
   font-family: var(--font-sans);
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: var(--text-soft);
-  display: block;
-  margin-bottom: 8px;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 2px;
   font-weight: 700;
 }
 
-.badge-mesa {
-  background: linear-gradient(135deg, var(--vino) 0%, var(--vino-light) 100%);
-  color: white;
-  font-family: var(--font-sans);
-  font-size: 1.4rem;
-  font-weight: 800;
-  padding: 12px 30px;
-  border-radius: 50px;
-  display: inline-block;
-  box-shadow: 0 6px 15px rgba(90, 13, 21, 0.25);
-  border: 1.5px solid var(--dorado);
-  letter-spacing: 1px;
+.pase-body {
+  padding: 18px;
+  text-align: center;
 }
+.pase-nombre {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--vino);
+  margin: 0 0 8px;
+}
+.pase-mesa {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--dorado);
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.pase-qr-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 8px auto 0;
+}
+.pase-qr-wrap img,
+.pase-qr-wrap canvas {
+  border-radius: 10px;
+  border: 3px solid rgba(197,160,89,0.3);
+}
+
+.pase-footer {
+  background: #faf7f4;
+  border-top: 1px dashed rgba(197,160,89,0.4);
+  padding: 8px 14px;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  color: var(--text-soft);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.btn-guardar-pase {
+  display: block;
+  width: calc(100% - 36px);
+  margin: 0 18px 16px;
+  padding: 10px;
+  background: transparent;
+  border: 1.5px solid var(--dorado);
+  border-radius: 50px;
+  color: var(--dorado);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.btn-guardar-pase:hover { background: var(--dorado); color: white; }
+
+/* =========================================
+   ITINERARIO EN CONFIRMACION
+   ========================================= */
+.itinerario-confirmacion { margin: 10px 0 20px; }
+.itinerario-titulo {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--dorado);
+  font-weight: 800;
+  margin: 14px 0 12px;
+}
+
+.itinerario-lista { text-align: left; }
+.itinerario-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  background: rgba(197,160,89,0.06);
+  border: 1px solid rgba(197,160,89,0.15);
+  transition: background 0.2s ease;
+}
+.itinerario-item:hover { background: rgba(197,160,89,0.12); }
+.it-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+.it-info { display: flex; flex-direction: column; gap: 2px; }
+.it-info strong {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--vino);
+}
+.it-info span {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+.it-mapa {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--dorado);
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+.it-mapa:hover { color: var(--vino); }
+
+/* =========================================
+   VALIDADOR — búsqueda manual y historial
+   ========================================= */
+.validador-manual {
+  width: 100%;
+  max-width: 420px;
+  margin: 16px auto 0;
+  padding: 16px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 14px;
+  border: 1px solid rgba(197,160,89,0.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.validador-manual-label {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.validador-busqueda-row {
+  display: flex;
+  gap: 8px;
+}
+.validador-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(197,160,89,0.4);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: white;
+  color: var(--text-dark);
+}
+.validador-input:focus {
+  border-color: var(--vino);
+  box-shadow: 0 0 0 3px rgba(90,13,21,0.08);
+}
+.btn-buscar-manual {
+  padding: 10px 18px;
+  background: var(--vino);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+.btn-buscar-manual:hover { background: var(--vino-light); transform: translateY(-1px); }
+
+.validador-botones {
+  margin: 16px 0 0;
+  text-align: center;
+}
+
+/* Historial */
+.historial-wrapper {
+  width: 100%;
+  max-width: 420px;
+  margin: 20px auto 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(197,160,89,0.25);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.historial-header {
+  background: linear-gradient(135deg, var(--vino), var(--vino-light));
+  color: var(--dorado-claro);
+  padding: 10px 16px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.historial-contador {
+  background: var(--dorado);
+  color: var(--vino);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+.historial-item {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(197,160,89,0.15);
+  background: white;
+  transition: background 0.15s ease;
+}
+.historial-item:last-child { border-bottom: none; }
+.historial-ok   { border-left: 3px solid #2e7d32; }
+.historial-err  { border-left: 3px solid #c62828; }
+.historial-dup  { border-left: 3px solid #e65100; background: #fff8f0; }
+.historial-nombre {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--vino);
+}
+.historial-detalle {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+.historial-hora { color: var(--dorado); font-weight: 600; }
