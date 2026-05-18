@@ -4,40 +4,86 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Confirmación - XV Nancy Paola</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,700;1,700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body class="page-confirmacion">
+
+  <canvas id="confeti-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none"></canvas>
 
   <div class="confirmacion-card">
 
     <div id="confirmacion-loader" class="confirmacion-loader">Cargando información...</div>
 
-    <div id="confirmacion-contenido" style="display: none;">
+    <div id="confirmacion-contenido" style="display:none">
 
       <h2 id="tituloFamilia"></h2>
+      <p class="confirmacion-subtitulo">XV Años · Nancy Paola · 15 Agosto 2026</p>
 
-      <div id="statusBadge" class="status-badge">✓ ASISTENCIA CONFIRMADA</div>
+      <div id="statusBadge" class="status-badge"></div>
 
+      <!-- FORMULARIO -->
       <div id="formularioConfirmacion">
+        <div class="confirmacion-divisor"><span></span><em>✦</em><span></span></div>
         <div id="listaIntegrantes"></div>
         <button id="btnEnviar" class="btn-confirmacion-enviar" onclick="enviarConfirmacion()">
           Guardar Confirmación
         </button>
       </div>
 
-      <div id="vistaConfirmada" style="display: none;">
+      <!-- VISTA CONFIRMADA -->
+      <div id="vistaConfirmada" style="display:none">
+
         <p id="resumenTexto" class="confirmacion-resumen"></p>
-        
-        <div id="contenedor-mesa" class="mesa-container">
-          <span class="mesa-label">Tu lugar asignado</span>
-          <div class="badge-mesa">
-              🪑 MESA <span id="numero-mesa">--</span>
+
+        <!-- ITINERARIO (solo si asiste) -->
+        <div class="itinerario-confirmacion" id="itinerario-section" style="display:none">
+          <div class="confirmacion-divisor"><span></span><em>✦</em><span></span></div>
+          <p class="itinerario-titulo">📅 Itinerario del Evento</p>
+          <div class="itinerario-lista">
+            <div class="itinerario-item">
+              <span class="it-icon">⛪</span>
+              <div class="it-info">
+                <strong>18:00 HRS</strong>
+                <span>Ceremonia Religiosa</span>
+                <a href="https://maps.app.goo.gl/YbXgWmnEyBHHPt6b9" target="_blank" class="it-mapa">📍 Templo del Señor del Encino</a>
+              </div>
+            </div>
+            <div class="itinerario-item">
+              <span class="it-icon">🥳</span>
+              <div class="it-info">
+                <strong>20:00 HRS</strong>
+                <span>Recepción</span>
+                <a href="https://maps.app.goo.gl/g6MMm2TyD1zybCyG7" target="_blank" class="it-mapa">📍 Salón Terraza Artes</a>
+              </div>
+            </div>
+            <div class="itinerario-item">
+              <span class="it-icon">🍽️</span>
+              <div class="it-info"><strong>20:30 HRS</strong><span>Cena</span></div>
+            </div>
+            <div class="itinerario-item">
+              <span class="it-icon">✨</span>
+              <div class="it-info"><strong>21:30 HRS</strong><span>Vals y Mañanitas</span></div>
+            </div>
+            <div class="itinerario-item">
+              <span class="it-icon">💃</span>
+              <div class="it-info"><strong>22:30 HRS</strong><span>Baile y Celebración</span></div>
+            </div>
+            <div class="itinerario-item">
+              <span class="it-icon">🌙</span>
+              <div class="it-info"><strong>01:00 HRS</strong><span>Fin de la Celebración</span></div>
+            </div>
           </div>
         </div>
 
+        <!-- PASES QR INDIVIDUALES -->
+        <div class="confirmacion-divisor"><span></span><em>✦</em><span></span></div>
+        <p class="pases-titulo">🎟️ Tus Pases de Acceso</p>
+        <p class="pases-subtitulo">Presenta el QR de cada persona en la entrada</p>
         <div id="qr-container"></div>
+
         <button class="btn-modificar-respuesta" onclick="habilitarEdicion()">
           Modificar mi respuesta
         </button>

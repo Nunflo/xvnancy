@@ -3,20 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Validador de Invitados - XV Nancy Paola</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Validador - XV Nancy Paola</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body class="page-validador">
 
-  <h2>Control de Acceso - XV Nancy Paola</h2>
+  <h2>XV Nancy Paola</h2>
+  <p class="validador-subtitulo">Control de Acceso · 15 Agosto 2026</p>
 
   <div id="reader"></div>
 
   <div id="validador-status" class="validador-mensaje"></div>
 
-  <button class="btn-validador-nuevo" onclick="location.reload()">Escanear nuevo</button>
+  <!-- BÚSQUEDA MANUAL -->
+  <div class="validador-manual">
+    <p class="validador-manual-label">¿QR no escanea? Búsqueda manual:</p>
+    <div class="validador-busqueda-row">
+      <input
+        type="text"
+        id="busqueda-manual"
+        class="validador-input"
+        placeholder="Nombre del integrante..."
+        onkeydown="if(event.key==='Enter') buscarManual()"
+      />
+      <button class="btn-buscar-manual" onclick="buscarManual()">Buscar</button>
+    </div>
+  </div>
+
+  <div class="validador-botones">
+    <button class="btn-validador-nuevo" onclick="location.reload()">📷 Escanear nuevo</button>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="historial-wrapper" id="historial-wrapper" style="display:none">
+    <div class="historial-header">
+      <span>📋 Últimos accesos en esta sesión</span>
+      <span id="historial-contador" class="historial-contador">0</span>
+    </div>
+    <div id="historial-lista"></div>
+  </div>
 
   <script src="js/script.js"></script>
 </body>
