@@ -1,6 +1,6 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v3 (FIX QR)
-   index + confirmacion + validador
+   SCRIPT.JS — XV Nancy Paola v4 (FIX TOTAL QR)
+   index + confirmacion + validador unificados
    ========================================= */
 
 const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbyeRpw-QAT79QffGz8aDBHbMfuxnm4GWWg2HsAhirW1y-xNMTBYZh780X6zC8cZLzUEfQ/exec";
@@ -445,10 +445,11 @@ function initConfirmacion() {
 }
 
 /* =========================================
-   VALIDADOR.HTML (CORREGIDO Y BLINDADO)
+   VALIDADOR.HTML (REESTRUCTURADO SIN BUGS)
    ========================================= */
 const historialSesion = [];
-let scannerLock = false; // CANDADO DE SEGURIDAD PARA EVITAR MULTIPLES PETICIONES
+let scannerLock = false; 
+let html5QrCodeInstance = null; // Guardar la referencia del stream de video
 
 function buscarManual() {
   const input = document.getElementById('busqueda-manual');
@@ -500,7 +501,6 @@ function initValidador() {
   if (!reader) return;
 
   window.recibirRespuestaValidador = function(data) {
-    // Liberamos el candado para permitir un escaneo manual posterior si es necesario
     scannerLock = false; 
 
     if (!data) { _mostrarValidador('❌ Sin respuesta del servidor', 'validador-error'); return; }
@@ -531,16 +531,10 @@ function initValidador() {
       return;
     }
 
-    if (data.familia && !data.error) {
-      _mostrarValidador(`✅ <strong>ACCESO PERMITIDO</strong><br>${data.familia}`, 'validador-exito');
-      _agregarHistorial(data.familia, data.familia, data.mesa||'', true, false);
-      return;
-    }
-
     _mostrarValidador('❌ NO ENCONTRADO EN LISTA', 'validador-error');
   };
 
-  // CASO A: El usuario abrió el QR con su cámara nativa del celular (llega directo a la URL)
+  // CASO A: El usuario llegó al validador vía link directo de su código QR nativo
   const params = new URLSearchParams(window.location.search);
   const idUrl = params.get('id');
   const validarUrl = params.get('validar');
@@ -552,18 +546,18 @@ function initValidador() {
     s.src = `${SCRIPT_URL}?tipo=${tipoUrl}&id=${encodeURIComponent(idUrl)}&confirmacion=validar&callback=recibirRespuestaValidador`;
     s.onerror = () => _mostrarValidador('❌ Error de conexión al servidor', 'validador-error');
     document.body.appendChild(s);
-    reader.style.display = 'none'; // Ocultamos la cámara porque ya se validó por la URL
+    reader.style.display = 'none'; 
     return;
   }
 
-  // CASO B: El guardia de seguridad está usando la app web para escanear pantallas
-  if (typeof Html5QrcodeScanner === 'undefined') {
+  // CASO B: Uso del escáner en vivo desde la página del validador
+  if (typeof Html5Qrcode === 'undefined') {
     _mostrarValidador('❌ Error: Librería de QR no cargada.', 'validador-error');
     return;
   }
 
-  const onScan = (decodedText) => {
-    if (scannerLock) return; // FIX: Si ya está validando uno, ignora los demás hasta que termine
+  const onScanSuccess = (decodedText) => {
+    if (scannerLock) return; 
     scannerLock = true;
 
     _mostrarValidador('🔍 Consultando...', 'validador-consultando');
@@ -579,24 +573,35 @@ function initValidador() {
     s.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
     s.onerror = () => {
       _mostrarValidador('❌ Error de red', 'validador-error');
-      scannerLock = false; // Liberamos en caso de error para que puedan re-intentar
+      scannerLock = false;
     };
     document.body.appendChild(s);
 
-    // FIX: En vez de hacer scanner.clear() que crashea la app, pausamos la cámara suavemente.
-    if (window.scannerInstance && typeof window.scannerInstance.pause === 'function') {
-      window.scannerInstance.pause(true);
+    // Apagamos el stream de video limpiamente tras leer para no colgar la cámara
+    if (html5QrCodeInstance) {
+      html5QrCodeInstance.stop().catch(err => console.log("Cámara detenida."));
     }
   };
 
-  window.scannerInstance = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-  window.scannerInstance.render(onScan, (err) => {
-    // Silenciamos los errores de 'QR no detectado' que ocurren frame por frame
-  });
+  // Inicialización directa sobre el canvas/video sin código HTML inyectado de terceros
+  try {
+    html5QrCodeInstance = new Html5Qrcode("reader");
+    html5QrCodeInstance.start(
+      { facingMode: "environment" }, 
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      onScanSuccess,
+      () => { /* Mantener vacío para silenciar logs continuos en consola */ }
+    ).catch(err => {
+      console.error(err);
+      _mostrarValidador('📷 Error de cámara. Concede permisos o cierra otras apps.', 'validador-error');
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 /* =========================================
-   DOM READY — enrutador
+   DOM READY — inicializador global
    ========================================= */
 window.enviarConfirmacion = enviarConfirmacion;
 window.habilitarEdicion   = habilitarEdicion;
