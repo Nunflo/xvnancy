@@ -1,10 +1,13 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v2.5 (INTEGRAL)
+   SCRIPT.JS — XV Nancy Paola v3.0 (ESTABLE)
    index + confirmacion + validador
    ========================================= */
 
-const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbwymVyU1LYTrUKx8KGHGTMrerrkIbmPE7gxZ3MBHlgpE29EGVSzoBEsTGYIKdf-qWqPqA/exec";
+const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbxXq67v3BLba8PtecJNs3DkLDAmnPoMBUn8amT_LPpRNPPyanyM4dsU7ul5ieHqakJYcg/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
+
+let datosGlobal = null;
+const historialSesion = [];
 
 /* ── JSONP ── */
 function llamarGoogle(url) {
@@ -46,7 +49,6 @@ function abrirInvitacion() {
   iniciarPetalos();
 }
 
-/* ── Pétalos ── */
 function iniciarPetalos() {
   if (document.getElementById('sakura-container')) return;
   const contenedor = document.createElement('div');
@@ -108,7 +110,7 @@ function initCarrusel() {
   const total = imgs.length;
   let idx = 0, timer;
 
-  if (dotsWrapper) {
+  if (dotsWrapper && dotsWrapper.children.length === 0) {
     imgs.forEach((_, i) => {
       const dot = document.createElement('button');
       dot.className = 'dot' + (i === 0 ? ' active' : '');
@@ -139,13 +141,11 @@ function initCarrusel() {
   reiniciarTimer();
 }
 
-/* ── Nombre en el sobre ── */
 window.actualizarNombreSobre = function(data) {
   const el = document.getElementById('nombre-invitado-sobre');
   if (el) el.innerText = (data && data.familia) ? data.familia : '¡Te esperamos!';
 };
 
-/* ── Init index ── */
 function initIndex() {
   if (!document.getElementById('pantalla-sobre')) return;
   const params     = new URLSearchParams(window.location.search);
@@ -170,10 +170,8 @@ function initIndex() {
 }
 
 /* =========================================
-   CONFIRMACION.HTML
+   CONFIRMACION.HTML — Lógica de Formulario
    ========================================= */
-let datosGlobal = null;
-
 window.recibirDatosConfirmacion = function(data) {
   const loader    = document.getElementById('confirmacion-loader');
   const contenido = document.getElementById('confirmacion-contenido');
@@ -249,7 +247,7 @@ function mostrarVistaConfirmada(resumen) {
   if (!qrContainer || !datosGlobal) return;
   qrContainer.innerHTML = "";
 
-  datosGlobal.integrantes.forEach((nom, index) => {
+  datosGlobal.integrantes.forEach((nom) => {
     const nombre  = nom.trim();
     const partes  = resumen.split('|');
     const asiste  = partes.some(p => {
@@ -258,13 +256,17 @@ function mostrarVistaConfirmada(resumen) {
     });
     if (!asiste) return;
 
-    // Obtención de mesa individual indexada de xeito seguro
-    const mesaInd = (datosGlobal.mesasIndividuales && datosGlobal.mesasIndividuales[nombre])
-      ? datosGlobal.mesasIndividuales[nombre]
-      : (datosGlobal.mesaFamilia || datosGlobal.mesa || 'Sin asignar');
+    // ESCUDO DE ASIGNACIÓN INDIVIDUAL DE MESAS (Por índice de integrante o fallback)
+    const indexIntegrante = datosGlobal.integrantes.indexOf(nom);
+    let mesaInd = 'Sin asignar';
+    if (datosGlobal.mesasIndividuales && datosGlobal.mesasIndividuales[nombre]) {
+      mesaInd = datosGlobal.mesasIndividuales[nombre];
+    } else if (datosGlobal.mesaFamilia) {
+      const mesasArray = datosGlobal.mesaFamilia.toString().split(',').map(m => m.trim());
+      mesaInd = mesasArray[indexIntegrante] || mesasArray[0] || 'Sin asignar';
+    }
 
     const urlQR = `${VALIDADOR_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&validar=validar`;
-
     const paseId = `pase-${nombre.replace(/\s+/g, '-')}`;
     const qrId   = `qr-${nombre.replace(/\s+/g, '-')}`;
 
@@ -278,7 +280,7 @@ function mostrarVistaConfirmada(resumen) {
       </div>
       <div class="pase-body">
         <p class="pase-nombre">${nombre}</p>
-        ${mesaInd ? `<div class="pase-mesa">🪑 Mesa <strong>${mesaInd}</strong></div>` : ''}
+        <div class="pase-mesa">🪑 Mesa <strong>${mesaInd}</strong></div>
         <div id="${qrId}" class="pase-qr-wrap"></div>
       </div>
       <div class="pase-footer">
@@ -305,7 +307,7 @@ function mostrarVistaConfirmada(resumen) {
 function guardarPaseImagen(paseId, nombre) {
   const el = document.getElementById(paseId);
   if (!el || typeof html2canvas === 'undefined') {
-    alert('No se pudo guardar. Toma una captura de pantalla.');
+    alert('No se pudo guardar automáticamente. Toma una captura de pantalla.');
     return;
   }
   html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
@@ -321,11 +323,11 @@ function habilitarEdicion() {
 }
 
 function enviarConfirmacion() {
-  const btn = document.getElementById('btnEnviar');
+  const btn = document.getElementById('btnEnviar') || document.querySelector('.btn-enviar-confirmacion');
   if (btn) { btn.innerText = "Guardando..."; btn.disabled = true; }
 
   const respuestas = [];
-  if (datosGlobal) {
+  if (datosGlobal && datosGlobal.integrantes) {
     datosGlobal.integrantes.forEach((nom, i) => {
       const sel = document.getElementById('status-' + i);
       if (sel) respuestas.push(`${nom.trim()}: ${sel.value}`);
@@ -369,15 +371,9 @@ function lanzarConfeti() {
   const animar = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     particulas.forEach(p => {
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      ctx.restore();
-      p.x  += p.vx;
-      p.y  += p.vy;
-      p.rot += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr;
     });
     frame++;
     if (frame < 120) requestAnimationFrame(animar);
@@ -390,17 +386,11 @@ function initConfirmacion() {
   if (!document.getElementById('confirmacion-loader')) return;
   const id = new URLSearchParams(window.location.search).get('id');
   if (id) llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
-
-  window.habilitarEdicion   = habilitarEdicion;
-  window.enviarConfirmacion = enviarConfirmacion;
-  window.guardarPaseImagen  = guardarPaseImagen;
 }
 
 /* =========================================
-   VALIDADOR.HTML (LÓXICA UNIFICADA)
+   VALIDADOR.HTML — Control de Accesos
    ========================================= */
-const historialSesion = [];
-
 function initValidador() {
   const reader = document.getElementById('reader');
   if (!reader) return;
@@ -409,23 +399,13 @@ function initValidador() {
     if (!data) { _mostrarValidador('❌ Sin respuesta del servidor', 'validador-error'); return; }
 
     if (data.acceso === 'DUPLICADO') {
-      _mostrarValidador(
-        `⚠️ <strong>ACCESO DUPLICADO</strong><br>${data.nombre}<br>
-        <small>Registrado en: ${data.escaneadoEn}</small>`,
-        'validador-error'
-      );
+      _mostrarValidador(`⚠️ <strong>ACCESO DUPLICADO</strong><br>${data.nombre}<br><small>Registrado en: ${data.escaneadoEn}</small>`, 'validador-error');
       _agregarHistorial(data.nombre, data.familia || '', data.mesa || '', false, true);
       return;
     }
 
     if (data.acceso === 'OK' || data.nombre) {
-      _mostrarValidador(
-        `✅ <strong>ACCESO PERMITIDO</strong><br>
-        <span style="font-size:1.3rem">${data.nombre}</span><br>
-        ${data.familia ? `👨‍👩‍👧 ${data.familia}<br>` : ''}
-        ${data.mesa    ? `🪑 Mesa: <strong>${data.mesa}</strong>` : ''}`,
-        'validador-exito'
-      );
+      _mostrarValidador(`✅ <strong>ACCESO PERMITIDO</strong><br><span style="font-size:1.3rem">${data.nombre}</span><br>${data.familia ? `👨‍👩‍👧 ${data.familia}<br>` : ''}${data.mesa ? `🪑 Mesa: <strong>${data.mesa}</strong>` : ''}`, 'validador-exito');
       _agregarHistorial(data.nombre, data.familia || '', data.mesa || '', true, false);
       return;
     }
@@ -449,61 +429,57 @@ function initValidador() {
     s.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
     s.onerror = () => _mostrarValidador('❌ Error de conexión', 'validador-error');
     document.body.appendChild(s);
-    scanner.clear();
   };
 
   const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
   scanner.render(onScan);
-  window.buscarManual = buscarManual;
 }
 
 function buscarManual() {
   const input = document.getElementById('busqueda-manual');
   if (!input || !input.value.trim()) return;
-  const nombre = input.value.trim();
-
   _mostrarValidador('🔍 Consultando...', 'validador-consultando');
 
-  const script = document.createElement('script');
-  script.src = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-  script.onerror = () => _mostrarValidador('❌ Error de conexión', 'validador-error');
-  document.body.appendChild(script);
+  const s = document.createElement('script');
+  s.src = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(input.value.trim())}&confirmacion=validar&callback=recibirRespuestaValidador`;
+  document.body.appendChild(s);
 }
 
 function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   const ahora = new Date().toLocaleTimeString('es-MX');
   historialSesion.unshift({ nombre, familia, mesa, ok, duplicado, hora: ahora });
 
-  const wrapper  = document.getElementById('historial-wrapper');
-  const lista    = document.getElementById('historial-lista');
-  const contador = document.getElementById('historial-contador');
+  const wrapper = document.getElementById('historial-wrapper');
+  const lista   = document.getElementById('historial-lista');
+  const cont    = document.getElementById('historial-contador');
   if (!lista || !wrapper) return;
 
   wrapper.style.display = 'block';
-  if (contador) contador.textContent = historialSesion.length;
+  if (cont) cont.textContent = historialSesion.length;
 
   lista.innerHTML = historialSesion.slice(0, 8).map(h => `
     <div class="historial-item ${h.duplicado ? 'historial-dup' : h.ok ? 'historial-ok' : 'historial-err'}">
       <div class="historial-nombre">${h.nombre}</div>
-      <div class="historial-detalle">
-        ${h.mesa ? `🪑 Mesa ${h.mesa} · ` : ''}
-        <span class="historial-hora">${h.hora}</span>
-      </div>
+      <div class="historial-detalle">${h.mesa ? `🪑 Mesa ${h.mesa} · ` : ''}<span class="historial-hora">${h.hora}</span></div>
     </div>
   `).join('');
 }
 
 function _mostrarValidador(texto, clase) {
   const div = document.getElementById('validador-status');
-  if (!div) return;
-  div.innerHTML = texto;
-  div.className = 'validador-mensaje ' + clase;
-  div.style.display = 'block';
+  if (!div) return; div.innerHTML = texto; div.className = 'validador-mensaje ' + clase; div.style.display = 'block';
 }
 
-/* ── DOM READY Router ── */
+/* ── ENRUTADOR DOM TOTAL ── */
 document.addEventListener('DOMContentLoaded', () => {
   initIndex();
   initConfirmacion();
   initValidador();
 });
+
+/* ── EXPOSICIÓN GLOBAL ABSOLUTA (Garantiza clics funcionales instantáneos) ── */
+window.abrirInvitacion   = abrirInvitacion;
+window.habilitarEdicion  = habilitarEdicion;
+window.enviarConfirmacion = enviarConfirmacion;
+window.guardarPaseImagen = guardarPaseImagen;
+window.buscarManual      = buscarManual;
