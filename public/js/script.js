@@ -1,9 +1,9 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v2 (CORREGIDO FINAL)
+   SCRIPT.JS — XV Nancy Paola v3 (FIX QR)
    index + confirmacion + validador
    ========================================= */
 
-const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycby62G6sGK-BdHH1UbvjhDuC9fD39qIXIVSOXX4vcKvCvfCx_RmotIGYyIbVzbIvHQfxDA/exec";
+const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbyeRpw-QAT79QffGz8aDBHbMfuxnm4GWWg2HsAhirW1y-xNMTBYZh780X6zC8cZLzUEfQ/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
@@ -182,7 +182,6 @@ window.recibirDatosConfirmacion = function(data) {
 
   if (data.error) { alert("Error: " + data.error); return; }
 
-  // Normalizar integrantes
   if (typeof data.integrantes === 'string') {
     data.integrantes = data.integrantes.split(',').map(n => n.trim()).filter(Boolean);
   } else if (!Array.isArray(data.integrantes)) {
@@ -315,7 +314,6 @@ function mostrarVistaConfirmada(resumen) {
   });
 }
 
-/* ── Guardar pase como imagen ── */
 function guardarPaseImagen(paseId, nombre) {
   const el = document.getElementById(paseId);
   if (!el || typeof html2canvas === 'undefined') {
@@ -334,12 +332,10 @@ function guardarPaseImagen(paseId, nombre) {
     });
 }
 
-/* ── Habilitar edición ── */
 function habilitarEdicion() {
   if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) generarFormulario();
 }
 
-/* ── Enviar confirmación (CORREGIDO JSONP) ── */
 function enviarConfirmacion() {
   const btn = document.getElementById('btnEnviar');
   if (btn) { btn.innerText = "Guardando..."; btn.disabled = true; }
@@ -360,8 +356,6 @@ function enviarConfirmacion() {
   }
 
   const finalResp = respuestas.join(" | ");
-  
-  // Usamos JSONP tradicional para evitar los bloqueos CORS de Google
   const url = `${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`;
   
   const scriptJSONP = document.createElement('script');
@@ -395,7 +389,6 @@ function _obtenerRespuestasActuales() {
   }).join(' | ');
 }
 
-/* ── Confeti ── */
 function lanzarConfeti() {
   const canvas = document.getElementById('confeti-canvas');
   if (!canvas) return;
@@ -438,7 +431,6 @@ function lanzarConfeti() {
   requestAnimationFrame(animar);
 }
 
-/* ── Init confirmacion ── */
 function initConfirmacion() {
   const loader = document.getElementById('confirmacion-loader');
   if (!loader) return;
@@ -450,33 +442,27 @@ function initConfirmacion() {
   }
 
   llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
-
-  window.habilitarEdicion   = habilitarEdicion;
-  window.enviarConfirmacion = enviarConfirmacion;
-  window.guardarPaseImagen  = guardarPaseImagen;
 }
 
 /* =========================================
-   VALIDADOR.HTML
+   VALIDADOR.HTML (CORREGIDO Y BLINDADO)
    ========================================= */
 const historialSesion = [];
+let scannerLock = false; // CANDADO DE SEGURIDAD PARA EVITAR MULTIPLES PETICIONES
 
-/* ── Búsqueda manual ── */
 function buscarManual() {
   const input = document.getElementById('busqueda-manual');
   if (!input || !input.value.trim()) return;
   const nombre = input.value.trim();
 
-  const div = document.getElementById('validador-status');
-  if (div) { div.innerHTML = '🔍 Consultando...'; div.className = 'validador-mensaje validador-consultando'; div.style.display = 'block'; }
+  _mostrarValidador('🔍 Consultando...', 'validador-consultando');
 
   const script = document.createElement('script');
   script.src = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-  script.onerror = () => { if (div) { div.innerHTML = '❌ Error de conexión'; div.className = 'validador-mensaje validador-error'; }};
+  script.onerror = () => _mostrarValidador('❌ Error de conexión', 'validador-error');
   document.body.appendChild(script);
 }
 
-/* ── Historial de sesión ── */
 function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   const ahora = new Date().toLocaleTimeString('es-MX');
   historialSesion.unshift({ nombre, familia, mesa, ok, duplicado, hora: ahora });
@@ -501,13 +487,28 @@ function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   `).join('');
 }
 
-/* ── Init validador ── */
+function _mostrarValidador(texto, clase) {
+  const div = document.getElementById('validador-status');
+  if (!div) return;
+  div.innerHTML = texto;
+  div.className = 'validador-mensaje ' + clase;
+  div.style.display = 'block';
+}
+
 function initValidador() {
   const reader = document.getElementById('reader');
   if (!reader) return;
 
   window.recibirRespuestaValidador = function(data) {
-    if (!data) { _mostrarValidador('❌ Sin respuesta', 'validador-error'); return; }
+    // Liberamos el candado para permitir un escaneo manual posterior si es necesario
+    scannerLock = false; 
+
+    if (!data) { _mostrarValidador('❌ Sin respuesta del servidor', 'validador-error'); return; }
+
+    if (data.error) {
+      _mostrarValidador('❌ Error: ' + data.error, 'validador-error');
+      return;
+    }
 
     if (data.acceso === 'DUPLICADO') {
       _mostrarValidador(
@@ -536,12 +537,35 @@ function initValidador() {
       return;
     }
 
-    _mostrarValidador('❌ ' + (data.error || 'NO ENCONTRADO'), 'validador-error');
+    _mostrarValidador('❌ NO ENCONTRADO EN LISTA', 'validador-error');
   };
 
-  if (typeof Html5QrcodeScanner === 'undefined') return;
+  // CASO A: El usuario abrió el QR con su cámara nativa del celular (llega directo a la URL)
+  const params = new URLSearchParams(window.location.search);
+  const idUrl = params.get('id');
+  const validarUrl = params.get('validar');
+
+  if (idUrl && validarUrl === 'validar') {
+    _mostrarValidador('🔍 Consultando acceso...', 'validador-consultando');
+    const tipoUrl = params.get('tipo') || 'integrante';
+    const s = document.createElement('script');
+    s.src = `${SCRIPT_URL}?tipo=${tipoUrl}&id=${encodeURIComponent(idUrl)}&confirmacion=validar&callback=recibirRespuestaValidador`;
+    s.onerror = () => _mostrarValidador('❌ Error de conexión al servidor', 'validador-error');
+    document.body.appendChild(s);
+    reader.style.display = 'none'; // Ocultamos la cámara porque ya se validó por la URL
+    return;
+  }
+
+  // CASO B: El guardia de seguridad está usando la app web para escanear pantallas
+  if (typeof Html5QrcodeScanner === 'undefined') {
+    _mostrarValidador('❌ Error: Librería de QR no cargada.', 'validador-error');
+    return;
+  }
 
   const onScan = (decodedText) => {
+    if (scannerLock) return; // FIX: Si ya está validando uno, ignora los demás hasta que termine
+    scannerLock = true;
+
     _mostrarValidador('🔍 Consultando...', 'validador-consultando');
 
     let idInvitado, tipo = 'integrante';
@@ -553,29 +577,27 @@ function initValidador() {
 
     const s = document.createElement('script');
     s.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-    s.onerror = () => _mostrarValidador('❌ Error de red', 'validador-error');
+    s.onerror = () => {
+      _mostrarValidador('❌ Error de red', 'validador-error');
+      scannerLock = false; // Liberamos en caso de error para que puedan re-intentar
+    };
     document.body.appendChild(s);
-    scanner.clear();
+
+    // FIX: En vez de hacer scanner.clear() que crashea la app, pausamos la cámara suavemente.
+    if (window.scannerInstance && typeof window.scannerInstance.pause === 'function') {
+      window.scannerInstance.pause(true);
+    }
   };
 
-  const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-  scanner.render(onScan);
-
-  window.buscarManual = buscarManual;
-}
-
-function _mostrarValidador(texto, clase) {
-  const div = document.getElementById('validador-status');
-  if (!div) return;
-  div.innerHTML = texto;
-  div.className = 'validador-mensaje ' + clase;
-  div.style.display = 'block';
+  window.scannerInstance = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+  window.scannerInstance.render(onScan, (err) => {
+    // Silenciamos los errores de 'QR no detectado' que ocurren frame por frame
+  });
 }
 
 /* =========================================
    DOM READY — enrutador
    ========================================= */
-
 window.enviarConfirmacion = enviarConfirmacion;
 window.habilitarEdicion   = habilitarEdicion;
 window.guardarPaseImagen  = guardarPaseImagen;
