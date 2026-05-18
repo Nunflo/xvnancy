@@ -1,5 +1,5 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v2
+   SCRIPT.JS — XV Nancy Paola v2.5 (INTEGRAL)
    index + confirmacion + validador
    ========================================= */
 
@@ -162,7 +162,7 @@ function initIndex() {
   if (btnConf) {
     btnConf.addEventListener('click', e => {
       e.preventDefault();
-      if (idInvitado) window.location.href = `confirmacion?id=${encodeURIComponent(idInvitado)}`;
+      if (idInvitado) window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
       else alert('Error: No se encontró el ID en el enlace.');
     });
   }
@@ -182,7 +182,6 @@ window.recibirDatosConfirmacion = function(data) {
 
   if (data.error) { alert("Error: " + data.error); return; }
 
-  // Normalizar integrantes
   if (typeof data.integrantes === 'string') {
     data.integrantes = data.integrantes.split(',').map(n => n.trim()).filter(Boolean);
   } else if (!Array.isArray(data.integrantes)) {
@@ -202,9 +201,9 @@ window.recibirDatosConfirmacion = function(data) {
 
 function generarFormulario() {
   const el = id => document.getElementById(id);
-  if (el('vistaConfirmada'))      el('vistaConfirmada').style.display      = 'none';
+  if (el('vistaConfirmada'))        el('vistaConfirmada').style.display      = 'none';
   if (el('formularioConfirmacion')) el('formularioConfirmacion').style.display = 'block';
-  if (el('statusBadge'))          el('statusBadge').style.display          = 'none';
+  if (el('statusBadge'))            el('statusBadge').style.display          = 'none';
   if (!el('listaIntegrantes') || !datosGlobal) return;
 
   let html = "";
@@ -226,7 +225,6 @@ function mostrarVistaConfirmada(resumen) {
   if (el('formularioConfirmacion')) el('formularioConfirmacion').style.display = 'none';
   if (el('vistaConfirmada'))        el('vistaConfirmada').style.display        = 'block';
 
-  // Badge dinámico
   const hayAsistentes = resumen.split('|').some(p =>
     /asistirá/i.test(p.replace(/No asistirá/gi, ''))
   );
@@ -244,16 +242,14 @@ function mostrarVistaConfirmada(resumen) {
 
   if (el('resumenTexto')) el('resumenTexto').innerText = "Tu respuesta: " + resumen;
 
-  // Itinerario solo si asiste alguien
   const itSec = el('itinerario-section');
   if (itSec) itSec.style.display = hayAsistentes ? 'block' : 'none';
 
-  // Generar pases QR INDIVIDUALES
   const qrContainer = el('qr-container');
   if (!qrContainer || !datosGlobal) return;
   qrContainer.innerHTML = "";
 
-  datosGlobal.integrantes.forEach(nom => {
+  datosGlobal.integrantes.forEach((nom, index) => {
     const nombre  = nom.trim();
     const partes  = resumen.split('|');
     const asiste  = partes.some(p => {
@@ -262,15 +258,13 @@ function mostrarVistaConfirmada(resumen) {
     });
     if (!asiste) return;
 
-    // Mesa individual del integrante
+    // Obtención de mesa individual indexada de xeito seguro
     const mesaInd = (datosGlobal.mesasIndividuales && datosGlobal.mesasIndividuales[nombre])
       ? datosGlobal.mesasIndividuales[nombre]
-      : (datosGlobal.mesaFamilia || datosGlobal.mesa || '');
+      : (datosGlobal.mesaFamilia || datosGlobal.mesa || 'Sin asignar');
 
-    // QR apunta al integrante individual con tipo=integrante
     const urlQR = `${VALIDADOR_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&validar=validar`;
 
-    // Crear tarjeta de pase elegante
     const paseId = `pase-${nombre.replace(/\s+/g, '-')}`;
     const qrId   = `qr-${nombre.replace(/\s+/g, '-')}`;
 
@@ -300,7 +294,6 @@ function mostrarVistaConfirmada(resumen) {
       });
     }
 
-    // Botón para guardar pase como imagen
     const btnGuardar = document.createElement('button');
     btnGuardar.className = 'btn-guardar-pase';
     btnGuardar.textContent = '💾 Guardar pase';
@@ -309,7 +302,6 @@ function mostrarVistaConfirmada(resumen) {
   });
 }
 
-/* ── Guardar pase como imagen ── */
 function guardarPaseImagen(paseId, nombre) {
   const el = document.getElementById(paseId);
   if (!el || typeof html2canvas === 'undefined') {
@@ -324,12 +316,10 @@ function guardarPaseImagen(paseId, nombre) {
   });
 }
 
-/* ── Habilitar edición ── */
 function habilitarEdicion() {
   if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) generarFormulario();
 }
 
-/* ── Enviar confirmación ── */
 function enviarConfirmacion() {
   const btn = document.getElementById('btnEnviar');
   if (btn) { btn.innerText = "Guardando..."; btn.disabled = true; }
@@ -354,7 +344,6 @@ window.procesarGuardado = function(res) {
   }
 };
 
-/* ── Confeti ── */
 function lanzarConfeti() {
   const canvas = document.getElementById('confeti-canvas');
   if (!canvas) return;
@@ -397,7 +386,6 @@ function lanzarConfeti() {
   requestAnimationFrame(animar);
 }
 
-/* ── Init confirmacion ── */
 function initConfirmacion() {
   if (!document.getElementById('confirmacion-loader')) return;
   const id = new URLSearchParams(window.location.search).get('id');
@@ -409,30 +397,21 @@ function initConfirmacion() {
 }
 
 /* =========================================
-   VALIDADOR.HTML
+   VALIDADOR.HTML (LÓXICA UNIFICADA)
    ========================================= */
-const historialSesion = []; // guarda accesos de esta sesión
+const historialSesion = [];
 
 function initValidador() {
   const reader = document.getElementById('reader');
-  if (!reader || typeof Html5QrcodeScanner === 'undefined') return;
+  if (!reader) return;
 
-  function mostrarResultado(texto, clase) {
-    const div = document.getElementById('validador-status');
-    if (!div) return;
-    div.innerHTML = texto;
-    div.className = 'validador-mensaje ' + clase;
-    div.style.display = 'block';
-  }
-
-  function procesarDato(data) {
-    if (!data) { mostrarResultado('❌ Sin respuesta del servidor', 'validador-error'); return; }
+  window.recibirRespuestaValidador = function(data) {
+    if (!data) { _mostrarValidador('❌ Sin respuesta del servidor', 'validador-error'); return; }
 
     if (data.acceso === 'DUPLICADO') {
-      mostrarResultado(
-        `⚠️ <strong>ACCESO DUPLICADO</strong><br>
-        ${data.nombre}<br>
-        <small>Ya fue registrado: ${data.escaneadoEn}</small>`,
+      _mostrarValidador(
+        `⚠️ <strong>ACCESO DUPLICADO</strong><br>${data.nombre}<br>
+        <small>Registrado en: ${data.escaneadoEn}</small>`,
         'validador-error'
       );
       _agregarHistorial(data.nombre, data.familia || '', data.mesa || '', false, true);
@@ -440,7 +419,7 @@ function initValidador() {
     }
 
     if (data.acceso === 'OK' || data.nombre) {
-      mostrarResultado(
+      _mostrarValidador(
         `✅ <strong>ACCESO PERMITIDO</strong><br>
         <span style="font-size:1.3rem">${data.nombre}</span><br>
         ${data.familia ? `👨‍👩‍👧 ${data.familia}<br>` : ''}
@@ -451,62 +430,46 @@ function initValidador() {
       return;
     }
 
-    if (data.error) {
-      mostrarResultado('❌ ' + data.error, 'validador-error');
-      return;
-    }
+    if (data.error) { _mostrarValidador('❌ ' + data.error, 'validador-error'); return; }
+    _mostrarValidador('❌ INVITADO NO ENCONTRADO', 'validador-error');
+  };
 
-    // Fallback modo familia (compatibilidad)
-    if (data.familia) {
-      mostrarResultado(`✅ <strong>ACCESO PERMITIDO</strong><br>${data.familia}`, 'validador-exito');
-      _agregarHistorial(data.familia, data.familia, data.mesa || '', true, false);
-    } else {
-      mostrarResultado('❌ INVITADO NO ENCONTRADO', 'validador-error');
-    }
-  }
+  if (typeof Html5QrcodeScanner === 'undefined') return;
 
-  // Exponer callback global para JSONP
-  window.recibirRespuestaValidador = procesarDato;
-
-  function onScanSuccess(decodedText) {
-    html5QrcodeScanner.clear();
-    mostrarResultado('🔍 Consultando...', 'validador-consultando');
-
+  const onScan = (decodedText) => {
+    _mostrarValidador('🔍 Consultando...', 'validador-consultando');
     let idInvitado, tipo = 'integrante';
     try {
       const url = new URL(decodedText);
       idInvitado = url.searchParams.get('id') || decodedText;
       tipo       = url.searchParams.get('tipo') || 'integrante';
-    } catch (e) {
-      idInvitado = decodedText;
-    }
+    } catch (e) { idInvitado = decodedText; }
 
-    const script = document.createElement('script');
-    script.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-    script.onerror = () => mostrarResultado('❌ Error de conexión', 'validador-error');
-    document.body.appendChild(script);
-  }
+    const s = document.createElement('script');
+    s.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
+    s.onerror = () => _mostrarValidador('❌ Error de conexión', 'validador-error');
+    document.body.appendChild(s);
+    scanner.clear();
+  };
 
-  const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-  html5QrcodeScanner.render(onScanSuccess);
+  const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+  scanner.render(onScan);
+  window.buscarManual = buscarManual;
 }
 
-/* ── Búsqueda manual ── */
 function buscarManual() {
   const input = document.getElementById('busqueda-manual');
   if (!input || !input.value.trim()) return;
   const nombre = input.value.trim();
 
-  const div = document.getElementById('validador-status');
-  if (div) { div.innerHTML = '🔍 Consultando...'; div.className = 'validador-mensaje validador-consultando'; div.style.display = 'block'; }
+  _mostrarValidador('🔍 Consultando...', 'validador-consultando');
 
   const script = document.createElement('script');
   script.src = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-  script.onerror = () => { if (div) { div.innerHTML = '❌ Error de conexión'; div.className = 'validador-mensaje validador-error'; }};
+  script.onerror = () => _mostrarValidador('❌ Error de conexión', 'validador-error');
   document.body.appendChild(script);
 }
 
-/* ── Historial de sesión ── */
 function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   const ahora = new Date().toLocaleTimeString('es-MX');
   historialSesion.unshift({ nombre, familia, mesa, ok, duplicado, hora: ahora });
@@ -519,9 +482,7 @@ function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   wrapper.style.display = 'block';
   if (contador) contador.textContent = historialSesion.length;
 
-  // Mostrar máximo últimos 8
-  const recientes = historialSesion.slice(0, 8);
-  lista.innerHTML = recientes.map(h => `
+  lista.innerHTML = historialSesion.slice(0, 8).map(h => `
     <div class="historial-item ${h.duplicado ? 'historial-dup' : h.ok ? 'historial-ok' : 'historial-err'}">
       <div class="historial-nombre">${h.nombre}</div>
       <div class="historial-detalle">
@@ -532,71 +493,6 @@ function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   `).join('');
 }
 
-/* ── Init validador ── */
-function initValidador() {
-  const reader = document.getElementById('reader');
-  if (!reader) return;
-
-  // Callback JSONP global
-  window.recibirRespuestaValidador = function(data) {
-    if (!data) { _mostrarValidador('❌ Sin respuesta', 'validador-error'); return; }
-
-    if (data.acceso === 'DUPLICADO') {
-      _mostrarValidador(
-        `⚠️ <strong>ACCESO YA REGISTRADO</strong><br>${data.nombre}<br><small>Escaneado: ${data.escaneadoEn}</small>`,
-        'validador-error'
-      );
-      _agregarHistorial(data.nombre, data.familia||'', data.mesa||'', false, true);
-      return;
-    }
-
-    if (data.nombre && data.acceso === 'OK') {
-      _mostrarValidador(
-        `✅ <strong>ACCESO PERMITIDO</strong><br>
-         <span style="font-size:1.2rem;font-family:'Cormorant Garamond',serif">${data.nombre}</span><br>
-         ${data.familia ? `👨‍👩‍👧 ${data.familia}<br>` : ''}
-         ${data.mesa    ? `🪑 Mesa: <strong>${data.mesa}</strong>` : ''}`,
-        'validador-exito'
-      );
-      _agregarHistorial(data.nombre, data.familia||'', data.mesa||'', true, false);
-      return;
-    }
-
-    if (data.familia && !data.error) {
-      _mostrarValidador(`✅ <strong>ACCESO PERMITIDO</strong><br>${data.familia}`, 'validador-exito');
-      _agregarHistorial(data.familia, data.familia, data.mesa||'', true, false);
-      return;
-    }
-
-    _mostrarValidador('❌ ' + (data.error || 'NO ENCONTRADO'), 'validador-error');
-  };
-
-  if (typeof Html5QrcodeScanner === 'undefined') return;
-
-  const onScan = (decodedText) => {
-    _mostrarValidador('🔍 Consultando...', 'validador-consultando');
-
-    let idInvitado, tipo = 'integrante';
-    try {
-      const url = new URL(decodedText);
-      idInvitado = url.searchParams.get('id') || decodedText;
-      tipo       = url.searchParams.get('tipo') || 'integrante';
-    } catch (e) { idInvitado = decodedText; }
-
-    const s = document.createElement('script');
-    s.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-    s.onerror = () => _mostrarValidador('❌ Error de red', 'validador-error');
-    document.body.appendChild(s);
-    scanner.clear();
-  };
-
-  const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-  scanner.render(onScan);
-
-  // Búsqueda manual global
-  window.buscarManual = buscarManual;
-}
-
 function _mostrarValidador(texto, clase) {
   const div = document.getElementById('validador-status');
   if (!div) return;
@@ -605,9 +501,7 @@ function _mostrarValidador(texto, clase) {
   div.style.display = 'block';
 }
 
-/* =========================================
-   DOM READY — enrutador
-   ========================================= */
+/* ── DOM READY Router ── */
 document.addEventListener('DOMContentLoaded', () => {
   initIndex();
   initConfirmacion();
