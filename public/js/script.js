@@ -199,9 +199,9 @@ window.recibirDatosConfirmacion = function(data) {
 
 function generarFormulario() {
   const el = id => document.getElementById(id);
-  if (el('vistaConfirmada'))        el('vistaConfirmada').style.display      = 'none';
+  if (el('vistaConfirmada'))         el('vistaConfirmada').style.display      = 'none';
   if (el('formularioConfirmacion')) el('formularioConfirmacion').style.display = 'block';
-  if (el('statusBadge'))            el('statusBadge').style.display          = 'none';
+  if (el('statusBadge'))             el('statusBadge').style.display          = 'none';
   if (!el('listaIntegrantes') || !datosGlobal) return;
 
   let html = "";
@@ -221,7 +221,7 @@ function generarFormulario() {
 function mostrarVistaConfirmada(resumen) {
   const el = id => document.getElementById(id);
   if (el('formularioConfirmacion')) el('formularioConfirmacion').style.display = 'none';
-  if (el('vistaConfirmada'))        el('vistaConfirmada').style.display        = 'block';
+  if (el('vistaConfirmada'))         el('vistaConfirmada').style.display        = 'block';
 
   const hayAsistentes = resumen.split('|').some(p =>
     /asistirá/i.test(p.replace(/No asistirá/gi, ''))
@@ -256,7 +256,6 @@ function mostrarVistaConfirmada(resumen) {
     });
     if (!asiste) return;
 
-    // ESCUDO DE ASIGNACIÓN INDIVIDUAL DE MESAS (Por índice de integrante o fallback)
     const indexIntegrante = datosGlobal.integrantes.indexOf(nom);
     let mesaInd = 'Sin asignar';
     if (datosGlobal.mesasIndividuales && datosGlobal.mesasIndividuales[nombre]) {
@@ -414,25 +413,28 @@ function initValidador() {
     _mostrarValidador('❌ INVITADO NO ENCONTRADO', 'validador-error');
   };
 
-  if (typeof Html5QrcodeScanner === 'undefined') return;
+  // ENVOLTURA SEGURA: Evita detener la inicialización de funciones globales alternas
+  if (typeof Html5QrcodeScanner !== 'undefined') {
+    const onScan = (decodedText) => {
+      _mostrarValidador('🔍 Consultando...', 'validador-consultando');
+      let idInvitado, tipo = 'integrante';
+      try {
+        const url = new URL(decodedText);
+        idInvitado = url.searchParams.get('id') || decodedText;
+        tipo       = url.searchParams.get('tipo') || 'integrante';
+      } catch (e) { idInvitado = decodedText; }
 
-  const onScan = (decodedText) => {
-    _mostrarValidador('🔍 Consultando...', 'validador-consultando');
-    let idInvitado, tipo = 'integrante';
-    try {
-      const url = new URL(decodedText);
-      idInvitado = url.searchParams.get('id') || decodedText;
-      tipo       = url.searchParams.get('tipo') || 'integrante';
-    } catch (e) { idInvitado = decodedText; }
+      const s = document.createElement('script');
+      s.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
+      s.onerror = () => _mostrarValidador('❌ Error de conexión', 'validador-error');
+      document.body.appendChild(s);
+    };
 
-    const s = document.createElement('script');
-    s.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-    s.onerror = () => _mostrarValidador('❌ Error de conexión', 'validador-error');
-    document.body.appendChild(s);
-  };
-
-  const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-  scanner.render(onScan);
+    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    scanner.render(onScan);
+  } else {
+    _mostrarValidador('⚠️ Cámara no disponible (Librería QR ausente)', 'validador-error');
+  }
 }
 
 function buscarManual() {
@@ -467,7 +469,10 @@ function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
 
 function _mostrarValidador(texto, clase) {
   const div = document.getElementById('validador-status');
-  if (!div) return; div.innerHTML = texto; div.className = 'validador-mensaje ' + clase; div.style.display = 'block';
+  if (!div) return; 
+  div.innerHTML = texto; 
+  div.className = 'validador-mensaje ' + clase; 
+  div.style.display = 'block';
 }
 
 /* ── ENRUTADOR DOM TOTAL ── */
@@ -477,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initValidador();
 });
 
-/* ── EXPOSICIÓN GLOBAL ABSOLUTA (Garantiza clics funcionales instantáneos) ── */
+/* ── EXPOSICIÓN GLOBAL ABSOLUTA ── */
 window.abrirInvitacion   = abrirInvitacion;
 window.habilitarEdicion  = habilitarEdicion;
 window.enviarConfirmacion = enviarConfirmacion;
