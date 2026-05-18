@@ -1,16 +1,24 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v4 (FIX TOTAL QR)
+   SCRIPT.JS — XV Nancy Paola v5 (CÁMARA Y DOM FIX)
    index + confirmacion + validador unificados
    ========================================= */
 
 const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbyeRpw-QAT79QffGz8aDBHbMfuxnm4GWWg2HsAhirW1y-xNMTBYZh780X6zC8cZLzUEfQ/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
-/* ── JSONP ── */
+/* ── JSONP CORREGIDO (Espera a que BODY exista) ── */
 function llamarGoogle(url) {
-  const s = document.createElement('script');
-  s.src = url;
-  document.body.appendChild(s);
+  const ejecutarInyeccion = () => {
+    const s = document.createElement('script');
+    s.src = url;
+    document.body.appendChild(s);
+  };
+
+  if (document.body) {
+    ejecutarInyeccion();
+  } else {
+    document.addEventListener("DOMContentLoaded", ejecutarInyeccion);
+  }
 }
 
 /* =========================================
@@ -445,11 +453,11 @@ function initConfirmacion() {
 }
 
 /* =========================================
-   VALIDADOR.HTML (REESTRUCTURADO SIN BUGS)
+   VALIDADOR.HTML 
    ========================================= */
 const historialSesion = [];
 let scannerLock = false; 
-let html5QrCodeInstance = null; // Guardar la referencia del stream de video
+let html5QrCodeInstance = null; 
 
 function buscarManual() {
   const input = document.getElementById('busqueda-manual');
@@ -458,10 +466,7 @@ function buscarManual() {
 
   _mostrarValidador('🔍 Consultando...', 'validador-consultando');
 
-  const script = document.createElement('script');
-  script.src = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-  script.onerror = () => _mostrarValidador('❌ Error de conexión', 'validador-error');
-  document.body.appendChild(script);
+  llamarGoogle(`${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`);
 }
 
 function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
@@ -542,10 +547,7 @@ function initValidador() {
   if (idUrl && validarUrl === 'validar') {
     _mostrarValidador('🔍 Consultando acceso...', 'validador-consultando');
     const tipoUrl = params.get('tipo') || 'integrante';
-    const s = document.createElement('script');
-    s.src = `${SCRIPT_URL}?tipo=${tipoUrl}&id=${encodeURIComponent(idUrl)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-    s.onerror = () => _mostrarValidador('❌ Error de conexión al servidor', 'validador-error');
-    document.body.appendChild(s);
+    llamarGoogle(`${SCRIPT_URL}?tipo=${tipoUrl}&id=${encodeURIComponent(idUrl)}&confirmacion=validar&callback=recibirRespuestaValidador`);
     reader.style.display = 'none'; 
     return;
   }
@@ -569,13 +571,7 @@ function initValidador() {
       tipo       = url.searchParams.get('tipo') || 'integrante';
     } catch (e) { idInvitado = decodedText; }
 
-    const s = document.createElement('script');
-    s.src = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
-    s.onerror = () => {
-      _mostrarValidador('❌ Error de red', 'validador-error');
-      scannerLock = false;
-    };
-    document.body.appendChild(s);
+    llamarGoogle(`${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`);
 
     // Apagamos el stream de video limpiamente tras leer para no colgar la cámara
     if (html5QrCodeInstance) {
@@ -583,14 +579,14 @@ function initValidador() {
     }
   };
 
-  // Inicialización directa sobre el canvas/video sin código HTML inyectado de terceros
+  // Inicialización directa sobre el canvas/video
   try {
     html5QrCodeInstance = new Html5Qrcode("reader");
     html5QrCodeInstance.start(
       { facingMode: "environment" }, 
       { fps: 10, qrbox: { width: 250, height: 250 } },
       onScanSuccess,
-      () => { /* Mantener vacío para silenciar logs continuos en consola */ }
+      () => { /* Silenciar logs continuos */ }
     ).catch(err => {
       console.error(err);
       _mostrarValidador('📷 Error de cámara. Concede permisos o cierra otras apps.', 'validador-error');
