@@ -1,10 +1,9 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v2 (CORREGIDO)
+   SCRIPT.JS — XV Nancy Paola v2 (CORREGIDO FINAL)
    index + confirmacion + validador
    ========================================= */
 
-// ✅ FIX: URL actualizada a la correcta (script_final.js)
-const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbz9LbD-E1Jmw3Gb1_v_lEflvAWdaSvtE00hsliA8HQ3A4vM_nah2WP8Ohp6lXB31HVgpA/exec";
+const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycby62G6sGK-BdHH1UbvjhDuC9fD39qIXIVSOXX4vcKvCvfCx_RmotIGYyIbVzbIvHQfxDA/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
@@ -163,7 +162,7 @@ function initIndex() {
   if (btnConf) {
     btnConf.addEventListener('click', e => {
       e.preventDefault();
-      if (idInvitado) window.location.href = `confirmacion?id=${encodeURIComponent(idInvitado)}`;
+      if (idInvitado) window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
       else alert('Error: No se encontró el ID en el enlace.');
     });
   }
@@ -317,7 +316,6 @@ function mostrarVistaConfirmada(resumen) {
 }
 
 /* ── Guardar pase como imagen ── */
-// ✅ FIX: try/catch con feedback claro al usuario
 function guardarPaseImagen(paseId, nombre) {
   const el = document.getElementById(paseId);
   if (!el || typeof html2canvas === 'undefined') {
@@ -341,7 +339,7 @@ function habilitarEdicion() {
   if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) generarFormulario();
 }
 
-/* ── Enviar confirmación ── */
+/* ── Enviar confirmación (CORREGIDO JSONP) ── */
 function enviarConfirmacion() {
   const btn = document.getElementById('btnEnviar');
   if (btn) { btn.innerText = "Guardando..."; btn.disabled = true; }
@@ -362,29 +360,25 @@ function enviarConfirmacion() {
   }
 
   const finalResp = respuestas.join(" | ");
-
-  // Timeout de seguridad: si el servidor no responde en 12s, desbloquear botón
-  const timeoutGuardar = setTimeout(() => {
-    if (btn && btn.disabled) {
-      btn.innerText = "Guardar Confirmación";
-      btn.disabled = false;
-      alert("El servidor tardó demasiado. Verifica tu conexión e intenta de nuevo.");
-    }
-  }, 12000);
-
-  // Guardar referencia para cancelar si procesarGuardado llega a tiempo
-  window._timeoutGuardar = timeoutGuardar;
-
-  llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`);
+  
+  // Usamos JSONP tradicional para evitar los bloqueos CORS de Google
+  const url = `${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`;
+  
+  const scriptJSONP = document.createElement('script');
+  scriptJSONP.src = url;
+  scriptJSONP.onerror = function() {
+    if (btn) { btn.innerText = "Guardar Confirmación"; btn.disabled = false; }
+    alert("Error de red al guardar. Verifica tu conexión e intenta de nuevo.");
+  };
+  document.body.appendChild(scriptJSONP);
 }
 
 window.procesarGuardado = function(res) {
-  if (window._timeoutGuardar) clearTimeout(window._timeoutGuardar);
   const btn = document.getElementById('btnEnviar');
   if (res && res.estatus === "ok") {
     lanzarConfeti();
     setTimeout(() => {
-      datosGlobal.confirmacionAnterior = _obtenerRespuestasActuales();
+      if(datosGlobal) datosGlobal.confirmacionAnterior = _obtenerRespuestasActuales();
       location.reload();
     }, 2200);
   } else {
@@ -445,7 +439,6 @@ function lanzarConfeti() {
 }
 
 /* ── Init confirmacion ── */
-// ✅ FIX: guard cuando no hay ?id en la URL
 function initConfirmacion() {
   const loader = document.getElementById('confirmacion-loader');
   if (!loader) return;
@@ -583,8 +576,6 @@ function _mostrarValidador(texto, clase) {
    DOM READY — enrutador
    ========================================= */
 
-// Exponer funciones de confirmacion como globales inmediatamente
-// (el onclick="" en HTML las necesita disponibles antes de que JSONP responda)
 window.enviarConfirmacion = enviarConfirmacion;
 window.habilitarEdicion   = habilitarEdicion;
 window.guardarPaseImagen  = guardarPaseImagen;
