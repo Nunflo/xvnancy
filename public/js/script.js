@@ -1,9 +1,10 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v2
+   SCRIPT.JS — XV Nancy Paola v2 (CORREGIDO)
    index + confirmacion + validador
    ========================================= */
 
-const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbyWIi8AkOWwZeieozAVph48G-mB9-bWE346I45_fEZKAY_qGYd99K2-vmgyk-Fq-aTVYw/exec";
+// ✅ FIX: URL actualizada a la correcta (script_final.js)
+const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbw-S8z9wMqD1pFcpaBY9LxzAAqgu5Lxiaj7yzS9eXxTBzFH1QRXJC__iHuPZI_AYYM9aQ/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
@@ -192,7 +193,6 @@ window.recibirDatosConfirmacion = function(data) {
   datosGlobal = data;
   const titulo = document.getElementById('tituloFamilia');
   if (titulo) {
-    // Evitar duplicar "Familia" si el nombre ya lo incluye
     const nombreFamilia = data.familia || '';
     const prefijo = /^famili/i.test(nombreFamilia.trim()) ? '' : 'Familia ';
     titulo.innerText = prefijo + nombreFamilia;
@@ -207,9 +207,9 @@ window.recibirDatosConfirmacion = function(data) {
 
 function generarFormulario() {
   const el = id => document.getElementById(id);
-  if (el('vistaConfirmada'))      el('vistaConfirmada').style.display      = 'none';
+  if (el('vistaConfirmada'))        el('vistaConfirmada').style.display        = 'none';
   if (el('formularioConfirmacion')) el('formularioConfirmacion').style.display = 'block';
-  if (el('statusBadge'))          el('statusBadge').style.display          = 'none';
+  if (el('statusBadge'))            el('statusBadge').style.display            = 'none';
   if (!el('listaIntegrantes') || !datosGlobal) return;
 
   let html = "";
@@ -231,7 +231,6 @@ function mostrarVistaConfirmada(resumen) {
   if (el('formularioConfirmacion')) el('formularioConfirmacion').style.display = 'none';
   if (el('vistaConfirmada'))        el('vistaConfirmada').style.display        = 'block';
 
-  // Badge dinámico
   const hayAsistentes = resumen.split('|').some(p =>
     /asistirá/i.test(p.replace(/No asistirá/gi, ''))
   );
@@ -249,11 +248,9 @@ function mostrarVistaConfirmada(resumen) {
 
   if (el('resumenTexto')) el('resumenTexto').innerText = "Tu respuesta: " + resumen;
 
-  // Itinerario solo si asiste alguien
   const itSec = el('itinerario-section');
   if (itSec) itSec.style.display = hayAsistentes ? 'block' : 'none';
 
-  // Generar pases QR INDIVIDUALES
   const qrContainer = el('qr-container');
   if (!qrContainer || !datosGlobal) return;
   qrContainer.innerHTML = "";
@@ -267,15 +264,10 @@ function mostrarVistaConfirmada(resumen) {
     });
     if (!asiste) return;
 
-    // Mesa individual del integrante
-    // Prioridad 1: hoja Mesas individual (si generarHojaMesas fue ejecutado)
-    // Prioridad 2: parsear la columna H que puede tener "7,2,2,2" (una mesa por integrante en orden)
-    // Prioridad 3: usar mesa de familia como fallback
     let mesaInd = '';
     if (datosGlobal.mesasIndividuales && datosGlobal.mesasIndividuales[nombre]) {
       mesaInd = datosGlobal.mesasIndividuales[nombre];
     } else {
-      // Intentar parsear mesas por posición del integrante en el array
       const idxIntegrante = datosGlobal.integrantes.indexOf(nom);
       const mesaRaw = datosGlobal.mesaFamilia || datosGlobal.mesa || '';
       if (mesaRaw.includes(',')) {
@@ -286,10 +278,7 @@ function mostrarVistaConfirmada(resumen) {
       }
     }
 
-    // QR apunta al integrante individual con tipo=integrante
-    const urlQR = `${VALIDADOR_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&validar=validar`;
-
-    // Crear tarjeta de pase elegante
+    const urlQR  = `${VALIDADOR_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&validar=validar`;
     const paseId = `pase-${nombre.replace(/\s+/g, '-')}`;
     const qrId   = `qr-${nombre.replace(/\s+/g, '-')}`;
 
@@ -319,7 +308,6 @@ function mostrarVistaConfirmada(resumen) {
       });
     }
 
-    // Botón para guardar pase como imagen
     const btnGuardar = document.createElement('button');
     btnGuardar.className = 'btn-guardar-pase';
     btnGuardar.textContent = '💾 Guardar pase';
@@ -329,18 +317,23 @@ function mostrarVistaConfirmada(resumen) {
 }
 
 /* ── Guardar pase como imagen ── */
+// ✅ FIX: try/catch con feedback claro al usuario
 function guardarPaseImagen(paseId, nombre) {
   const el = document.getElementById(paseId);
   if (!el || typeof html2canvas === 'undefined') {
-    alert('No se pudo guardar. Toma una captura de pantalla.');
+    alert('No se pudo guardar el pase. Por favor toma una captura de pantalla.');
     return;
   }
-  html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
-    const link = document.createElement('a');
-    link.download = `Pase-XV-${nombre.replace(/\s+/g, '_')}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
+  html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true })
+    .then(canvas => {
+      const link = document.createElement('a');
+      link.download = `Pase-XV-${nombre.replace(/\s+/g, '_')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    })
+    .catch(() => {
+      alert('Ocurrió un error al generar la imagen. Por favor toma una captura de pantalla.');
+    });
 }
 
 /* ── Habilitar edición ── */
@@ -371,12 +364,10 @@ window.procesarGuardado = function(res) {
   if (res && res.estatus === "ok") {
     lanzarConfeti();
     setTimeout(() => {
-      // Guardar confirmación en memoria para no perderla si falla el reload
       datosGlobal.confirmacionAnterior = _obtenerRespuestasActuales();
       location.reload();
     }, 2200);
   } else {
-    // Algo falló — restaurar botón
     if (btn) { btn.innerText = "Guardar Confirmación"; btn.disabled = false; }
     alert("Hubo un problema al guardar. Intenta de nuevo.");
   }
@@ -434,10 +425,18 @@ function lanzarConfeti() {
 }
 
 /* ── Init confirmacion ── */
+// ✅ FIX: guard cuando no hay ?id en la URL
 function initConfirmacion() {
-  if (!document.getElementById('confirmacion-loader')) return;
+  const loader = document.getElementById('confirmacion-loader');
+  if (!loader) return;
+
   const id = new URLSearchParams(window.location.search).get('id');
-  if (id) llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
+  if (!id) {
+    if (loader) loader.innerText = 'Enlace inválido. No se encontró el ID del invitado.';
+    return;
+  }
+
+  llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
 
   window.habilitarEdicion   = habilitarEdicion;
   window.enviarConfirmacion = enviarConfirmacion;
@@ -447,7 +446,7 @@ function initConfirmacion() {
 /* =========================================
    VALIDADOR.HTML
    ========================================= */
-const historialSesion = []; // guarda accesos de esta sesión
+const historialSesion = [];
 
 /* ── Búsqueda manual ── */
 function buscarManual() {
@@ -477,7 +476,6 @@ function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   wrapper.style.display = 'block';
   if (contador) contador.textContent = historialSesion.length;
 
-  // Mostrar máximo últimos 8
   const recientes = historialSesion.slice(0, 8);
   lista.innerHTML = recientes.map(h => `
     <div class="historial-item ${h.duplicado ? 'historial-dup' : h.ok ? 'historial-ok' : 'historial-err'}">
@@ -495,7 +493,6 @@ function initValidador() {
   const reader = document.getElementById('reader');
   if (!reader) return;
 
-  // Callback JSONP global
   window.recibirRespuestaValidador = function(data) {
     if (!data) { _mostrarValidador('❌ Sin respuesta', 'validador-error'); return; }
 
@@ -551,7 +548,6 @@ function initValidador() {
   const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
   scanner.render(onScan);
 
-  // Búsqueda manual global
   window.buscarManual = buscarManual;
 }
 
