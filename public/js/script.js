@@ -4,7 +4,7 @@
    ========================================= */
 
 // ✅ FIX: URL actualizada a la correcta (script_final.js)
-const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbw-S8z9wMqD1pFcpaBY9LxzAAqgu5Lxiaj7yzS9eXxTBzFH1QRXJC__iHuPZI_AYYM9aQ/exec";
+const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbz9LbD-E1Jmw3Gb1_v_lEflvAWdaSvtE00hsliA8HQ3A4vM_nah2WP8Ohp6lXB31HVgpA/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
@@ -355,11 +355,31 @@ function enviarConfirmacion() {
   }
 
   const id = new URLSearchParams(window.location.search).get('id');
+  if (!id) {
+    if (btn) { btn.innerText = "Guardar Confirmación"; btn.disabled = false; }
+    alert('Error: No se encontró el ID del invitado.');
+    return;
+  }
+
   const finalResp = respuestas.join(" | ");
+
+  // Timeout de seguridad: si el servidor no responde en 12s, desbloquear botón
+  const timeoutGuardar = setTimeout(() => {
+    if (btn && btn.disabled) {
+      btn.innerText = "Guardar Confirmación";
+      btn.disabled = false;
+      alert("El servidor tardó demasiado. Verifica tu conexión e intenta de nuevo.");
+    }
+  }, 12000);
+
+  // Guardar referencia para cancelar si procesarGuardado llega a tiempo
+  window._timeoutGuardar = timeoutGuardar;
+
   llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`);
 }
 
 window.procesarGuardado = function(res) {
+  if (window._timeoutGuardar) clearTimeout(window._timeoutGuardar);
   const btn = document.getElementById('btnEnviar');
   if (res && res.estatus === "ok") {
     lanzarConfeti();
@@ -562,6 +582,14 @@ function _mostrarValidador(texto, clase) {
 /* =========================================
    DOM READY — enrutador
    ========================================= */
+
+// Exponer funciones de confirmacion como globales inmediatamente
+// (el onclick="" en HTML las necesita disponibles antes de que JSONP responda)
+window.enviarConfirmacion = enviarConfirmacion;
+window.habilitarEdicion   = habilitarEdicion;
+window.guardarPaseImagen  = guardarPaseImagen;
+window.buscarManual       = buscarManual;
+
 document.addEventListener('DOMContentLoaded', () => {
   initIndex();
   initConfirmacion();
