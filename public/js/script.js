@@ -1,24 +1,17 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v5 (CÁMARA Y DOM FIX)
-   index + confirmacion + validador unificados
+   SCRIPT.JS — XV Nancy Paola v2 (CORREGIDO)
+   index + confirmacion + validador
    ========================================= */
 
-const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbyeRpw-QAT79QffGz8aDBHbMfuxnm4GWWg2HsAhirW1y-xNMTBYZh780X6zC8cZLzUEfQ/exec";
+// ✅ FIX: URL actualizada a la correcta (script_final.js)
+const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbwuw9cjG5DR6WX8OZHEXOdIGsb_WeYk8uTrAZhb9HFploXVWHOePzDYiQy39l8rM_0p9w/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
-/* ── JSONP CORREGIDO (Espera a que BODY exista) ── */
+/* ── JSONP ── */
 function llamarGoogle(url) {
-  const ejecutarInyeccion = () => {
-    const s = document.createElement('script');
-    s.src = url;
-    document.body.appendChild(s);
-  };
-
-  if (document.body) {
-    ejecutarInyeccion();
-  } else {
-    document.addEventListener("DOMContentLoaded", ejecutarInyeccion);
-  }
+  const s = document.createElement('script');
+  s.src = url;
+  document.body.appendChild(s);
 }
 
 /* =========================================
@@ -170,7 +163,7 @@ function initIndex() {
   if (btnConf) {
     btnConf.addEventListener('click', e => {
       e.preventDefault();
-      if (idInvitado) window.location.href = `confirmacion.html?id=${encodeURIComponent(idInvitado)}`;
+      if (idInvitado) window.location.href = `confirmacion?id=${encodeURIComponent(idInvitado)}`;
       else alert('Error: No se encontró el ID en el enlace.');
     });
   }
@@ -190,6 +183,7 @@ window.recibirDatosConfirmacion = function(data) {
 
   if (data.error) { alert("Error: " + data.error); return; }
 
+  // Normalizar integrantes
   if (typeof data.integrantes === 'string') {
     data.integrantes = data.integrantes.split(',').map(n => n.trim()).filter(Boolean);
   } else if (!Array.isArray(data.integrantes)) {
@@ -322,6 +316,8 @@ function mostrarVistaConfirmada(resumen) {
   });
 }
 
+/* ── Guardar pase como imagen ── */
+// ✅ FIX: try/catch con feedback claro al usuario
 function guardarPaseImagen(paseId, nombre) {
   const el = document.getElementById(paseId);
   if (!el || typeof html2canvas === 'undefined') {
@@ -340,10 +336,12 @@ function guardarPaseImagen(paseId, nombre) {
     });
 }
 
+/* ── Habilitar edición ── */
 function habilitarEdicion() {
   if (confirm("¿Deseas cambiar tu respuesta de asistencia?")) generarFormulario();
 }
 
+/* ── Enviar confirmación ── */
 function enviarConfirmacion() {
   const btn = document.getElementById('btnEnviar');
   if (btn) { btn.innerText = "Guardando..."; btn.disabled = true; }
@@ -364,23 +362,29 @@ function enviarConfirmacion() {
   }
 
   const finalResp = respuestas.join(" | ");
-  const url = `${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`;
-  
-  const scriptJSONP = document.createElement('script');
-  scriptJSONP.src = url;
-  scriptJSONP.onerror = function() {
-    if (btn) { btn.innerText = "Guardar Confirmación"; btn.disabled = false; }
-    alert("Error de red al guardar. Verifica tu conexión e intenta de nuevo.");
-  };
-  document.body.appendChild(scriptJSONP);
+
+  // Timeout de seguridad: si el servidor no responde en 12s, desbloquear botón
+  const timeoutGuardar = setTimeout(() => {
+    if (btn && btn.disabled) {
+      btn.innerText = "Guardar Confirmación";
+      btn.disabled = false;
+      alert("El servidor tardó demasiado. Verifica tu conexión e intenta de nuevo.");
+    }
+  }, 12000);
+
+  // Guardar referencia para cancelar si procesarGuardado llega a tiempo
+  window._timeoutGuardar = timeoutGuardar;
+
+  llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`);
 }
 
 window.procesarGuardado = function(res) {
+  if (window._timeoutGuardar) clearTimeout(window._timeoutGuardar);
   const btn = document.getElementById('btnEnviar');
   if (res && res.estatus === "ok") {
     lanzarConfeti();
     setTimeout(() => {
-      if(datosGlobal) datosGlobal.confirmacionAnterior = _obtenerRespuestasActuales();
+      datosGlobal.confirmacionAnterior = _obtenerRespuestasActuales();
       location.reload();
     }, 2200);
   } else {
@@ -397,6 +401,7 @@ function _obtenerRespuestasActuales() {
   }).join(' | ');
 }
 
+/* ── Confeti ── */
 function lanzarConfeti() {
   const canvas = document.getElementById('confeti-canvas');
   if (!canvas) return;
@@ -439,6 +444,8 @@ function lanzarConfeti() {
   requestAnimationFrame(animar);
 }
 
+/* ── Init confirmacion ── */
+// ✅ FIX: guard cuando no hay ?id en la URL
 function initConfirmacion() {
   const loader = document.getElementById('confirmacion-loader');
   if (!loader) return;
@@ -450,25 +457,43 @@ function initConfirmacion() {
   }
 
   llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
+
+  window.habilitarEdicion   = habilitarEdicion;
+  window.enviarConfirmacion = enviarConfirmacion;
+  window.guardarPaseImagen  = guardarPaseImagen;
 }
 
 /* =========================================
-   VALIDADOR.HTML 
+   VALIDADOR.HTML
    ========================================= */
 const historialSesion = [];
-let scannerLock = false; 
-let html5QrCodeInstance = null; 
 
-function buscarManual() {
+/* ── Búsqueda manual ── */
+// ✅ FIX: usa fetch en lugar de JSONP para evitar canal cerrado
+async function buscarManual() {
   const input = document.getElementById('busqueda-manual');
   if (!input || !input.value.trim()) return;
   const nombre = input.value.trim();
 
-  _mostrarValidador('🔍 Consultando...', 'validador-consultando');
+  const div = document.getElementById('validador-status');
+  if (div) { div.innerHTML = '🔍 Consultando...'; div.className = 'validador-mensaje validador-consultando'; div.style.display = 'block'; }
 
-  llamarGoogle(`${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`);
+  const url = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`;
+  try {
+    const res  = await fetch(url, { redirect: 'follow' });
+    const text = await res.text();
+    const match = text.match(/recibirRespuestaValidador\(([\s\S]+?)\)\s*;?\s*$/);
+    if (match) {
+      window.recibirRespuestaValidador(JSON.parse(match[1]));
+    } else {
+      if (div) { div.innerHTML = '❌ Respuesta inesperada del servidor'; div.className = 'validador-mensaje validador-error'; }
+    }
+  } catch (err) {
+    if (div) { div.innerHTML = '❌ Error de conexión: ' + err.message; div.className = 'validador-mensaje validador-error'; }
+  }
 }
 
+/* ── Historial de sesión ── */
 function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   const ahora = new Date().toLocaleTimeString('es-MX');
   historialSesion.unshift({ nombre, familia, mesa, ok, duplicado, hora: ahora });
@@ -493,27 +518,13 @@ function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   `).join('');
 }
 
-function _mostrarValidador(texto, clase) {
-  const div = document.getElementById('validador-status');
-  if (!div) return;
-  div.innerHTML = texto;
-  div.className = 'validador-mensaje ' + clase;
-  div.style.display = 'block';
-}
-
+/* ── Init validador ── */
 function initValidador() {
   const reader = document.getElementById('reader');
   if (!reader) return;
 
   window.recibirRespuestaValidador = function(data) {
-    scannerLock = false; 
-
-    if (!data) { _mostrarValidador('❌ Sin respuesta del servidor', 'validador-error'); return; }
-
-    if (data.error) {
-      _mostrarValidador('❌ Error: ' + data.error, 'validador-error');
-      return;
-    }
+    if (!data) { _mostrarValidador('❌ Sin respuesta', 'validador-error'); return; }
 
     if (data.acceso === 'DUPLICADO') {
       _mostrarValidador(
@@ -536,69 +547,64 @@ function initValidador() {
       return;
     }
 
-    _mostrarValidador('❌ NO ENCONTRADO EN LISTA', 'validador-error');
+    if (data.familia && !data.error) {
+      _mostrarValidador(`✅ <strong>ACCESO PERMITIDO</strong><br>${data.familia}`, 'validador-exito');
+      _agregarHistorial(data.familia, data.familia, data.mesa||'', true, false);
+      return;
+    }
+
+    _mostrarValidador('❌ ' + (data.error || 'NO ENCONTRADO'), 'validador-error');
   };
 
-  // CASO A: El usuario llegó al validador vía link directo de su código QR nativo
-  const params = new URLSearchParams(window.location.search);
-  const idUrl = params.get('id');
-  const validarUrl = params.get('validar');
+  if (typeof Html5QrcodeScanner === 'undefined') return;
 
-  if (idUrl && validarUrl === 'validar') {
-    _mostrarValidador('🔍 Consultando acceso...', 'validador-consultando');
-    const tipoUrl = params.get('tipo') || 'integrante';
-    llamarGoogle(`${SCRIPT_URL}?tipo=${tipoUrl}&id=${encodeURIComponent(idUrl)}&confirmacion=validar&callback=recibirRespuestaValidador`);
-    reader.style.display = 'none'; 
-    return;
-  }
-
-  // CASO B: Uso del escáner en vivo desde la página del validador
-  if (typeof Html5Qrcode === 'undefined') {
-    _mostrarValidador('❌ Error: Librería de QR no cargada.', 'validador-error');
-    return;
-  }
-
-  const onScanSuccess = (decodedText) => {
-    if (scannerLock) return; 
-    scannerLock = true;
-
-    _mostrarValidador('🔍 Consultando...', 'validador-consultando');
+  // ✅ FIX: onScan usa fetch para evitar el error de canal JSONP cerrado
+  const onScan = async (decodedText) => {
+    _mostrarValidador('🔍 Verificando acceso...', 'validador-consultando');
+    scanner.clear();
 
     let idInvitado, tipo = 'integrante';
     try {
-      const url = new URL(decodedText);
-      idInvitado = url.searchParams.get('id') || decodedText;
-      tipo       = url.searchParams.get('tipo') || 'integrante';
+      const parsed = new URL(decodedText);
+      idInvitado = parsed.searchParams.get('id') || decodedText;
+      tipo       = parsed.searchParams.get('tipo') || 'integrante';
     } catch (e) { idInvitado = decodedText; }
 
-    llamarGoogle(`${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`);
-
-    // Apagamos el stream de video limpiamente tras leer para no colgar la cámara
-    if (html5QrCodeInstance) {
-      html5QrCodeInstance.stop().catch(err => console.log("Cámara detenida."));
+    const url = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
+    try {
+      const res   = await fetch(url, { redirect: 'follow' });
+      const text  = await res.text();
+      const match = text.match(/recibirRespuestaValidador\(([\s\S]+?)\)\s*;?\s*$/);
+      if (match) {
+        window.recibirRespuestaValidador(JSON.parse(match[1]));
+      } else {
+        _mostrarValidador('❌ Respuesta inesperada del servidor', 'validador-error');
+      }
+    } catch (err) {
+      _mostrarValidador('❌ Error de red: ' + err.message, 'validador-error');
     }
   };
 
-  // Inicialización directa sobre el canvas/video
-  try {
-    html5QrCodeInstance = new Html5Qrcode("reader");
-    html5QrCodeInstance.start(
-      { facingMode: "environment" }, 
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      onScanSuccess,
-      () => { /* Silenciar logs continuos */ }
-    ).catch(err => {
-      console.error(err);
-      _mostrarValidador('📷 Error de cámara. Concede permisos o cierra otras apps.', 'validador-error');
-    });
-  } catch (e) {
-    console.error(e);
-  }
+  const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+  scanner.render(onScan);
+
+  window.buscarManual = buscarManual;
+}
+
+function _mostrarValidador(texto, clase) {
+  const div = document.getElementById('validador-status');
+  if (!div) return;
+  div.innerHTML = texto;
+  div.className = 'validador-mensaje ' + clase;
+  div.style.display = 'block';
 }
 
 /* =========================================
-   DOM READY — inicializador global
+   DOM READY — enrutador
    ========================================= */
+
+// Exponer funciones de confirmacion como globales inmediatamente
+// (el onclick="" en HTML las necesita disponibles antes de que JSONP responda)
 window.enviarConfirmacion = enviarConfirmacion;
 window.habilitarEdicion   = habilitarEdicion;
 window.guardarPaseImagen  = guardarPaseImagen;
