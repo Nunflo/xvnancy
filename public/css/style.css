@@ -30,7 +30,7 @@
 
 body {
   font-family: var(--font-serif);
-  background-color: #000;
+  background-color: #f7e7ec;
   color: var(--text-dark);
   overflow-x: hidden;
   line-height: 1.6;
@@ -263,7 +263,8 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
   box-shadow: none;
   border: none;
-  padding-top: 50vh;
+  padding-top: 0;
+  padding-bottom: 0;
   padding-bottom: 20px;
 }
 
@@ -560,16 +561,23 @@ h1, h2, h3, h4, h5, h6 {
 
 .timeline-item {
   position: relative;
-  margin-bottom: 35px;
-  font-size: 1.1rem;
-  color: var(--text-dark);
-  font-weight: 700;
+  margin-bottom: 30px;
+  font-size: 1.9rem;
+  color: var(--vino);
+  font-weight: 400;
+  font-family: var(--font-script);
+  line-height: 1.3;
+  letter-spacing: 0.5px;
 }
 
 .timeline-item b {
   color: var(--vino-light);
-  font-family: var(--font-sans);
-  font-weight: 800;
+  font-family: var(--font-script);
+  font-size: 1.1rem;
+  font-weight: 400;
+  font-style: italic;
+  display: block;
+  letter-spacing: 1px;
 }
 
 .timeline-item::before {
@@ -757,8 +765,24 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.3s ease;
 }
 
-.btn-map { background: var(--vino-light); color: white; border: 1.5px solid var(--dorado); }
-.btn-map:hover { background: var(--vino); transform: scale(1.05); }
+.btn-map {
+  background: var(--vino-light);
+  color: white;
+  border: 1.5px solid var(--dorado);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.btn-map::before {
+  content: '';
+  position: absolute;
+  inset: 0; left: -100%;
+  background: linear-gradient(90deg, var(--dorado) 0%, var(--dorado-metal) 50%, var(--dorado) 100%);
+  transition: left 0.45s ease;
+  z-index: -1;
+}
+.btn-map:hover         { color: var(--vino); transform: translateY(-4px); box-shadow: 0 12px 28px rgba(197,160,89,0.4); border-color: #fff; }
+.btn-map:hover::before { left: 0; }
 
 .btn-cal {
   position: relative;
@@ -818,10 +842,22 @@ h1, h2, h3, h4, h5, h6 {
    ========================================= */
 .confirm-date {
   font-family: var(--font-sans);
-  font-size: 0.95rem;
-  color: var(--text-soft);
-  margin-bottom: 20px;
-  font-weight: 600;
+  font-size: 0.92rem;
+  color: white;
+  margin: 0 auto 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--vino) 0%, var(--vino-light) 100%);
+  border: 2px solid var(--dorado);
+  border-radius: 50px;
+  padding: 12px 24px;
+  display: inline-block;
+  box-shadow: 0 6px 18px rgba(90,13,21,0.25);
+  animation: pulso-fecha 2.5s ease-in-out infinite;
+}
+@keyframes pulso-fecha {
+  0%, 100% { box-shadow: 0 6px 18px rgba(90,13,21,0.25); }
+  50%       { box-shadow: 0 10px 28px rgba(197,160,89,0.5); }
 }
 
 /* =========================================
@@ -897,10 +933,14 @@ footer {
    RESPONSIVE
    ========================================= */
 @media (max-width: 680px) {
-  .section-card  { padding: 25px 15px; }
-  .main-wrapper  { padding: 10px; }
+  .section-card  { padding: 22px 12px; }
+  .main-wrapper  { padding: 0 0 20px; width: 100%; }
   .footer-grid   { grid-template-columns: 1fr; }
   .fixed-bg      { height: 100vh; }
+
+  /* Hero imagen ocupa mitad de pantalla en móvil */
+  .hero-imagen-principal { height: 48vw; min-height: 200px; border-radius: 0 0 22px 22px; }
+  .hero { border-radius: 0 0 22px 22px; }
 
   .sobre-visual          { width: 92%; height: 270px; }
   .name-sobre            { font-size: 3.5rem; }
@@ -910,6 +950,41 @@ footer {
   .carousel-btn      { width: 32px; height: 32px; font-size: 0.85rem; }
   .carousel-btn.prev { left: -14px; }
   .carousel-btn.next { right: -14px; }
+
+  /* Confirmación: padding cómodo en móvil */
+  .confirmacion-card { padding: 28px 16px; margin: 16px auto; }
+  body.page-confirmacion { padding: 10px; }
+
+  /* Botones: área táctil mínima 48px */
+  .btn-action, .btn-elegante, .btn-confirmacion-enviar,
+  .btn-modificar-respuesta, .btn-guardar-pase,
+  .btn-validador-nuevo, .btn-buscar-manual { min-height: 48px; }
+
+  .familiar-row select { min-height: 44px; font-size: 0.9rem; padding: 10px 12px; }
+}
+
+/* Touch feedback para móvil (reemplaza hover en pantallas táctiles) */
+@media (hover: none) {
+  .btn-action:active,
+  .btn-elegante:active,
+  .btn-confirmacion-enviar:active:not(:disabled),
+  .btn-modificar-respuesta:active,
+  .btn-guardar-pase:active,
+  .btn-validador-nuevo:active,
+  .btn-buscar-manual:active,
+  .boton-abrir:active,
+  .liverpool-card:active,
+  .regla-rosa:active {
+    transform: scale(0.97);
+    opacity: 0.88;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+  /* Mostrar efectos dorado en tap */
+  .btn-map:active::before,
+  .btn-cal:active::before,
+  .btn-elegante:active::before { left: 0; }
+  .btn-map:active  { color: var(--vino); }
+  .btn-cal:active  { color: var(--vino); }
 }
 
 @media print {
@@ -1038,20 +1113,28 @@ body.page-validador::before {
 
 .familiar-row select {
   font-family: var(--font-sans);
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 7px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--dorado);
-  background: white;
-  color: var(--text-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 14px 9px 10px;
+  border-radius: 50px;
+  border: 2px solid var(--dorado);
+  background: linear-gradient(135deg, #fff9f0, #fff);
+  color: var(--vino);
   cursor: pointer;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C5A059' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  min-width: 130px;
 }
 .familiar-row select:focus {
   border-color: var(--vino);
-  box-shadow: 0 0 0 3px rgba(90, 13, 21, 0.08);
+  box-shadow: 0 0 0 3px rgba(90, 13, 21, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A0D15' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 /* Botón principal de enviar */
@@ -1395,19 +1478,20 @@ body.page-validador h2 {
   display: block;
   width: calc(100% - 36px);
   margin: 0 18px 16px;
-  padding: 10px;
-  background: transparent;
-  border: 1.5px solid var(--dorado);
+  padding: 12px;
+  background: linear-gradient(135deg, var(--dorado) 0%, var(--dorado-metal) 100%);
+  border: none;
   border-radius: 50px;
-  color: var(--dorado);
+  color: var(--vino);
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 2px;
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
+  box-shadow: 0 4px 14px rgba(197,160,89,0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.btn-guardar-pase:hover { background: var(--dorado); color: white; }
+.btn-guardar-pase:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(197,160,89,0.5); }
 
 /* =========================================
    ITINERARIO EN CONFIRMACION
