@@ -4,7 +4,7 @@
    ========================================= */
 
 // ✅ FIX: URL actualizada a la correcta (script_final.js)
-const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbwuw9cjG5DR6WX8OZHEXOdIGsb_WeYk8uTrAZhb9HFploXVWHOePzDYiQy39l8rM_0p9w/exec";
+const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbz-0ZeGeEd6vb3Q_kRn8JdrxILKMK2swZQQtpzU5xRohTNTM3qlGWq1TNQVXLPNKZfHPg/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
