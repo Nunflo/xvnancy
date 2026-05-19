@@ -9,7 +9,7 @@
    - procesarGuardado: eliminado set inutil antes de reload
    ========================================= */
 
-const SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbyuhkb7leJKRxfbUia_UEjfEstVRP322Bci4s4bXuFU331wUCzLqnJ6JJjFBzucLSTmwQ/exec";
+const SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbxivk3xzgdsJ8ALyQIPbhTvPCklvhHxo-EVYBgyv7sAdbTvj8jBvn6re1eTu9hCxmgkjw/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
@@ -313,7 +313,7 @@ function mostrarVistaConfirmada(resumen) {
       }
     }
 
-    const urlQR  = `${VALIDADOR_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&validar=validar`;
+    const urlQR  = `${VALIDADOR_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}`;
     const paseId = `pase-${nombre.replace(/\s+/g, '-')}`;
     const qrId   = `qr-${nombre.replace(/\s+/g, '-')}`;
 
@@ -523,7 +523,7 @@ async function buscarManual() {
     div.style.display = 'block';
   }
 
-  const url = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`;
+  const url = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&token=XV2026&callback=recibirRespuestaValidador`;
   try {
     const res   = await fetch(url, { redirect: 'follow' });
     const text  = await res.text();
@@ -629,7 +629,7 @@ function initValidador() {
       idInvitado = decodedText;
     }
 
-    const url = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
+    const url = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&token=XV2026&callback=recibirRespuestaValidador`;
     try {
       const res   = await fetch(url, { redirect: 'follow' });
       const text  = await res.text();
