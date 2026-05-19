@@ -5,49 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XV Nancy Paola</title>
 
-  <!-- ✅ FIX PERF #1: Favicon — evita 404 en consola -->
   <link rel="icon" href="img/favicon.ico" onerror="this.remove()">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
 
-  <!-- ✅ FIX PERF #2: Preconnect — abre el canal con Google Fonts ANTES
-       de que el CSS empiece a parsear. Ahorra ~300-600 ms en móvil. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- ✅ FIX PERF #3: Un solo <link> de fuentes (se eliminó el @import del CSS).
-       &display=swap hace que el texto sea visible con fuente del sistema
-       mientras la fuente custom descarga. -->
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,700;1,700&family=Montserrat:wght@400;600;700;800&display=swap">
 
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/addons.css">
 
-  <!-- ✅ FIX PERF #4: ScrollReveal se carga al FINAL del body con defer
-       (ver abajo) para no bloquear el parser HTML. -->
-</head>
+  </head>
 <body>
 
   <audio id="musica-fondo" loop></audio>
 
-  <!-- PANTALLA SOBRE -->
-  <div id="pantalla-sobre">
-    <div class="sobre-visual">
-      <p class="sobre-label">MIS XV AÑOS</p>
-      <h2 class="name-sobre">Nancy Paola</h2>
-      <div id="nombre-invitado-sobre">Cargando...</div>
-      <div id="sobre-fecha">AGOSTO 15, 2026</div>
-      <button class="boton-abrir" onclick="abrirInvitacion()">Abrir</button>
-    </div>
-  </div>
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <div id="contenido">
+  <div id="contenido" class="visible">
     <div class="fixed-bg"></div>
 
     <div class="main-wrapper">
 
-      <!-- HERO -->
       <header class="hero section-card">
         <div class="reveal">
           <p class="hero-fecha">AGOSTO 15, 2026</p>
@@ -61,7 +40,6 @@
         </div>
       </header>
 
-      <!-- MENSAJE -->
       <section class="section-card">
         <div class="reveal">
           <p class="mensaje-emotivo">
@@ -71,7 +49,6 @@
         </div>
       </section>
 
-      <!-- GUARDA LA FECHA -->
       <section class="section-card">
         <div class="reveal">
           <h3 class="modern-title">Guarda la fecha</h3>
@@ -84,7 +61,6 @@
         </div>
       </section>
 
-      <!-- FAMILIA -->
       <section class="section-card">
         <div class="bendicion-container reveal">
           <p class="sobre-label">CON LA BENDICIÓN DE</p>
@@ -94,7 +70,7 @@
             <h3 class="tipo-titulo">Mis Padres</h3>
             <span class="linea-dorada"></span>
           </div>
-          <p class="nombres-bendicion">Jonathan Flores &amp; Guadalupe Michaus</p>
+          <p class="nombres-bendicion">Jonathan Flores & Guadalupe Michaus</p>
 
           <div class="grid-linea">
             <span class="linea-dorada"></span>
@@ -105,12 +81,11 @@
         </div>
       </section>
 
-      <!-- GALERÍA -->
       <section class="section-card">
         <h2 class="modern-title serif-title">Momentos</h2>
 
         <div class="carousel-wrapper reveal">
-          <button class="carousel-btn prev" aria-label="Anterior">&#8249;</button>
+          <button class="carousel-btn prev" aria-label="Anterior">‹</button>
 
           <div class="carousel-container">
             <div class="carousel-slide" id="slider">
@@ -137,12 +112,11 @@
             </div>
           </div>
 
-          <button class="carousel-btn next" aria-label="Siguiente">&#8250;</button>
+          <button class="carousel-btn next" aria-label="Siguiente">›</button>
           <div class="carousel-dots"></div>
         </div>
       </section>
 
-      <!-- REDES SOCIALES -->
       <section class="section-card">
         <div class="reveal">
           <h2 class="modern-title serif-title">¡Comparte el evento!</h2>
@@ -162,7 +136,6 @@
         </div>
       </section>
 
-      <!-- ITINERARIO -->
       <section class="section-card">
         <h2 class="itiner">Itinerario</h2>
         <div class="timeline reveal">
@@ -175,7 +148,6 @@
         </div>
       </section>
 
-      <!-- CÓMO LLEGAR -->
       <section class="section-card">
         <div class="reveal">
           <h2 class="modern-title serif-title">Cómo llegar</h2>
@@ -200,7 +172,6 @@
         </div>
       </section>
 
-      <!-- VESTIMENTA -->
       <section class="section-card">
         <h2 class="modern-title serif-title">Código de Vestimenta</h2>
         <p class="vestimenta-tipo">👗 ETIQUETA FORMAL 👔</p>
@@ -215,7 +186,6 @@
         </div>
       </section>
 
-      <!-- MESA DE REGALOS -->
       <section class="section-card">
         <h2 class="modern-title serif-title">Mesa de Regalos</h2>
         <a href="https://mesaderegalos.liverpool.com.mx/milistaderegalos/51982532" target="_blank" class="liverpool-card reveal">
@@ -228,7 +198,6 @@
         </a>
       </section>
 
-      <!-- CONFIRMACIÓN -->
       <section class="section-card">
         <div class="reveal">
           <h2 class="modern-title serif-title">Confirmación</h2>
@@ -239,7 +208,6 @@
         </div>
       </section>
 
-      <!-- FOOTER -->
       <footer>
         <div class="footer-grid">
           <div>
@@ -262,7 +230,6 @@
     </div>
   </div>
 
-  <!-- ✅ FIX PERF #5: Scripts al final del body + defer para ScrollReveal -->
   <script src="https://unpkg.com/scrollreveal" defer></script>
   <script src="js/script.js" defer></script>
 </body>
