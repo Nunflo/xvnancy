@@ -938,18 +938,6 @@ footer {
   .footer-grid   { grid-template-columns: 1fr; }
   .fixed-bg      { height: 100vh; }
 
-  /* Hero imagen ocupa mitad de pantalla en móvil */
-  .hero-imagen-principal { height: 48vw; min-height: 200px; border-radius: 0 0 22px 22px; }
-  .hero { border-radius: 0 0 22px 22px; }
-
-  .sobre-visual          { width: 92%; height: 270px; }
-  .name-sobre            { font-size: 3.5rem; }
-  #nombre-invitado-sobre { font-size: 1.5rem; }
-  .boton-abrir           { width: 92px; height: 92px; font-size: 2rem; }
-
-  .carousel-btn      { width: 32px; height: 32px; font-size: 0.85rem; }
-  .carousel-btn.prev { left: -14px; }
-  .carousel-btn.next { right: -14px; }
 
   /* Confirmación: padding cómodo en móvil */
   .confirmacion-card { padding: 28px 16px; margin: 16px auto; }
