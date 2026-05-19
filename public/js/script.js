@@ -1,10 +1,9 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v2 (CORREGIDO)
+   SCRIPT.JS — XV Nancy Paola v3 (OPTIMIZADO)
    index + confirmacion + validador
    ========================================= */
 
-// ✅ FIX: URL actualizada a la correcta (script_final.js)
-const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbzkisnrxoGcXBxAij-5_wAMM5XADHYBSBins0uM0mMQQYWkLp2JzbosodnnH9oLqlPY3Q/exec";
+const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbzkisnrxoGcXBxAij-5_wAMM5XADHYBSBins0uM0mMQQYWkLp2JzbosodnnH9oLqlPY3Q/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
@@ -35,10 +34,11 @@ function abrirInvitacion() {
       pantallaSobre.style.display = 'none';
       if (contenido) {
         contenido.classList.add('visible');
+        /* ✅ FIX PERF: ScrollReveal se carga diferido y solo al abrir */
         if (typeof ScrollReveal !== 'undefined') {
           ScrollReveal().reveal('.reveal', {
-            delay: 200, duration: 800, distance: '20px',
-            origin: 'bottom', interval: 100
+            delay: 150, duration: 700, distance: '18px',
+            origin: 'bottom', interval: 80, reset: false
           });
         }
       }
@@ -48,8 +48,11 @@ function abrirInvitacion() {
 }
 
 /* ── Pétalos ── */
+let _petalosIniciados = false;
 function iniciarPetalos() {
-  if (document.getElementById('sakura-container')) return;
+  if (_petalosIniciados) return;
+  _petalosIniciados = true;
+
   const contenedor = document.createElement('div');
   contenedor.id = 'sakura-container';
   Object.assign(contenedor.style, {
@@ -61,7 +64,7 @@ function iniciarPetalos() {
   const style = document.createElement('style');
   style.innerHTML = `
     .petalo { position:absolute; background-color:#ffb7c5; border-radius:150% 0 150% 0;
-      opacity:0; transform-origin:center; animation:caer-fluido linear forwards; }
+      opacity:0; transform-origin:center; animation:caer-fluido linear forwards; will-change:transform,opacity; }
     @keyframes caer-fluido {
       0%   { top:-10%; transform:translateX(0) rotate(0deg) scale(0.7); opacity:0; }
       10%  { opacity:0.8; }
@@ -70,7 +73,8 @@ function iniciarPetalos() {
     }`;
   document.head.appendChild(style);
 
-  const crear = () => {
+  /* ✅ FIX PERF: requestIdleCallback para no bloquear render inicial */
+  const crearPetalo = () => {
     const p = document.createElement('div');
     p.className = 'petalo';
     const size = Math.random() * 8 + 10;
@@ -84,28 +88,39 @@ function iniciarPetalos() {
     contenedor.appendChild(p);
     setTimeout(() => p.remove(), dur * 1000);
   };
-  for (let i = 0; i < 15; i++) setTimeout(crear, Math.random() * 4000);
-  setInterval(crear, 500);
+
+  const idle = window.requestIdleCallback || (cb => setTimeout(cb, 200));
+  idle(() => {
+    for (let i = 0; i < 12; i++) setTimeout(crearPetalo, Math.random() * 4000);
+    setInterval(crearPetalo, 600);
+  });
 }
 
 /* ── Cuenta regresiva ── */
 const fechaEvento = new Date("Aug 15, 2026 18:00:00").getTime();
-setInterval(() => {
-  const d = fechaEvento - Date.now();
-  if (d < 0) return;
-  const get = id => document.getElementById(id);
-  if (get('dias'))     get('dias').innerText     = Math.floor(d / 86400000);
-  if (get('horas'))    get('horas').innerText    = Math.floor((d % 86400000) / 3600000);
-  if (get('minutos'))  get('minutos').innerText  = Math.floor((d % 3600000)  / 60000);
-  if (get('segundos')) get('segundos').innerText = Math.floor((d % 60000)    / 1000);
-}, 1000);
+/* ✅ FIX PERF: solo actualiza si los elementos existen en el DOM */
+const _countEl = {};
+function _initContador() {
+  ['dias','horas','minutos','segundos'].forEach(id => {
+    _countEl[id] = document.getElementById(id);
+  });
+  if (!_countEl.dias) return; // no es la página del index
+  setInterval(() => {
+    const d = fechaEvento - Date.now();
+    if (d < 0) return;
+    if (_countEl.dias)     _countEl.dias.textContent     = Math.floor(d / 86400000);
+    if (_countEl.horas)    _countEl.horas.textContent    = Math.floor((d % 86400000) / 3600000);
+    if (_countEl.minutos)  _countEl.minutos.textContent  = Math.floor((d % 3600000)  / 60000);
+    if (_countEl.segundos) _countEl.segundos.textContent = Math.floor((d % 60000)    / 1000);
+  }, 1000);
+}
 
 /* ── Carrusel ── */
 function initCarrusel() {
   const slider      = document.getElementById('slider');
   const dotsWrapper = document.querySelector('.carousel-dots');
   if (!slider) return;
-  const imgs = Array.from(slider.children);
+  const imgs  = Array.from(slider.children);
   const total = imgs.length;
   let idx = 0, timer;
 
@@ -133,30 +148,48 @@ function initCarrusel() {
     clearInterval(timer);
     timer = setInterval(() => ir(idx + 1), 3500);
   };
+
+  /* ✅ FIX MOBILE: soporte touch swipe en carrusel */
+  let touchStartX = 0;
+  slider.parentElement.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+  slider.parentElement.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) ir(diff > 0 ? idx + 1 : idx - 1);
+  }, { passive: true });
+
   const prev = document.querySelector('.carousel-btn.prev');
   const next = document.querySelector('.carousel-btn.next');
   if (prev) prev.addEventListener('click', () => ir(idx - 1));
   if (next) next.addEventListener('click', () => ir(idx + 1));
-  reiniciarTimer();
+
+  /* ✅ FIX PERF: IntersectionObserver para iniciar autoplay solo cuando sea visible */
+  const obs = new IntersectionObserver(entries => {
+    entries[0].isIntersecting ? reiniciarTimer() : clearInterval(timer);
+  }, { threshold: 0.3 });
+  obs.observe(slider);
 }
 
 /* ── Nombre en el sobre ── */
 window.actualizarNombreSobre = function(data) {
   const el = document.getElementById('nombre-invitado-sobre');
-  if (el) el.innerText = (data && data.familia) ? data.familia : '¡Te esperamos!';
+  if (el) el.textContent = (data && data.familia) ? data.familia : '¡Te esperamos!';
 };
 
 /* ── Init index ── */
 function initIndex() {
   if (!document.getElementById('pantalla-sobre')) return;
-  const params     = new URLSearchParams(window.location.search);
-  const idInvitado = params.get('id');
+  _initContador();
+
+  const params      = new URLSearchParams(window.location.search);
+  const idInvitado  = params.get('id');
   const nombreSobre = document.getElementById('nombre-invitado-sobre');
 
   if (idInvitado) {
     llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(idInvitado.toUpperCase())}&callback=actualizarNombreSobre`);
   } else {
-    if (nombreSobre) nombreSobre.innerText = '¡Te esperamos!';
+    if (nombreSobre) nombreSobre.textContent = '¡Te esperamos!';
   }
 
   const btnConf = document.getElementById('btn-confirmar-asistencia');
@@ -183,7 +216,6 @@ window.recibirDatosConfirmacion = function(data) {
 
   if (data.error) { alert("Error: " + data.error); return; }
 
-  // Normalizar integrantes
   if (typeof data.integrantes === 'string') {
     data.integrantes = data.integrantes.split(',').map(n => n.trim()).filter(Boolean);
   } else if (!Array.isArray(data.integrantes)) {
@@ -195,7 +227,7 @@ window.recibirDatosConfirmacion = function(data) {
   if (titulo) {
     const nombreFamilia = data.familia || '';
     const prefijo = /^famili/i.test(nombreFamilia.trim()) ? '' : 'Familia ';
-    titulo.innerText = prefijo + nombreFamilia;
+    titulo.textContent = prefijo + nombreFamilia;
   }
 
   if (data.confirmacionAnterior && data.confirmacionAnterior !== "") {
@@ -238,15 +270,15 @@ function mostrarVistaConfirmada(resumen) {
   if (badge) {
     badge.style.display = 'block';
     if (hayAsistentes) {
-      badge.className  = 'status-badge status-asiste';
-      badge.innerHTML  = '✅ ¡Asistencia confirmada! Te esperamos con gusto.';
+      badge.className = 'status-badge status-asiste';
+      badge.innerHTML = '✅ ¡Asistencia confirmada! Te esperamos con gusto.';
     } else {
-      badge.className  = 'status-badge status-no-asiste';
-      badge.innerHTML  = '🙏 Gracias por avisarnos. ¡Los tendremos en nuestros corazones!';
+      badge.className = 'status-badge status-no-asiste';
+      badge.innerHTML = '🙏 Gracias por avisarnos. ¡Los tendremos en nuestros corazones!';
     }
   }
 
-  if (el('resumenTexto')) el('resumenTexto').innerText = "Tu respuesta: " + resumen;
+  if (el('resumenTexto')) el('resumenTexto').textContent = "Tu respuesta: " + resumen;
 
   const itSec = el('itinerario-section');
   if (itSec) itSec.style.display = hayAsistentes ? 'block' : 'none';
@@ -256,9 +288,9 @@ function mostrarVistaConfirmada(resumen) {
   qrContainer.innerHTML = "";
 
   datosGlobal.integrantes.forEach(nom => {
-    const nombre  = nom.trim();
-    const partes  = resumen.split('|');
-    const asiste  = partes.some(p => {
+    const nombre = nom.trim();
+    const partes = resumen.split('|');
+    const asiste = partes.some(p => {
       const limpio = p.replace(/No asistirá/gi, '');
       return limpio.includes(nombre) && /asistirá/i.test(limpio);
     });
@@ -317,7 +349,6 @@ function mostrarVistaConfirmada(resumen) {
 }
 
 /* ── Guardar pase como imagen ── */
-// ✅ FIX: try/catch con feedback claro al usuario
 function guardarPaseImagen(paseId, nombre) {
   const el = document.getElementById(paseId);
   if (!el || typeof html2canvas === 'undefined') {
@@ -344,7 +375,7 @@ function habilitarEdicion() {
 /* ── Enviar confirmación ── */
 function enviarConfirmacion() {
   const btn = document.getElementById('btnEnviar');
-  if (btn) { btn.innerText = "Guardando..."; btn.disabled = true; }
+  if (btn) { btn.textContent = "Guardando..."; btn.disabled = true; }
 
   const respuestas = [];
   if (datosGlobal) {
@@ -356,23 +387,20 @@ function enviarConfirmacion() {
 
   const id = new URLSearchParams(window.location.search).get('id');
   if (!id) {
-    if (btn) { btn.innerText = "Guardar Confirmación"; btn.disabled = false; }
+    if (btn) { btn.textContent = "Guardar Confirmación"; btn.disabled = false; }
     alert('Error: No se encontró el ID del invitado.');
     return;
   }
 
   const finalResp = respuestas.join(" | ");
 
-  // Timeout de seguridad: si el servidor no responde en 12s, desbloquear botón
   const timeoutGuardar = setTimeout(() => {
     if (btn && btn.disabled) {
-      btn.innerText = "Guardar Confirmación";
+      btn.textContent = "Guardar Confirmación";
       btn.disabled = false;
       alert("El servidor tardó demasiado. Verifica tu conexión e intenta de nuevo.");
     }
   }, 12000);
-
-  // Guardar referencia para cancelar si procesarGuardado llega a tiempo
   window._timeoutGuardar = timeoutGuardar;
 
   llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&confirmacion=${encodeURIComponent(finalResp)}&callback=procesarGuardado`);
@@ -388,7 +416,7 @@ window.procesarGuardado = function(res) {
       location.reload();
     }, 2200);
   } else {
-    if (btn) { btn.innerText = "Guardar Confirmación"; btn.disabled = false; }
+    if (btn) { btn.textContent = "Guardar Confirmación"; btn.disabled = false; }
     alert("Hubo un problema al guardar. Intenta de nuevo.");
   }
 };
@@ -445,14 +473,13 @@ function lanzarConfeti() {
 }
 
 /* ── Init confirmacion ── */
-// ✅ FIX: guard cuando no hay ?id en la URL
 function initConfirmacion() {
   const loader = document.getElementById('confirmacion-loader');
   if (!loader) return;
 
   const id = new URLSearchParams(window.location.search).get('id');
   if (!id) {
-    if (loader) loader.innerText = 'Enlace inválido. No se encontró el ID del invitado.';
+    loader.textContent = 'Enlace inválido. No se encontró el ID del invitado.';
     return;
   }
 
@@ -468,20 +495,26 @@ function initConfirmacion() {
    ========================================= */
 const historialSesion = [];
 
+/* ✅ FIX QR DUPLICADO: lock global para evitar doble disparo del scanner */
+let _scanLock = false;
+
 /* ── Búsqueda manual ── */
-// ✅ FIX: usa fetch en lugar de JSONP para evitar canal cerrado
 async function buscarManual() {
   const input = document.getElementById('busqueda-manual');
   if (!input || !input.value.trim()) return;
   const nombre = input.value.trim();
 
   const div = document.getElementById('validador-status');
-  if (div) { div.innerHTML = '🔍 Consultando...'; div.className = 'validador-mensaje validador-consultando'; div.style.display = 'block'; }
+  if (div) {
+    div.innerHTML = '🔍 Consultando...';
+    div.className = 'validador-mensaje validador-consultando';
+    div.style.display = 'block';
+  }
 
   const url = `${SCRIPT_URL}?tipo=integrante&id=${encodeURIComponent(nombre)}&confirmacion=validar&callback=recibirRespuestaValidador`;
   try {
-    const res  = await fetch(url, { redirect: 'follow' });
-    const text = await res.text();
+    const res   = await fetch(url, { redirect: 'follow' });
+    const text  = await res.text();
     const match = text.match(/recibirRespuestaValidador\(([\s\S]+?)\)\s*;?\s*$/);
     if (match) {
       window.recibirRespuestaValidador(JSON.parse(match[1]));
@@ -506,8 +539,7 @@ function _agregarHistorial(nombre, familia, mesa, ok, duplicado) {
   wrapper.style.display = 'block';
   if (contador) contador.textContent = historialSesion.length;
 
-  const recientes = historialSesion.slice(0, 8);
-  lista.innerHTML = recientes.map(h => `
+  lista.innerHTML = historialSesion.slice(0, 8).map(h => `
     <div class="historial-item ${h.duplicado ? 'historial-dup' : h.ok ? 'historial-ok' : 'historial-err'}">
       <div class="historial-nombre">${h.nombre}</div>
       <div class="historial-detalle">
@@ -524,6 +556,9 @@ function initValidador() {
   if (!reader) return;
 
   window.recibirRespuestaValidador = function(data) {
+    /* ✅ FIX QR: liberar lock DESPUÉS de recibir respuesta */
+    _scanLock = false;
+
     if (!data) { _mostrarValidador('❌ Sin respuesta', 'validador-error'); return; }
 
     if (data.acceso === 'DUPLICADO') {
@@ -531,7 +566,7 @@ function initValidador() {
         `⚠️ <strong>ACCESO YA REGISTRADO</strong><br>${data.nombre}<br><small>Escaneado: ${data.escaneadoEn}</small>`,
         'validador-error'
       );
-      _agregarHistorial(data.nombre, data.familia||'', data.mesa||'', false, true);
+      _agregarHistorial(data.nombre, data.familia || '', data.mesa || '', false, true);
       return;
     }
 
@@ -543,13 +578,13 @@ function initValidador() {
          ${data.mesa    ? `🪑 Mesa: <strong>${data.mesa}</strong>` : ''}`,
         'validador-exito'
       );
-      _agregarHistorial(data.nombre, data.familia||'', data.mesa||'', true, false);
+      _agregarHistorial(data.nombre, data.familia || '', data.mesa || '', true, false);
       return;
     }
 
     if (data.familia && !data.error) {
       _mostrarValidador(`✅ <strong>ACCESO PERMITIDO</strong><br>${data.familia}`, 'validador-exito');
-      _agregarHistorial(data.familia, data.familia, data.mesa||'', true, false);
+      _agregarHistorial(data.familia, data.familia, data.mesa || '', true, false);
       return;
     }
 
@@ -558,8 +593,21 @@ function initValidador() {
 
   if (typeof Html5QrcodeScanner === 'undefined') return;
 
-  // ✅ FIX: onScan usa fetch para evitar el error de canal JSONP cerrado
+  const scanner = new Html5QrcodeScanner("reader", {
+    fps: 10,
+    qrbox: 250,
+    /* ✅ FIX PERF: reducir trabajo del decoder */
+    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+  });
+
+  /* ✅ FIX QR DUPLICADO PRINCIPAL:
+     El Html5QrcodeScanner llama onScan varias veces en pocos ms antes de que
+     scanner.clear() surta efecto. El lock _scanLock bloquea todas las llamadas
+     adicionales hasta recibir respuesta del servidor, garantizando UNA sola consulta. */
   const onScan = async (decodedText) => {
+    if (_scanLock) return;          /* ← bloquea dobles disparos */
+    _scanLock = true;
+
     _mostrarValidador('🔍 Verificando acceso...', 'validador-consultando');
     scanner.clear();
 
@@ -568,7 +616,9 @@ function initValidador() {
       const parsed = new URL(decodedText);
       idInvitado = parsed.searchParams.get('id') || decodedText;
       tipo       = parsed.searchParams.get('tipo') || 'integrante';
-    } catch (e) { idInvitado = decodedText; }
+    } catch (e) {
+      idInvitado = decodedText;
+    }
 
     const url = `${SCRIPT_URL}?tipo=${tipo}&id=${encodeURIComponent(idInvitado)}&confirmacion=validar&callback=recibirRespuestaValidador`;
     try {
@@ -578,16 +628,16 @@ function initValidador() {
       if (match) {
         window.recibirRespuestaValidador(JSON.parse(match[1]));
       } else {
+        _scanLock = false;
         _mostrarValidador('❌ Respuesta inesperada del servidor', 'validador-error');
       }
     } catch (err) {
+      _scanLock = false;
       _mostrarValidador('❌ Error de red: ' + err.message, 'validador-error');
     }
   };
 
-  const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
   scanner.render(onScan);
-
   window.buscarManual = buscarManual;
 }
 
@@ -602,9 +652,6 @@ function _mostrarValidador(texto, clase) {
 /* =========================================
    DOM READY — enrutador
    ========================================= */
-
-// Exponer funciones de confirmacion como globales inmediatamente
-// (el onclick="" en HTML las necesita disponibles antes de que JSONP responda)
 window.enviarConfirmacion = enviarConfirmacion;
 window.habilitarEdicion   = habilitarEdicion;
 window.guardarPaseImagen  = guardarPaseImagen;

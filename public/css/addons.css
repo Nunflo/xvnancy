@@ -1,0 +1,221 @@
+/* =========================================
+   ADDONS.CSS — XV Nancy Paola v3
+   Mejoras móvil + rendimiento
+   Agregar DESPUÉS de style.css en los 3 HTML
+   ========================================= */
+
+/* ─────────────────────────────────────────
+   1. HERO — padding consistente móvil/web
+   En desktop el hero usa 50vh para centrar
+   visualmente. En móvil con barra del browser
+   usamos dvh (dynamic viewport) si está disponible.
+   ───────────────────────────────────────── */
+@supports (padding-top: 1dvh) {
+  .hero { padding-top: 50dvh; }
+}
+
+/* ─────────────────────────────────────────
+   2. BOTONES TÁCTILES — Active states
+   En dispositivos touch no existe :hover real.
+   Usamos :active para simular el mismo efecto.
+   ───────────────────────────────────────── */
+
+/* --- btn-map --- */
+@media (hover: none) and (pointer: coarse) {
+  .btn-map:active {
+    color: var(--vino);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(197,160,89,0.4);
+    border-color: #fff;
+  }
+  .btn-map:active::before { left: 0; }
+
+  /* --- btn-cal --- */
+  .btn-cal:active {
+    color: var(--vino);
+    transform: translateY(-3px);
+    border-color: #fff;
+  }
+  .btn-cal:active::before { left: 0; }
+
+  /* --- btn-outline --- */
+  .btn-outline:active { background: var(--dorado-claro); }
+
+  /* --- btn-elegante (Confirmar Asistencia) --- */
+  .btn-elegante:active {
+    color: var(--vino);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(197,160,89,0.4);
+    border-color: #fff;
+  }
+  .btn-elegante:active::before { left: 0; }
+
+  /* --- regla-rosa (aviso vestimenta) --- */
+  .regla-rosa:active {
+    background: linear-gradient(135deg, var(--dorado) 0%, var(--dorado-metal) 50%, var(--dorado) 100%);
+    border-color: var(--dorado-metal);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 28px rgba(197, 160, 89, 0.4);
+  }
+  .regla-rosa:active p,
+  .regla-rosa:active .aviso-text { color: var(--vino); }
+  .regla-rosa:active::before { left: 110%; }
+
+  /* --- liverpool card --- */
+  .liverpool-card:active {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 34px rgba(90,13,21,0.18);
+  }
+  .liverpool-card:active .liverpool-img {
+    transform: scale(1.06);
+    filter: brightness(1.08);
+  }
+  .liverpool-card:active .btn-liverpool {
+    background: var(--dorado);
+    color: var(--vino);
+    letter-spacing: 4px;
+  }
+  .liverpool-card:active .overlay-glow { left: 150%; }
+
+  /* --- boton abrir sobre --- */
+  .boton-abrir:active {
+    transform: translateX(-50%) scale(1.1) rotate(-4deg);
+    background: radial-gradient(circle, #ebb7c9 0%, #C5A059 100%);
+    box-shadow: 0 16px 38px rgba(197, 160, 89, 0.4);
+    border-color: #f3d9a4;
+  }
+
+  /* --- carousel btn --- */
+  .carousel-btn:active {
+    background: var(--dorado);
+    color: var(--vino);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  /* --- social buttons --- */
+  .social-btn.instagram:active .icon-svg { fill: #E1306C; transform: translateY(-4px); }
+  .social-btn.tiktok:active   .icon-svg  { fill: #000;    transform: translateY(-4px); }
+  .social-btn:active span { color: #333; }
+
+  /* --- footer WhatsApp --- */
+  .btn-ws-minimal:active {
+    background: var(--dorado);
+    color: var(--vino);
+    transform: translateY(-2px);
+  }
+
+  /* --- confirmacion: botón enviar --- */
+  .btn-confirmacion-enviar:active:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(90, 13, 21, 0.3);
+    border-color: var(--dorado);
+  }
+  .btn-confirmacion-enviar:active::after { left: 100%; }
+
+  /* --- confirmacion: botón modificar --- */
+  .btn-modificar-respuesta:active {
+    background: var(--dorado);
+    color: white;
+    border-color: var(--dorado);
+  }
+
+  /* --- familiar row (select de asistencia) --- */
+  .familiar-row:active { background: rgba(197, 160, 89, 0.12); }
+
+  /* --- validador botones --- */
+  .btn-validador-nuevo:active {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(90, 13, 21, 0.28);
+  }
+  .btn-buscar-manual:active {
+    background: var(--vino-light);
+    transform: translateY(-1px);
+  }
+  .btn-guardar-pase:active {
+    background: var(--dorado);
+    color: white;
+  }
+
+  /* --- itinerario items --- */
+  .itinerario-item:active { background: rgba(197,160,89,0.12); }
+}
+
+/* ─────────────────────────────────────────
+   3. SCROLL SUAVE — mejor UX en móvil
+   ───────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+/* ─────────────────────────────────────────
+   4. TAP HIGHLIGHT — quitar azul nativo iOS/Android
+   en elementos interactivos personalizados
+   ───────────────────────────────────────── */
+.btn-action,
+.btn-elegante,
+.btn-confirmacion-enviar,
+.btn-modificar-respuesta,
+.btn-validador-nuevo,
+.btn-buscar-manual,
+.btn-guardar-pase,
+.btn-ws-minimal,
+.boton-abrir,
+.carousel-btn,
+.social-btn,
+.liverpool-card,
+.regla-rosa,
+.dot {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;    /* elimina 300ms delay en tap */
+}
+
+/* ─────────────────────────────────────────
+   5. IMÁGENES — will-change para scroll suave
+   ───────────────────────────────────────── */
+.fixed-bg {
+  will-change: transform;
+}
+
+/* ─────────────────────────────────────────
+   6. RESPONSIVE EXTRA — pantallas muy pequeñas
+   ───────────────────────────────────────── */
+@media (max-width: 380px) {
+  .hero-name          { font-size: clamp(3rem, 14vw, 4rem); }
+  .section-card       { padding: 20px 12px; }
+  .contador-grid      { gap: 5px; }
+  .count-num          { font-size: 1.5rem; }
+  .btn-elegante       { padding: 15px 30px; font-size: 0.8rem; }
+  .confirmacion-card  { padding: 28px 18px; }
+  .familiar-nombre    { font-size: 0.95rem; }
+}
+
+/* ─────────────────────────────────────────
+   7. VALIDADOR — mejor tamaño de escáner en móvil
+   ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  body.page-validador { padding: 20px 12px; }
+
+  #reader {
+    border-radius: 14px;
+  }
+
+  /* El scanner de html5-qrcode tiene su propio select y botón:
+     los hacemos más grandes para touch */
+  #reader select,
+  #reader button {
+    min-height: 44px;
+    font-size: 1rem !important;
+  }
+}
+
+/* ─────────────────────────────────────────
+   8. PREFERS-REDUCED-MOTION
+   Respeta configuración de accesibilidad del OS
+   ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
