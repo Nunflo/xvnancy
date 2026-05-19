@@ -30,7 +30,7 @@
 
 body {
   font-family: var(--font-serif);
-  background-color: #f7e7ec;
+  background-color: #000;
   color: var(--text-dark);
   overflow-x: hidden;
   line-height: 1.6;
@@ -561,11 +561,9 @@ h1, h2, h3, h4, h5, h6 {
 .timeline-item {
   position: relative;
   margin-bottom: 35px;
-  font-size: 1.6rem;
-  color: var(--vino);
-  font-weight: 400;
-  font-family: var(--font-script);
-  line-height: 1.4;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  font-weight: 700;
 }
 
 .timeline-item b {
@@ -759,24 +757,8 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.3s ease;
 }
 
-.btn-map {
-  background: var(--vino-light);
-  color: white;
-  border: 1.5px solid var(--dorado);
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-}
-.btn-map::before {
-  content: '';
-  position: absolute;
-  inset: 0; left: -100%;
-  background: linear-gradient(90deg, var(--dorado) 0%, var(--dorado-metal) 50%, var(--dorado) 100%);
-  transition: left 0.45s ease;
-  z-index: -1;
-}
-.btn-map:hover         { color: var(--vino); transform: translateY(-4px); box-shadow: 0 12px 28px rgba(197,160,89,0.4); border-color: #fff; }
-.btn-map:hover::before { left: 0; }
+.btn-map { background: var(--vino-light); color: white; border: 1.5px solid var(--dorado); }
+.btn-map:hover { background: var(--vino); transform: scale(1.05); }
 
 .btn-cal {
   position: relative;
