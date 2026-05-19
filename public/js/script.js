@@ -3,7 +3,7 @@
    index + confirmacion + validador
    ========================================= */
 
-const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbzkisnrxoGcXBxAij-5_wAMM5XADHYBSBins0uM0mMQQYWkLp2JzbosodnnH9oLqlPY3Q/exec";
+const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycby1-VbTT6K3nkgp0sA1dqWJ72EsDpzyWEtJ_V2Ex_oaXqIg4-oRbxevAS9p0T_Nqb9prw/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
