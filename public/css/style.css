@@ -30,7 +30,7 @@
 
 body {
   font-family: var(--font-serif);
-  background-color: #f7e7ec;
+  background-color: #000;
   color: var(--text-dark);
   overflow-x: hidden;
   line-height: 1.6;
@@ -214,7 +214,15 @@ h1, h2, h3, h4, h5, h6 {
 /* =========================================
    FONDO FIJO
    ========================================= */
-.fixed-bg { display: none; } /* eliminado — imagen ahora en hero-fullscreen */
+.fixed-bg {
+  position: fixed;
+  inset: 0;
+  background: url('../img/principal.png') center / cover no-repeat;
+  z-index: -2;
+  filter: blur(2px) brightness(0.6);
+  transform: scale(1.05);
+  will-change: filter;
+}
 
 /* =========================================
    CONTENIDO PRINCIPAL
@@ -226,7 +234,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 95%;
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 20px 20px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -252,7 +260,11 @@ h1, h2, h3, h4, h5, h6 {
    HERO
    ========================================= */
 .hero {
-  display: none; /* reemplazado por .hero-fullscreen */
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding-top: 50vh;
+  padding-bottom: 20px;
 }
 
 .hero-fecha {
@@ -307,172 +319,6 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
   letter-spacing: 1px;
   font-weight: 700;
-}
-
-
-/* =========================================
-   HERO FULLSCREEN — imagen principal
-   ========================================= */
-.hero-fullscreen {
-  position: relative;
-  width: 100%;
-  height: 100svh;          /* safe-area en iOS */
-  min-height: 500px;
-  max-height: 900px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  margin-bottom: 30px;
-}
-
-/* Imagen de fondo */
-.hero-img-wrap {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.hero-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  display: block;
-  transition: transform 8s ease;
-  will-change: transform;
-}
-
-/* Parallax sutil al hacer scroll en desktop */
-@media (hover: hover) {
-  .hero-img { transform-origin: center top; }
-  .hero-fullscreen:hover .hero-img { transform: scale(1.03); }
-}
-
-/* Overlay degradado: oscuro arriba y abajo, transparente en el centro */
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to bottom,
-      rgba(0,0,0,0.35) 0%,
-      rgba(0,0,0,0.10) 30%,
-      rgba(0,0,0,0.10) 60%,
-      rgba(90,13,21,0.55) 100%
-    );
-  z-index: 1;
-}
-
-/* Contenido centrado sobre la imagen */
-.hero-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  padding: 0 20px;
-  width: 100%;
-  max-width: 580px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 48px;
-  height: 100%;
-}
-
-/* Fecha */
-.hero-fecha {
-  font-family: var(--font-sans);
-  letter-spacing: 10px;
-  color: rgba(255,255,255,0.92);
-  font-weight: 800;
-  font-size: clamp(0.65rem, 2.5vw, 0.9rem);
-  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-/* Nombre */
-.hero-name {
-  font-family: var(--font-script);
-  font-size: clamp(3.5rem, 14vw, 6.5rem);
-  color: white;
-  text-shadow:
-    0 2px 20px rgba(0,0,0,0.7),
-    0 0 60px rgba(197,160,89,0.4);
-  margin: 8px 0 28px;
-  font-weight: 400;
-  line-height: 1;
-}
-
-/* Contador — glassmorphism sobre la imagen */
-.contador-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  width: 100%;
-  max-width: 380px;
-}
-
-.contador-item {
-  background: rgba(255, 255, 255, 0.18);
-  padding: 14px 6px;
-  border-radius: 14px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.35);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  transition: background 0.3s ease, transform 0.3s ease;
-  cursor: default;
-}
-
-/* Touch feedback en móvil */
-.contador-item:active {
-  transform: scale(0.95);
-  background: rgba(197,160,89,0.35);
-}
-
-@media (hover: hover) {
-  .contador-item:hover {
-    background: rgba(197,160,89,0.3);
-    transform: translateY(-3px);
-    border-color: rgba(197,160,89,0.6);
-  }
-}
-
-.count-num {
-  font-family: var(--font-sans);
-  display: block;
-  font-size: clamp(1.5rem, 5vw, 2rem);
-  font-weight: 800;
-  color: white;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-}
-
-.count-lab {
-  font-family: var(--font-sans);
-  font-size: clamp(0.5rem, 1.5vw, 0.65rem);
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.8);
-  letter-spacing: 2px;
-  font-weight: 700;
-}
-
-/* ── Responsive móvil ── */
-@media (max-width: 480px) {
-  .hero-fullscreen    { height: 100svh; min-height: 420px; max-height: none; margin-bottom: 20px; }
-  .hero-content       { padding-bottom: 36px; }
-  .hero-name          { font-size: clamp(3rem, 16vw, 5rem); margin-bottom: 20px; }
-  .contador-grid      { gap: 7px; max-width: 320px; }
-  .contador-item      { padding: 12px 4px; border-radius: 10px; }
-  .hero-overlay {
-    background:
-      linear-gradient(to bottom,
-        rgba(0,0,0,0.3) 0%,
-        rgba(0,0,0,0.05) 25%,
-        rgba(0,0,0,0.05) 55%,
-        rgba(90,13,21,0.65) 100%
-      );
-  }
 }
 
 /* =========================================
@@ -715,11 +561,9 @@ h1, h2, h3, h4, h5, h6 {
 .timeline-item {
   position: relative;
   margin-bottom: 35px;
-  font-size: 1.6rem;
-  color: var(--vino);
-  font-weight: 400;
-  font-family: var(--font-script);
-  line-height: 1.4;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  font-weight: 700;
 }
 
 .timeline-item b {
@@ -913,24 +757,8 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.3s ease;
 }
 
-.btn-map {
-  background: var(--vino-light);
-  color: white;
-  border: 1.5px solid var(--dorado);
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-}
-.btn-map::before {
-  content: '';
-  position: absolute;
-  inset: 0; left: -100%;
-  background: linear-gradient(90deg, var(--dorado) 0%, var(--dorado-metal) 50%, var(--dorado) 100%);
-  transition: left 0.45s ease;
-  z-index: -1;
-}
-.btn-map:hover         { color: var(--vino); transform: translateY(-4px); box-shadow: 0 12px 28px rgba(197,160,89,0.4); border-color: #fff; }
-.btn-map:hover::before { left: 0; }
+.btn-map { background: var(--vino-light); color: white; border: 1.5px solid var(--dorado); }
+.btn-map:hover { background: var(--vino); transform: scale(1.05); }
 
 .btn-cal {
   position: relative;
@@ -1072,6 +900,7 @@ footer {
   .section-card  { padding: 25px 15px; }
   .main-wrapper  { padding: 10px; }
   .footer-grid   { grid-template-columns: 1fr; }
+  .fixed-bg      { height: 100vh; }
 
   .sobre-visual          { width: 92%; height: 270px; }
   .name-sobre            { font-size: 3.5rem; }
@@ -1083,46 +912,6 @@ footer {
   .carousel-btn.next { right: -14px; }
 }
 
-
-/* =========================================
-   TOUCH FEEDBACK — interacción en móvil
-   ========================================= */
-@media (hover: none) {
-  /* Efecto tap visible en todos los botones */
-  .btn-action:active,
-  .btn-elegante:active,
-  .btn-confirmacion-enviar:active:not(:disabled),
-  .btn-modificar-respuesta:active,
-  .btn-guardar-pase:active,
-  .btn-validador-nuevo:active,
-  .btn-buscar-manual:active,
-  .boton-abrir:active,
-  .liverpool-card:active,
-  .regla-rosa:active,
-  .social-btn:active,
-  .carousel-btn:active {
-    transform: scale(0.95);
-    opacity: 0.85;
-    transition: transform 0.1s ease, opacity 0.1s ease;
-  }
-  /* Swipe efecto dorado en tap */
-  .btn-map:active::before,
-  .btn-cal:active::before,
-  .btn-elegante:active::before { left: 0; }
-  .btn-map:active,
-  .btn-cal:active { color: var(--vino); }
-
-  /* Área mínima táctil 48px */
-  .btn-action,
-  .btn-elegante,
-  .btn-confirmacion-enviar,
-  .btn-modificar-respuesta,
-  .btn-guardar-pase,
-  .btn-validador-nuevo,
-  .btn-buscar-manual { min-height: 48px; }
-
-  .familiar-row select { min-height: 44px; font-size: 0.9rem; padding: 10px 12px; }
-}
 @media print {
   body { background: white; }
 }
