@@ -561,16 +561,16 @@ h1, h2, h3, h4, h5, h6 {
 .timeline-item {
   position: relative;
   margin-bottom: 35px;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   color: var(--vino);
   font-weight: 400;
-  font-family: var(--font-script);
+  font-family: var(--font-serif);
   line-height: 1.4;
 }
 
 .timeline-item b {
   color: var(--vino-light);
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
   font-weight: 800;
 }
 
@@ -586,6 +586,12 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 50%;
 }
 
+.itiner{
+    font-size: 2.5rem;
+    font-family: var(--font-serif);
+    color: var(--vino);
+    font-weight: 400;
+}
 /* =========================================
    MAPAS
    ========================================= */
@@ -836,7 +842,7 @@ h1, h2, h3, h4, h5, h6 {
    ========================================= */
 .confirm-date {
   font-family: var(--font-sans);
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   color: var(--text-soft);
   margin-bottom: 20px;
   font-weight: 600;
