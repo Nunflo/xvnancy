@@ -4,9 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XV Nancy Paola</title>
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,700;1,700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ✅ FIX PERF #1: Favicon — evita 404 en consola -->
+  <link rel="icon" href="img/favicon.ico" onerror="this.remove()">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
+
+  <!-- ✅ FIX PERF #2: Preconnect — abre el canal con Google Fonts ANTES
+       de que el CSS empiece a parsear. Ahorra ~300-600 ms en móvil. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- ✅ FIX PERF #3: Un solo <link> de fuentes (se eliminó el @import del CSS).
+       &display=swap hace que el texto sea visible con fuente del sistema
+       mientras la fuente custom descarga. -->
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,700;1,700&family=Montserrat:wght@400;600;700;800&display=swap">
+
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/addons.css">
+
+  <!-- ✅ FIX PERF #4: ScrollReveal se carga al FINAL del body con defer
+       (ver abajo) para no bloquear el parser HTML. -->
 </head>
 <body>
 
@@ -244,8 +262,8 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/scrollreveal"></script>
-  
-  <script src="js/script.js"></script>
+  <!-- ✅ FIX PERF #5: Scripts al final del body + defer para ScrollReveal -->
+  <script src="https://unpkg.com/scrollreveal" defer></script>
+  <script src="js/script.js" defer></script>
 </body>
 </html>

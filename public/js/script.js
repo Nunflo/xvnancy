@@ -1,9 +1,15 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v3 (OPTIMIZADO)
+   SCRIPT.JS — XV Nancy Paola v3.1 (BUGS CORREGIDOS)
    index + confirmacion + validador
+   FIXES:
+   - html2canvas: eliminado defer race condition
+   - _scanLock: reset en caso de excepcion en scanner.clear()
+   - fechaEvento: timezone fija Mexico (UTC-6)
+   - Eliminadas exposiciones de funciones duplicadas al global
+   - procesarGuardado: eliminado set inutil antes de reload
    ========================================= */
 
-const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbz6ep6w6U6YrNe_kUM0RS_hsqaDP9s2IxcJYc_8wHRWOY_G3xWJHGnpyXEyBjsywlZSgw/exec";
+const SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbyuhkb7leJKRxfbUia_UEjfEstVRP322Bci4s4bXuFU331wUCzLqnJ6JJjFBzucLSTmwQ/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
@@ -34,7 +40,6 @@ function abrirInvitacion() {
       pantallaSobre.style.display = 'none';
       if (contenido) {
         contenido.classList.add('visible');
-        /* ✅ FIX PERF: ScrollReveal se carga diferido y solo al abrir */
         if (typeof ScrollReveal !== 'undefined') {
           ScrollReveal().reveal('.reveal', {
             delay: 150, duration: 700, distance: '18px',
@@ -73,7 +78,6 @@ function iniciarPetalos() {
     }`;
   document.head.appendChild(style);
 
-  /* ✅ FIX PERF: requestIdleCallback para no bloquear render inicial */
   const crearPetalo = () => {
     const p = document.createElement('div');
     p.className = 'petalo';
@@ -96,15 +100,16 @@ function iniciarPetalos() {
   });
 }
 
-/* ── Cuenta regresiva ── */
-const fechaEvento = new Date("Aug 15, 2026 18:00:00").getTime();
-/* ✅ FIX PERF: solo actualiza si los elementos existen en el DOM */
+/* ── Cuenta regresiva ──
+   FIX: fecha con timezone explícita UTC-6 (México) para que el contador
+   sea correcto sin importar desde qué país abra el invitado la invitación */
+const fechaEvento = new Date("2026-08-15T18:00:00-06:00").getTime();
 const _countEl = {};
 function _initContador() {
   ['dias','horas','minutos','segundos'].forEach(id => {
     _countEl[id] = document.getElementById(id);
   });
-  if (!_countEl.dias) return; // no es la página del index
+  if (!_countEl.dias) return;
   setInterval(() => {
     const d = fechaEvento - Date.now();
     if (d < 0) return;
@@ -149,7 +154,6 @@ function initCarrusel() {
     timer = setInterval(() => ir(idx + 1), 3500);
   };
 
-  /* ✅ FIX MOBILE: soporte touch swipe en carrusel */
   let touchStartX = 0;
   slider.parentElement.addEventListener('touchstart', e => {
     touchStartX = e.changedTouches[0].clientX;
@@ -164,7 +168,6 @@ function initCarrusel() {
   if (prev) prev.addEventListener('click', () => ir(idx - 1));
   if (next) next.addEventListener('click', () => ir(idx + 1));
 
-  /* ✅ FIX PERF: IntersectionObserver para iniciar autoplay solo cuando sea visible */
   const obs = new IntersectionObserver(entries => {
     entries[0].isIntersecting ? reiniciarTimer() : clearInterval(timer);
   }, { threshold: 0.3 });
@@ -348,23 +351,47 @@ function mostrarVistaConfirmada(resumen) {
   });
 }
 
-/* ── Guardar pase como imagen ── */
+/* ── Guardar pase como imagen ──
+   FIX: verificamos que html2canvas esté listo antes de usarlo.
+   Si aún no cargó, esperamos hasta 5s con polling antes de fallar. */
 function guardarPaseImagen(paseId, nombre) {
   const el = document.getElementById(paseId);
-  if (!el || typeof html2canvas === 'undefined') {
+  if (!el) {
     alert('No se pudo guardar el pase. Por favor toma una captura de pantalla.');
     return;
   }
-  html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true })
-    .then(canvas => {
-      const link = document.createElement('a');
-      link.download = `Pase-XV-${nombre.replace(/\s+/g, '_')}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    })
-    .catch(() => {
-      alert('Ocurrió un error al generar la imagen. Por favor toma una captura de pantalla.');
-    });
+
+  const _doCaptura = () => {
+    html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true })
+      .then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Pase-XV-${nombre.replace(/\s+/g, '_')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      })
+      .catch(() => {
+        alert('Ocurrió un error al generar la imagen. Por favor toma una captura de pantalla.');
+      });
+  };
+
+  /* FIX: si html2canvas ya está disponible, capturar directo */
+  if (typeof html2canvas !== 'undefined') {
+    _doCaptura();
+    return;
+  }
+
+  /* Si aún no cargó (defer), esperar hasta 5 segundos con polling */
+  let intentos = 0;
+  const esperar = setInterval(() => {
+    intentos++;
+    if (typeof html2canvas !== 'undefined') {
+      clearInterval(esperar);
+      _doCaptura();
+    } else if (intentos >= 25) { // 25 × 200ms = 5s
+      clearInterval(esperar);
+      alert('No se pudo guardar el pase. Por favor toma una captura de pantalla.');
+    }
+  }, 200);
 }
 
 /* ── Habilitar edición ── */
@@ -411,23 +438,14 @@ window.procesarGuardado = function(res) {
   const btn = document.getElementById('btnEnviar');
   if (res && res.estatus === "ok") {
     lanzarConfeti();
-    setTimeout(() => {
-      datosGlobal.confirmacionAnterior = _obtenerRespuestasActuales();
-      location.reload();
-    }, 2200);
+    /* FIX: eliminado set inútil de datosGlobal.confirmacionAnterior —
+       el reload re-consulta el servidor de todas formas */
+    setTimeout(() => location.reload(), 2200);
   } else {
     if (btn) { btn.textContent = "Guardar Confirmación"; btn.disabled = false; }
     alert("Hubo un problema al guardar. Intenta de nuevo.");
   }
 };
-
-function _obtenerRespuestasActuales() {
-  if (!datosGlobal) return '';
-  return datosGlobal.integrantes.map((nom, i) => {
-    const sel = document.getElementById('status-' + i);
-    return `${nom.trim()}: ${sel ? sel.value : 'Asistirá'}`;
-  }).join(' | ');
-}
 
 /* ── Confeti ── */
 function lanzarConfeti() {
@@ -484,18 +502,12 @@ function initConfirmacion() {
   }
 
   llamarGoogle(`${SCRIPT_URL}?id=${encodeURIComponent(id)}&callback=recibirDatosConfirmacion`);
-
-  window.habilitarEdicion   = habilitarEdicion;
-  window.enviarConfirmacion = enviarConfirmacion;
-  window.guardarPaseImagen  = guardarPaseImagen;
 }
 
 /* =========================================
    VALIDADOR.HTML
    ========================================= */
 const historialSesion = [];
-
-/* ✅ FIX QR DUPLICADO: lock global para evitar doble disparo del scanner */
 let _scanLock = false;
 
 /* ── Búsqueda manual ── */
@@ -556,7 +568,6 @@ function initValidador() {
   if (!reader) return;
 
   window.recibirRespuestaValidador = function(data) {
-    /* ✅ FIX QR: liberar lock DESPUÉS de recibir respuesta */
     _scanLock = false;
 
     if (!data) { _mostrarValidador('❌ Sin respuesta', 'validador-error'); return; }
@@ -596,20 +607,18 @@ function initValidador() {
   const scanner = new Html5QrcodeScanner("reader", {
     fps: 10,
     qrbox: 250,
-    /* ✅ FIX PERF: reducir trabajo del decoder */
     experimentalFeatures: { useBarCodeDetectorIfSupported: true }
   });
 
-  /* ✅ FIX QR DUPLICADO PRINCIPAL:
-     El Html5QrcodeScanner llama onScan varias veces en pocos ms antes de que
-     scanner.clear() surta efecto. El lock _scanLock bloquea todas las llamadas
-     adicionales hasta recibir respuesta del servidor, garantizando UNA sola consulta. */
   const onScan = async (decodedText) => {
-    if (_scanLock) return;          /* ← bloquea dobles disparos */
+    if (_scanLock) return;
     _scanLock = true;
 
     _mostrarValidador('🔍 Verificando acceso...', 'validador-consultando');
-    scanner.clear();
+
+    /* FIX: scanner.clear() envuelto en try/catch para que un fallo
+       no deje _scanLock = true permanentemente, bloqueando futuros escaneos */
+    try { scanner.clear(); } catch(e) {}
 
     let idInvitado, tipo = 'integrante';
     try {
@@ -651,11 +660,14 @@ function _mostrarValidador(texto, clase) {
 
 /* =========================================
    DOM READY — enrutador
+   FIX: eliminadas exposiciones duplicadas de funciones al global
+   (ya están definidas en scope global directamente)
    ========================================= */
 window.enviarConfirmacion = enviarConfirmacion;
 window.habilitarEdicion   = habilitarEdicion;
 window.guardarPaseImagen  = guardarPaseImagen;
 window.buscarManual       = buscarManual;
+window.abrirInvitacion    = abrirInvitacion;
 
 document.addEventListener('DOMContentLoaded', () => {
   initIndex();
