@@ -141,17 +141,26 @@
 }
 
 /* ─────────────────────────────────────────
-   3. BOTÓN FLOTANTE DE CONTACTO
+   3. BOTÓN FLOTANTE DE CONTACTO + FIRMA
    Fijo al costado derecho, visible durante todo
    el scroll sin tapar el contenido de la invitación.
    ───────────────────────────────────────── */
-.floating-contacto {
+.floating-widget {
   position: fixed;
   top: 60%;
   right: 0;
   transform: translateY(-50%);
   z-index: 600;
 
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+
+  animation: floatContactoPulse 2.8s ease-in-out infinite;
+}
+
+.floating-contacto {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -171,7 +180,6 @@
   letter-spacing: 0.5px;
 
   box-shadow: -4px 4px 18px rgba(90, 13, 21, 0.35);
-  animation: floatContactoPulse 2.8s ease-in-out infinite;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
@@ -183,10 +191,26 @@
 .floating-contacto:focus-visible {
   background: linear-gradient(135deg, var(--dorado) 0%, var(--dorado-metal) 100%);
   color: var(--vino);
-  animation-play-state: paused;
 }
+.floating-widget:hover { animation-play-state: paused; }
 .floating-contacto:hover svg,
 .floating-contacto:focus-visible svg { fill: var(--vino); }
+
+/* Firma del autor, debajo del botón de WhatsApp */
+.floating-firma {
+  background: var(--dorado-claro);
+  color: var(--vino-light);
+  font-family: var(--font-script);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 5px 12px 6px 14px;
+  border: 1px solid var(--dorado);
+  border-right: none;
+  border-radius: 14px 0 0 14px;
+  box-shadow: -3px 3px 10px rgba(90, 13, 21, 0.22);
+  white-space: nowrap;
+}
 
 @keyframes floatContactoPulse {
   0%, 100% { transform: translateY(-50%) translateX(0); }
@@ -196,20 +220,23 @@
 /* Móvil: más pequeño, solo ícono, y colocado más abajo para no
    interferir con el carrusel ni el botón "Confirmar asistencia" */
 @media (max-width: 600px) {
-  .floating-contacto {
+  .floating-widget {
     top: auto;
     bottom: 90px;
     transform: none;
+  }
+  .floating-contacto {
     padding: 10px 10px 10px 12px;
     font-size: 0.6rem;
   }
-  .floating-contacto:hover { transform: none; }
   .floating-contacto svg { width: 18px; height: 18px; }
+  .floating-firma { font-size: 0.78rem; padding: 4px 10px 4px 12px; }
 }
 
 @media (max-width: 360px) {
   .floating-contacto span { display: none; }
   .floating-contacto { padding: 12px; border-radius: 50%; }
+  .floating-firma { font-size: 0.68rem; }
 }
 
 @media (hover: none) and (pointer: coarse) {
