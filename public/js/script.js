@@ -1,15 +1,8 @@
 /* =========================================
-   SCRIPT.JS — XV Nancy Paola v3.1 (BUGS CORREGIDOS)
-   index + confirmacion + validador
-   FIXES:
-   - html2canvas: eliminado defer race condition
-   - _scanLock: reset en caso de excepcion en scanner.clear()
-   - fechaEvento: timezone fija Mexico (UTC-6)
-   - Eliminadas exposiciones de funciones duplicadas al global
-   - procesarGuardado: eliminado set inutil antes de reload
+   SCRIPT.JS — XV Nancy Paola v3.1 
    ========================================= */
 
-const SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbxnQoRjTViowavTRQOVzvCjV6QqZiiyniHFpgh4QehfqnO7lK0ZWzAuWUP02dYpKyMXLg/exec";
+const SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbxElZKohV4-pUx5tDhjMXt_l4qPmgSGj11plc4-6FRbvO4bVE1wdwRjjCT8Nza6WirbRQ/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
