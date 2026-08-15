@@ -2,7 +2,7 @@
    SCRIPT.JS — XV Nancy Paola v3.1 
    ========================================= */
 
-const SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbzr_hAkSfCb55QFzplRBn2bDOx0HY_bNSamy1sIR_wNhC1pKJqO0-Li4aoU98pUHKw6Kg/exec";
+const SCRIPT_URL    = "https://script.google.com/macros/s/AKfycbziISbBQMkAtt7ikNkynH09ZBymdPV-VkCA4OxDqQvaa-l6769fjCxLtsn-WwXSmPqqMQ/exec";
 const VALIDADOR_URL = "https://xvnancy.vercel.app/validador.html";
 
 /* ── JSONP ── */
